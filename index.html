@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Deal - Quản Trị Hệ Thống Toàn Diện & Đánh Giá Hasaki</title>
+    <style>
+        /* CSS GIAO DIỆN CHÍNH */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; line-height: 1.6; }
+        
+        /* Header & Menu Dropdown */
+        header { background-color: #0056b3; color: #ffffff; padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0, 86, 179, 0.15); }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .logo { font-size: 26px; font-weight: bold; letter-spacing: 1.5px; color: #ffffff; text-decoration: none; }
+        
+        .menu-dropdown-wrapper { position: relative; }
+        .menu-toggle-btn { background: none; border: none; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 4px; transition: background 0.2s; text-transform: uppercase; }
+        .menu-toggle-btn:hover { background-color: rgba(255, 255, 255, 0.15); }
+        .dropdown-menu { display: none; position: absolute; top: 120%; left: 0; background: #fff; min-width: 240px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 200; overflow: hidden; border: 1px solid #e8e8e8; }
+        .dropdown-menu.active { display: block; }
+        .dropdown-item { width: 100%; text-align: left; padding: 12px 20px; background: none; border: none; font-size: 14px; font-weight: 500; color: #333; cursor: pointer; border-bottom: 1px solid #f5f5f5; transition: all 0.2s; }
+        .dropdown-item:hover { background-color: #f0f7ff; color: #0056b3; padding-left: 25px; }
+
+        .search-container { flex: 1; min-width: 250px; max-width: 450px; }
+        .search-container input { width: 100%; padding: 11px 16px; border: 2px solid #ffffff; background-color: #ffffff; color: #000000; border-radius: 6px; font-size: 14px; }
+        .search-container input:focus { outline: none; box-shadow: 0 0 12px rgba(255, 255, 255, 0.6); }
+        .header-right { display: flex; gap: 15px; align-items: center; }
+        .settings-icon, .cart-icon { cursor: pointer; transition: all 0.3s ease; background: none; border: none; color: white; }
+        .settings-icon { font-size: 24px; padding: 8px; border-radius: 50%; }
+        .settings-icon:hover { transform: rotate(20deg) scale(1.15); background-color: rgba(255, 255, 255, 0.2); }
+        .cart-icon { position: relative; font-size: 28px; }
+        .cart-count { position: absolute; top: -10px; right: -10px; background-color: #ff0000; color: #ffffff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid #ffffff; }
+
+        /* Banner Slider */
+        .banner-slider { position: relative; width: 100%; min-height: 380px; background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; }
+        .slide-content { color: #ffffff; text-align: center; padding: 40px; }
+        .slide-title { font-size: 42px; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
+        .slide-subtitle { font-size: 18px; margin-bottom: 25px; opacity: 0.95; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); }
+        .slide-btn { padding: 12px 32px; background-color: #ffffff; color: #0056b3; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+        /* Main Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Danh mục */
+        .category-nav { display: flex; gap: 12px; margin-bottom: 40px; justify-content: center; flex-wrap: wrap; }
+        .category-btn { padding: 11px 26px; background-color: #ffffff; color: #0056b3; border: 2px solid #0056b3; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; text-transform: uppercase; }
+        .category-btn.active, .category-btn:hover { background-color: #0056b3; color: #ffffff; }
+
+        /* Lưới sản phẩm trang chủ */
+        .products-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 28px; margin-bottom: 60px; }
+        .product-card { background-color: #ffffff; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column; }
+        .product-card:hover { transform: translateY(-5px); border-color: #0056b3; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .product-image-wrapper { position: relative; width: 100%; padding-bottom: 100%; background: #fff; }
+        .product-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .discount-badge { position: absolute; top: 12px; left: 12px; background-color: #ff0000; color: #ffffff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .product-info { padding: 18px; display: flex; flex-direction: column; flex-grow: 1; }
+        .product-name { font-size: 15px; font-weight: 600; margin-bottom: 10px; min-height: 42px; color: #333; }
+        .product-prices { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; margin-top: auto; }
+        .current-price { font-size: 18px; font-weight: bold; color: #0056b3; }
+        .original-price { font-size: 13px; color: #999; text-decoration: line-through; }
+        .add-to-cart-btn { width: 100%; padding: 12px; background-color: #0056b3; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; text-transform: uppercase; }
+
+        /* CHI TIẾT SẢN PHẨM PHÍA TRÊN CÁC TAB */
+        .product-detail-section { display: none; margin-top: 20px; margin-bottom: 60px; }
+        .product-detail-section.active { display: block; }
+        .detail-layout { display: grid; grid-template-columns: 2.8fr 1.2fr; gap: 25px; }
+        .main-detail-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 25px; }
+        .back-home-btn { background-color: #f0f4f8; color: #0056b3; border: 1px solid #d0e0f0; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-bottom: 25px; }
+        
+        .detail-product-top-box { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; margin-bottom: 35px; padding-bottom: 30px; border-bottom: 1px dashed #e8e8e8; }
+        .detail-top-left img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 8px; border: 1px solid #eee; }
+        .detail-top-title { font-size: 24px; font-weight: bold; color: #222; margin-bottom: 12px; }
+        .detail-top-brand-row { font-size: 14px; color: #666; margin-bottom: 20px; }
+        .detail-top-brand-row span { color: #0056b3; font-weight: 600; }
+        .detail-top-price-card { background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+        .detail-top-curr-price { font-size: 28px; font-weight: 800; color: #ff0000; margin-right: 15px; }
+        .detail-top-orig-price { font-size: 15px; color: #999; text-decoration: line-through; }
+        .detail-top-buy-btn { background: #0056b3; color: white; border: none; padding: 15px 30px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
+
+        /* Hệ thống các tab thông tin */
+        .detail-tabs { display: flex; border-bottom: 2px solid #f0f0f0; gap: 5px; margin-bottom: 20px; overflow-x: auto; }
+        .tab-btn { padding: 12px 20px; border: none; background: none; font-weight: 600; font-size: 14px; color: #555; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .tab-btn.active { color: #0056b3; border-bottom-color: #0056b3; font-weight: bold; }
+        .tab-content { display: none; font-size: 15px; color: #444; line-height: 1.8; padding: 10px 5px; }
+        .tab-content.active { display: block; }
+        .tab-content h3 { font-size: 18px; color: #333; margin-bottom: 12px; border-left: 4px solid #0056b3; padding-left: 10px; }
+        .tab-content-text { white-space: pre-line; margin-top: 10px; color: #555; }
+
+        /* STYLE PHẦN ĐÁNH GIÁ CHUẨN HASAKI */
+        .hasaki-review-container { border: 1px solid #eef2f5; border-radius: 8px; padding: 20px; background-color: #fafbfc; margin-top: 15px; }
+        .review-summary-box { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding-bottom: 20px; border-bottom: 1px dashed #e2e8f0; }
+        .summary-left { text-align: center; min-width: 120px; }
+        .summary-rating-num { font-size: 40px; font-weight: 800; color: #f39c12; line-height: 1; }
+        .summary-stars { color: #f1c40f; font-size: 18px; margin: 5px 0; }
+        .summary-total-text { font-size: 13px; color: #666; }
+        .summary-center-filters { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; max-width: 600px; }
+        .filter-stars-btn { padding: 6px 14px; border: 1px solid #e2e8f0; background: white; border-radius: 20px; font-size: 13px; font-weight: 500; color: #555; cursor: pointer; transition: all 0.2s; }
+        .filter-stars-btn.active, .filter-stars-btn:hover { background-color: #ff7c00; color: white; border-color: #ff7c00; }
+        .summary-right-action { min-width: 150px; }
+        .open-review-form-btn { background: none; border: 2px solid #ff7c00; color: #ff7c00; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s; }
+        .open-review-form-btn:hover { background: #ff7c00; color: white; }
+
+        /* Form viết đánh giá */
+        .write-review-form-block { display: none; background: white; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .write-review-form-block.active { display: block; }
+        .form-stars-picker { display: flex; gap: 5px; font-size: 24px; color: #ccc; margin-bottom: 15px; cursor: pointer; }
+        .form-stars-picker span:hover, .form-stars-picker span.selected { color: #f1c40f; }
+
+        /* Khối danh sách các bài đánh giá */
+        .reviews-list-wrapper { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .single-review-item { padding: 15px; background: white; border-radius: 6px; border-bottom: 1px solid #f1f5f9; }
+        .review-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+        .review-item-user { font-weight: bold; font-size: 14px; color: #2c3e50; display: flex; align-items: center; gap: 8px; }
+        .buyer-badge { background-color: #e6f7ed; color: #2ecc71; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; }
+        .review-item-date { font-size: 12px; color: #95a5a6; }
+        .review-item-stars { color: #f1c40f; font-size: 13px; margin-bottom: 6px; }
+        .review-item-content { font-size: 14px; color: #444; line-height: 1.6; }
+
+        /* Cột bên phải: Sản phẩm xem cùng */
+        .related-sidebar { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px; height: fit-content; }
+        .sidebar-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 18px; border-left: 4px solid #0056b3; padding-left: 10px; text-transform: uppercase; }
+        .related-item { display: flex; gap: 12px; padding: 15px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+        .related-item-img { width: 75px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; }
+        .related-item-name { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
+        .related-item-price { font-size: 14px; font-weight: bold; color: #ff0000; }
+
+        /* HỆ THỐNG QUẢN TRỊ ADMINISTRATOR */
+        .admin-section { display: none; margin-top: 30px; margin-bottom: 60px; background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 30px; }
+        .admin-section.active { display: block; }
+        .admin-top-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0056b3; padding-bottom: 15px; margin-bottom: 25px; }
+        .admin-user-info { font-size: 14px; color: #666; font-weight: 500; display: flex; gap: 15px; align-items: center; }
+        .change-pass-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
+        .logout-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        /* Thống kê KPI Administrator */
+        .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 35px; }
+        .stat-card { padding: 20px; border-radius: 8px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-card.blue { background: linear-gradient(135deg, #0056b3, #007bff); }
+        .stat-card.green { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .stat-card.purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+        .stat-card.orange { background: linear-gradient(135deg, #d35400, #e67e22); }
+        .stat-card.red { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+        .stat-card h4 { font-size: 13px; text-transform: uppercase; opacity: 0.9; margin-bottom: 5px; }
+        .stat-card .stat-number { font-size: 26px; font-weight: bold; }
+
+        /* Khung Đổi Mật Khẩu */
+        .password-change-box { display: none; background: #fffcf5; border: 1px solid #f39c12; border-radius: 8px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(243,156,18,0.06); }
+        .password-change-box.active { display: block; }
+
+        /* Form và bộ layout điều khiển admin */
+        .admin-form-box { background: #fdfdfd; border: 1px solid #dcdcdc; border-radius: 8px; padding: 25px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .admin-form-box h3 { color: #0056b3; font-size: 18px; margin-bottom: 15px; border-bottom: 2px dashed #eee; padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 12px; }
+        .form-group label { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; font-family: inherit; }
+        .form-group textarea { resize: vertical; }
+
+        .form-actions-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+        .form-btn { padding: 10px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; }
+        .form-btn.submit { background: #27ae60; color: white; }
+        .form-btn.cancel { background: #7f8c8d; color: white; }
+
+        /* Bảng danh sách quản lý */
+        .table-responsive { overflow-x: auto; margin-top: 10px; border: 1px solid #e2e8f0; border-radius: 6px; }
+        .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; background: white; }
+        .admin-table th, .admin-table td { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; }
+        .admin-table th { background-color: #0056b3; color: white; font-weight: 600; }
+        .admin-table tr:hover { background-color: #f1f5f9; }
+        
+        .action-btn { padding: 5px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-right: 4px; color: white; }
+        .action-btn.edit { background-color: #f1c40f; color: #333; }
+        .action-btn.delete { background-color: #e74c3c; }
+
+        /* Form Đăng nhập hệ thống Admin */
+        .login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .login-overlay.active { display: flex; }
+        .login-card { background: white; padding: 30px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .login-card h3 { text-align: center; color: #0056b3; margin-bottom: 20px; }
+
+        /* Cảnh báo lỗi đăng nhập (Login Error Alert UI) */
+        .login-error-alert { display: none; background-color: #fde8e8; border: 1px solid #f8b4b4; color: #9b1c1c; padding: 12px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 15px; text-align: center; }
+        .login-error-alert.active { display: block; animation: shake 0.3s ease-in-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        /* Giỏ hàng Drawer */
+        .cart-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.5); }
+        .cart-overlay.active { display: block; }
+        .cart-drawer { position: fixed; top: 0; right: -420px; width: 420px; height: 100vh; background-color: #ffffff; z-index: 1000; transition: right 0.4s ease; display: flex; flex-direction: column; }
+        .cart-drawer.active { right: 0; }
+        .cart-header { background-color: #0056b3; color: #ffffff; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 20px 0; }
+        .cart-item { display: flex; gap: 14px; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+        .cart-item-image { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; }
+        .cart-item-details { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .quantity-btn { background-color: #f0f0f0; border: 1px solid #e0e0e0; width: 28px; height: 28px; cursor: pointer; }
+        .cart-footer { border-top: 2px solid #f0f0f0; padding: 20px; background-color: #f9f9f9; }
+        .checkout-btn { width: 100%; padding: 14px; background-color: #0056b3; color: #ffffff; border: none; font-weight: bold; cursor: pointer; }
+
+        footer { background-color: #0056b3; color: #ffffff; text-align: center; padding: 30px 20px; margin-top: 80px; font-weight: 500; }
+
+        @media (max-width: 768px) {
+            .header-container { flex-direction: column; align-items: stretch; gap: 10px; }
+            .search-container { max-width: 100%; order: 3; }
+            .products-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .detail-layout { grid-template-columns: 1fr; }
+            .detail-product-top-box { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo" onclick="backToHome(event)">BEAUTY DEAL</a>
+            
+            <div class="menu-dropdown-wrapper">
+                <button class="menu-toggle-btn" onclick="toggleMenuDropdown(event)">
+                    ☰ Danh mục
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <button class="dropdown-item" onclick="selectFromDropdown('TẤT CẢ')">Tất cả sản phẩm</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('TRANG ĐIỂM')">Trang điểm</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('DẦU GỘI & CHĂM SÓC TÓC')">Dầu gội & chăm sóc tóc</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('KEM CHỐNG NẮNG')">Kem chống nắng</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC DA MẶT')">Chăm sóc da mặt</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC CƠ THỂ')">Chăm sóc cơ thể</button>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm mỹ phẩm chính hãng..." oninput="handleSearch()">
+            </div>
+            <div class="header-right">
+                <button class="settings-icon" onclick="openLoginModal()">⚙</button>
+                <button class="cart-icon" onclick="toggleCart(true)">
+                    🛒
+                    <div class="cart-count" id="cartCount">0</div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="banner-slider" id="mainBanner">
+        <div class="slide-content">
+            <h1 class="slide-title">Bùng Nổ Siêu Deal Mỹ Phẩm</h1>
+            <p class="slide-subtitle">Cam kết chính hãng 100% - Hoàn tiền 200% nếu phát hiện hàng giả</p>
+            <button class="slide-btn">Mua Ngay</button>
+        </div>
+    </section>
+
+    <main class="container">
+        <nav class="category-nav" id="categoryNav">
+            <button class="category-btn active" onclick="filterCategory('TẤT CẢ', this)">Tất cả</button>
+            <button class="category-btn" onclick="filterCategory('TRANG ĐIỂM', this)">Trang điểm</button>
+            <button class="category-btn" onclick="filterCategory('DẦU GỘI & CHĂM SÓC TÓC', this)">Dầu gội & chăm sóc tóc</button>
+            <button class="category-btn" onclick="filterCategory('KEM CHỐNG NẮNG', this)">Kem chống nắng</button>
+            <button class="category-btn" onclick="filterCategory('CHĂM SÓC DA MẶT', this)">Chăm sóc da mặt</button>
+            <button class="category-btn" onclick="filterCategory('CHĂM SÓC CƠ THỂ', this)">Chăm sóc cơ thể</button>
+        </nav>
+
+        <section class="products-container" id="productsContainer">
+            </section>
+
+        <section class="product-detail-section" id="productDetailSection">
+            <button class="back-home-btn" onclick="backToHome(event)">← Quay lại Trang Chủ</button>
+            
+            <div class="detail-layout">
+                <div class="main-detail-card">
+                    <div class="detail-product-top-box" id="detailProductTopBox"></div>
+                    
+                    <div class="detail-tabs">
+                        <button class="tab-btn active" onclick="switchTab('mota', this)">Mô tả</button>
+                        <button class="tab-btn" onclick="switchTab('thongso', this)">Thông số</button>
+                        <button class="tab-btn" onclick="switchTab('thanhphan', this)">Thành phần</button>
+                        <button class="tab-btn" onclick="switchTab('hdsd', this)">HDSD</button>
+                        <button class="tab-btn" onclick="switchTab('danhgia', this)">Đánh giá</button>
+                        <button class="tab-btn" onclick="switchTab('hoidap', this)">Hỏi đáp</button>
+                    </div>
+
+                    <div id="mota" class="tab-content active"></div>
+                    <div id="thongso" class="tab-content"></div>
+                    <div id="thanhphan" class="tab-content"></div>
+                    <div id="hdsd" class="tab-content"></div>
+                    
+                    <div id="danhgia" class="tab-content">
+                        <h3>Đánh giá từ khách hàng</h3>
+                        <div class="hasaki-review-container">
+                            <div class="review-summary-box">
+                                <div class="summary-left">
+                                    <div class="summary-rating-num" id="avgRatingNum">4.8</div>
+                                    <div class="summary-stars">★★★★★</div>
+                                    <div class="summary-total-text" id="totalReviewText">148 đánh giá</div>
+                                </div>
+                                <div class="summary-center-filters">
+                                    <button class="filter-stars-btn active" onclick="filterReviewStars('all', this)">Tất cả</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(5, this)">5 ★</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(4, this)">4 ★</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(3, this)">3 ★</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(2, this)">2 ★</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(1, this)">1 ★</button>
+                                </div>
+                                <div class="summary-right-action">
+                                    <button class="open-review-form-btn" onclick="toggleReviewForm()">Viết đánh giá</button>
+                                </div>
+                            </div>
+
+                            <div class="write-review-form-block" id="writeReviewFormBlock">
+                                <h4 style="margin-bottom: 10px; color:#ff7c00;">Chia sẻ nhận xét của bạn về sản phẩm này</h4>
+                                <form onsubmit="submitNewUserReview(event)">
+                                    <div class="form-group">
+                                        <label>Chọn số sao đánh giá:</label>
+                                        <div class="form-stars-picker" id="starPicker">
+                                            <span onclick="setStarPickerValue(1)">★</span>
+                                            <span onclick="setStarPickerValue(2)">★</span>
+                                            <span onclick="setStarPickerValue(3)">★</span>
+                                            <span onclick="setStarPickerValue(4)">★</span>
+                                            <span onclick="setStarPickerValue(5)" class="selected">★</span>
+                                        </div>
+                                        <input type="hidden" id="selectedStarRating" value="5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tên của bạn:</label>
+                                        <input type="text" id="reviewAuthor" required placeholder="Ví dụ: Nguyễn Văn A">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nội dung đánh giá:</label>
+                                        <textarea id="reviewTextContent" rows="3" required placeholder="Nhập cảm nhận thực tế của bạn khi dùng sản phẩm..."></textarea>
+                                    </div>
+                                    <div class="form-actions-row">
+                                        <button type="button" class="form-btn cancel" onclick="toggleReviewForm()">Hủy bỏ</button>
+                                        <button type="submit" class="form-btn submit" style="background:#ff7c00;">Gửi đánh giá ngay</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="reviews-list-wrapper" id="reviewsListWrapper"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="hoidap" class="tab-content"></div>
+                </div>
+
+                <div class="related-sidebar">
+                    <div class="sidebar-title">Sản phẩm xem cùng</div>
+                    <div id="relatedProductsContainer"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="admin-section" id="adminSection">
+            <div class="admin-top-header">
+                <div>
+                    <h2>HỆ THỐNG QUẢN TRỊ ADMINISTRATOR</h2>
+                    <div class="admin-user-info" id="adminUserInfo">
+                        <span>Đang đăng nhập: admin</span>
+                        <button class="change-pass-toggle-btn" onclick="toggleChangePasswordBox()">🔒 Đổi mật khẩu</button>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logoutAdmin()">Đăng xuất hệ thống</button>
+            </div>
+
+            <div class="password-change-box" id="passwordChangeBox">
+                <h3 style="color:#d35400; font-size:16px; margin-bottom:15px; border-bottom:1px solid #f39c12; padding-bottom:5px;">Thay Đổi Mật Khẩu Đăng Nhập Hệ Thống</h3>
+                <form onsubmit="handleAdminChangePassword(event)">
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                        <div class="form-group">
+                            <label>Mật khẩu hiện tại *</label>
+                            <input type="password" id="oldAdminPass" required placeholder="Nhập mật khẩu cũ...">
+                        </div>
+                        <div class="form-group">
+                            <label>Mật khẩu mới *</label>
+                            <input type="password" id="newAdminPass" required placeholder="Mật khẩu mới...">
+                        </div>
+                        <div class="form-group">
+                            <label>Xác nhận mật khẩu mới *</label>
+                            <input type="password" id="confirmAdminPass" required placeholder="Nhập lại mật khẩu mới...">
+                        </div>
+                    </div>
+                    <div class="form-actions-row" style="margin-top:10px;">
+                        <button type="button" class="form-btn cancel" style="background:#95a5a6; padding:6px 15px;" onclick="toggleChangePasswordBox()">Hủy bỏ</button>
+                        <button type="submit" class="form-btn submit" style="background:#e67e22; padding:6px 15px;">Xác nhận thay đổi</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-stats-grid">
+                <div class="stat-card blue">
+                    <h4>Tổng sản phẩm</h4>
+                    <div class="stat-number" id="statTotalProducts">0</div>
+                </div>
+                <div class="stat-card green">
+                    <h4>Tổng lượt bán</h4>
+                    <div class="stat-number">452</div>
+                </div>
+                <div class="stat-card purple">
+                    <h4>Log lượt truy cập</h4>
+                    <div class="stat-number">1,948</div>
+                </div>
+                <div class="stat-card orange">
+                    <h4>Sản phẩm còn tồn</h4>
+                    <div class="stat-number" id="statInStock">0</div>
+                </div>
+                <div class="stat-card red">
+                    <h4>Sản phẩm hết hàng</h4>
+                    <div class="stat-number" id="statOutOfStock">0</div>
+                </div>
+            </div>
+
+            <div class="admin-form-box" id="adminFormBox">
+                <h3 id="formTitle">Thêm Sản Phẩm Mới Vào Hệ Thống</h3>
+                <form id="adminForm" onsubmit="saveProduct(event)">
+                    <input type="hidden" id="editProductId" value="">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tên sản phẩm *</label>
+                            <input type="text" id="prodName" required placeholder="Nhập tên sản phẩm...">
+                        </div>
+                        <div class="form-group">
+                            <label>Danh mục nhóm *</label>
+                            <select id="prodCategory" required>
+                                <option value="TRANG ĐIỂM">Trang điểm</option>
+                                <option value="DẦU GỘI & CHĂM SÓC TÓC">Dầu gội & chăm sóc tóc</option>
+                                <option value="KEM CHỐNG NẮNG">Kem chống nắng</option>
+                                <option value="CHĂM SÓC DA MẶT">Chăm sóc da mặt</option>
+                                <option value="CHĂM SÓC CƠ THỂ">Chăm sóc cơ thể</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Giá bán hiện tại (₫) *</label>
+                            <input type="number" id="prodCurrPrice" required placeholder="Ví dụ: 150000">
+                        </div>
+                        <div class="form-group">
+                            <label>Giá gốc niêm yết (₫)</label>
+                            <input type="number" id="prodOrigPrice" placeholder="Ví dụ: 200000">
+                        </div>
+                        <div class="form-group">
+                            <label>Số lượng tồn kho *</label>
+                            <input type="number" id="prodStock" required placeholder="Ví dụ: 50" value="50">
+                        </div>
+                        <div class="form-group">
+                            <label>Đường dẫn hình ảnh URL *</label>
+                            <input type="url" id="prodImage" required placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Mục 1: Nội dung Mô tả sản phẩm</label>
+                            <textarea id="prodDescription" rows="4" placeholder="Nhập thông tin giới thiệu chi tiết sản phẩm..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Mục 2: Nội dung Thông số kỹ thuật</label>
+                            <textarea id="prodSpecs" rows="4" placeholder="Ví dụ: Dung tích: 500ml | Xuất xứ: Pháp | Thương hiệu: Laroche..."></textarea>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 0px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Mục 3: Nội dung Thành phần hóa học</label>
+                            <textarea id="prodIngredients" rows="4" placeholder="Nhập chi tiết các thành phần dưỡng chất có trong sản phẩm..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Mục 4: Nội dung Hướng dẫn sử dụng (HDSD)</label>
+                            <textarea id="prodUsage" rows="4" placeholder="Nhập các bước sử dụng sản phẩm hiệu quả nhất..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-row">
+                        <button type="button" class="form-btn cancel" onclick="resetAdminForm()">Hủy thao tác</button>
+                        <button type="submit" class="form-btn submit" id="submitFormBtn">Lưu sản phẩm</button>
+                    </div>
+                </form>
+            </div>
+
+            <h3>DANH SÁCH QUẢN LÝ SẢN PHẨM HỆ THỐNG</h3>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Giá bán</th>
+                            <th>Tồn kho</th>
+                            <th>Thao tác quản lý</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div class="login-overlay" id="loginOverlay" onclick="closeLoginModal()">
+        <div class="login-card" onclick="event.stopPropagation()">
+            <h3>Đăng Nhập Quản Trị Hệ Thống</h3>
+            
+            <div class="login-error-alert" id="loginErrorAlert">
+                ❌ Đăng nhập Thất bại! Sai Tên tài khoản hoặc Mật khẩu.
+            </div>
+
+            <form onsubmit="handleAdminLogin(event)">
+                <div style="margin-bottom: 15px; display: flex; flex-direction: column;">
+                    <label style="font-size: 13px; font-weight:600; margin-bottom:5px;">Tên tài khoản</label>
+                    <input type="text" id="loginUser" required style="padding: 10px; border: 1px solid #ccc; border-radius:6px;" placeholder="Nhập tài khoản admin...">
+                </div>
+                <div style="margin-bottom: 20px; display: flex; flex-direction: column;">
+                    <label style="font-size: 13px; font-weight:600; margin-bottom:5px;">Mật khẩu bảo mật</label>
+                    <input type="password" id="loginPass" required style="padding: 10px; border: 1px solid #ccc; border-radius:6px;" placeholder="Mật khẩu...">
+                </div>
+                <button type="submit" style="width: 100%; padding: 12px; background: #0056b3; color: white; border: none; border-radius:6px; font-weight: bold; cursor: pointer;">ĐĂNG NHẬP HỆ THỐNG</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart(false)"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h2>Giỏ Hàng Của Bạn</h2>
+            <button style="background:none; border:none; color:white; font-size:24px; cursor:pointer;" onclick="toggleCart(false)">×</button>
+        </div>
+        <div class="cart-items" id="cartItemsContainer"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Tổng tiền:</span>
+                <span class="cart-total-amount" id="cartTotalAmount">0</span> ₫
+            </div>
+            <button class="checkout-btn" onclick="alert('Tính năng đang phát triển!')">Thanh Toán Ngay</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Beauty Deal - Mỹ Phẩm Chính Hãng. Tất Cả Quyền Được Bảo Lưu.</p>
+    </footer>
+
+    <script>
+        // Mảng dữ liệu sản phẩm mẫu gốc đã đồng bộ chuẩn hoa thường danh mục
+        let defaultProducts = [
+            {
+                id: 1,
+                name: "Kem Dưỡng Ẩm Làm Sáng Da Cao Cấp",
+                category: "CHĂM SÓC DA MẶT",
+                originalPrice: 600000,
+                currentPrice: 520000,
+                stock: 45,
+                image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80",
+                description: "Kem dưỡng giúp da mềm mịn, cấp ẩm sâu và làm sáng da tự nhiên. Thiết kế sang trọng, dễ thẩm thấu, phù hợp cho mọi loại da.",
+                specs: "Dung tích: 50ml\nXuất xứ: Pháp\nThương hiệu: L'Oreal Paris",
+                ingredients: "Aqua, Glycerin, Niacinamide, Isopropyl Isostearate, Polyacrylamide, Tocopheryl Acetate, Panthenol.",
+                usage: "Thoa đều một lượng kem vừa đủ lên da mặt sạch vào mỗi buổi sáng và tối, vỗ nhẹ để dưỡng chất thẩm thấu tốt hơn.",
+                reviews: [
+                    { author: "Hương Giang", stars: 5, date: "2026-05-14", content: "Mùi hương dễ chịu, dưỡng ẩm cực kỳ tốt cho mùa hanh khô!" }
+                ]
+            },
+            {
+                id: 2,
+                name: "Cushion Trang Điểm IOPE Chuyên Sâu",
+                category: "TRANG ĐIỂM",
+                originalPrice: 720000,
+                currentPrice: 520000,
+                stock: 12,
+                image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80",
+                description: "Phấn nước che khuyết điểm hoàn hảo, mang lại lớp nền tự nhiên bền màu mỏng nhẹ suốt cả ngày.",
+                specs: "Trọng lượng: 15g\nXuất xứ: Hàn Quốc\nThương hiệu: IOPE",
+                ingredients: "Titanium Dioxide, Cyclopentasiloxane, Ethylhexyl Methoxycinnamate, Zinc Oxide, Phenyl Trimethicone.",
+                usage: "Dùng bông phấn dặm nhẹ đều khắp bề mặt da mặt để tạo độ che phủ mịn màng nhất.",
+                reviews: []
+            },
+            {
+                id: 3,
+                name: "Son Lì Mac Fix+ Ruby Đỏ Quyến Rũ",
+                category: "TRANG ĐIỂM",
+                originalPrice: 650000,
+                currentPrice: 450000,
+                stock: 25,
+                image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80",
+                description: "Sắc đỏ chuẩn mực quyến rũ, chất son lì mịn bám môi lâu trôi không gây khô môi.",
+                specs: "Trọng lượng: 3g\nXuất xứ: Mỹ\nThương hiệu: M.A.C",
+                ingredients: "Dimethicone, Isoeicosane, Kaolin, Ceresin, Paraffin, Silica.",
+                usage: "Thoa trực tiếp lên môi hoặc lòng môi theo phong cách make-up mong muốn.",
+                reviews: []
+            },
+            {
+                id: 4,
+                name: "Kem Chống Nắng SPF50 Neutrogena",
+                category: "KEM CHỐNG NẮNG",
+                originalPrice: 380000,
+                currentPrice: 220000,
+                stock: 50,
+                image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=500&q=80",
+                description: "Bảo vệ da vượt trội dưới ánh nắng mặt trời, không gây nhờn rít, chống thấm nước tốt.",
+                specs: "Dung tích: 88ml\nXuất xứ: Mỹ\nThương hiệu: Neutrogena",
+                ingredients: "Avobenzone, Homosalate, Octisalate, Octocrylene, Oxybenzone.",
+                usage: "Thoa trước khi ra ngoài nắng khoảng 20 phút. Thoa lại sau mỗi 2 tiếng nếu hoạt động liên tục ngoài trời.",
+                reviews: []
+            }
+        ];
+
+        // Tài khoản admin kiểm tra
+        let adminAccount = { user: "admin", pass: "123" };
+        let currentUserSession = null;
+        let cart = [];
+        let currentSelectedCategory = "TẤT CẢ";
+        let activeProductIdReview = null;
+        let reviewFilterStars = 'all';
+
+        function toggleMenuDropdown(event) {
+            if(event) event.stopPropagation();
+            document.getElementById('dropdownMenu').classList.toggle('active');
+        }
+        function selectFromDropdown(categoryName) {
+            document.getElementById('dropdownMenu').classList.remove('active');
+            const buttons = document.querySelectorAll('.category-btn');
+            let targetButton = null;
+            buttons.forEach(btn => {
+                if(btn.innerText.toUpperCase() === categoryName.toUpperCase()) targetButton = btn;
+            });
+            filterCategory(categoryName, targetButton);
+        }
+        document.addEventListener('click', function() {
+            document.getElementById('dropdownMenu').classList.remove('active');
+        });
+
+        // Hàm Render lưới sản phẩm ra màn hình chính
+        function renderProducts(productsList) {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+            if (!productsList || productsList.length === 0) {
+                container.innerHTML = `<div style="text-align:center; width:100%; grid-column: 1/-1; padding: 60px; color:#999; font-size:15px;">Không tìm thấy sản phẩm phù hợp trong danh mục này.</div>`;
+                return;
+            }
+            productsList.forEach(product => {
+                const discount = product.originalPrice ? Math.round(((product.originalPrice - product.currentPrice) / product.originalPrice) * 100) : 0;
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.setAttribute('onclick', `viewProductDetail(${product.id}, event)`);
+                card.innerHTML = `
+                    <div class="product-image-wrapper">
+                        ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                        <img class="product-image" src="${product.image}">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-prices">
+                            <span class="current-price">${product.currentPrice.toLocaleString()} ₫</span>
+                            ${discount > 0 ? `<span class="original-price">${product.originalPrice.toLocaleString()} ₫</span>` : ''}
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCart(${product.id}, event)">Thêm vào giỏ</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Lọc danh mục sản phẩm theo nhãn
+        function filterCategory(categoryName, element) {
+            currentSelectedCategory = categoryName.trim().toUpperCase();
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            document.getElementById('productDetailSection').classList.remove('active');
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('mainBanner').style.display = 'flex';
+            document.getElementById('categoryNav').style.display = 'flex';
+            document.getElementById('productsContainer').style.display = 'grid';
+
+            if (currentSelectedCategory === "TẤT CẢ") {
+                renderProducts(defaultProducts);
+            } else {
+                const filtered = defaultProducts.filter(p => p.category.trim().toUpperCase() === currentSelectedCategory);
+                renderProducts(filtered);
+            }
+        }
+
+        function viewProductDetail(productId, event) {
+            if (event && event.target.classList.contains('add-to-cart-btn')) return;
+            const product = defaultProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            activeProductIdReview = productId;
+            reviewFilterStars = 'all';
+
+            document.getElementById('mainBanner').style.display = 'none';
+            document.getElementById('categoryNav').style.display = 'none';
+            document.getElementById('productsContainer').style.display = 'none';
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('productDetailSection').classList.add('active');
+
+            const discount = product.originalPrice ? Math.round(((product.originalPrice - product.currentPrice) / product.originalPrice) * 100) : 0;
+            
+            document.getElementById('detailProductTopBox').innerHTML = `
+                <div class="detail-top-left">
+                    <img src="${product.image}" alt="${product.name}">
+                </div>
+                <div class="detail-top-right">
+                    <h1 class="detail-top-title">${product.name}</h1>
+                    <div class="detail-top-brand-row">Danh mục: <span>${product.category}</span> | Tồn kho: <span>${product.stock > 0 ? product.stock + ' sản phẩm' : 'Tạm hết hàng'}</span></div>
+                    <div class="detail-top-price-card">
+                        <span class="detail-top-curr-price">${product.currentPrice.toLocaleString()} ₫</span>
+                        ${discount > 0 ? `<span class="detail-top-orig-price">${product.originalPrice.toLocaleString()} ₫</span>` : ''}
+                    </div>
+                    <button class="detail-top-buy-btn" onclick="addToCart(${product.id}, null)">🛒 THÊM VÀO GIỎ HÀNG NGAY</button>
+                </div>
+            `;
+
+            document.getElementById('mota').innerHTML = `<h3>Mô tả sản phẩm</h3><div class="tab-content-text">${product.description || 'Đang cập nhật nội dung...'}</div>`;
+            document.getElementById('thongso').innerHTML = `<h3>Thông số kỹ thuật</h3><div class="tab-content-text">${product.specs || 'Đang cập nhật...'}</div>`;
+            document.getElementById('thanhphan').innerHTML = `<h3>Thành phần sản phẩm</h3><div class="tab-content-text">${product.ingredients || 'Đang cập nhật...'}</div>`;
+            document.getElementById('hdsd').innerHTML = `<h3>Hướng dẫn sử dụng</h3><div class="tab-content-text">${product.usage || 'Đang cập nhật...'}</div>`;
+            document.getElementById('hoidap').innerHTML = `<h3>Hỏi đáp thắc mắc</h3><div class="tab-content-text">Chưa có câu hỏi nào từ phía khách hàng.</div>`;
+
+            refreshHasakiReviewsUI();
+            switchTab('mota', document.querySelector('.tab-btn'));
+            renderRelatedProducts(product.category, product.id);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleReviewForm() { document.getElementById('writeReviewFormBlock').classList.toggle('active'); }
+
+        function setStarPickerValue(starCount) {
+            document.getElementById('selectedStarRating').value = starCount;
+            const stars = document.querySelectorAll('#starPicker span');
+            stars.forEach((s, idx) => {
+                if (idx < starCount) s.classList.add('selected');
+                else s.classList.remove('selected');
+            });
+        }
+
+        function refreshHasakiReviewsUI() {
+            const product = defaultProducts.find(p => p.id === activeProductIdReview);
+            if (!product) return;
+            if (!product.reviews) product.reviews = [];
+
+            let totalReviews = product.reviews.length;
+            let avgRating = 5.0;
+            if (totalReviews > 0) {
+                let sum = product.reviews.reduce((acc, r) => acc + r.stars, 0);
+                avgRating = (sum / totalReviews).toFixed(1);
+            }
+
+            document.getElementById('avgRatingNum').innerText = avgRating;
+            document.getElementById('totalReviewText').innerText = `${totalReviews} đánh giá`;
+
+            const listWrapper = document.getElementById('reviewsListWrapper');
+            listWrapper.innerHTML = '';
+
+            let filteredReviews = product.reviews;
+            if (reviewFilterStars !== 'all') {
+                filteredReviews = product.reviews.filter(r => r.stars === parseInt(reviewFilterStars));
+            }
+
+            if (filteredReviews.length === 0) {
+                listWrapper.innerHTML = `<div style="text-align:center; padding:20px; color:#999; font-size:14px;">Chưa có đánh giá nào cho bộ lọc sao này.</div>`;
+                return;
+            }
+
+            filteredReviews.forEach(rev => {
+                let starString = '★'.repeat(rev.stars) + '☆'.repeat(5 - rev.stars);
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'single-review-item';
+                itemDiv.innerHTML = `
+                    <div class="review-item-header">
+                        <div class="review-item-user">${rev.author} <span class="buyer-badge">✓ Đã mua hàng</span></div>
+                        <div class="review-item-date">${rev.date}</div>
+                    </div>
+                    <div class="review-item-stars">${starString}</div>
+                    <div class="review-item-content">${rev.content}</div>
+                `;
+                listWrapper.appendChild(itemDiv);
+            });
+        }
+
+        function filterReviewStars(stars, btnElement) {
+            reviewFilterStars = stars;
+            document.querySelectorAll('.filter-stars-btn').forEach(b => b.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+            refreshHasakiReviewsUI();
+        }
+
+        function submitNewUserReview(event) {
+            event.preventDefault();
+            const product = defaultProducts.find(p => p.id === activeProductIdReview);
+            if (!product) return;
+
+            const stars = parseInt(document.getElementById('selectedStarRating').value);
+            const author = document.getElementById('reviewAuthor').value.trim();
+            const content = document.getElementById('reviewTextContent').value.trim();
+            const currentDate = new Date().toISOString().split('T')[0];
+
+            product.reviews.unshift({ author, stars, date: currentDate, content });
+            alert("Cảm ơn bạn đã gửi đánh giá nhận xét sản phẩm!");
+            
+            document.getElementById('reviewAuthor').value = '';
+            document.getElementById('reviewTextContent').value = '';
+            setStarPickerValue(5);
+            document.getElementById('writeReviewFormBlock').classList.remove('active');
+            refreshHasakiReviewsUI();
+        }
+
+        function renderRelatedProducts(category, currentProductId) {
+            const container = document.getElementById('relatedProductsContainer');
+            container.innerHTML = '';
+            if(!category) return;
+            const related = defaultProducts.filter(p => p.category.trim().toUpperCase() === category.trim().toUpperCase() && p.id !== currentProductId);
+            related.slice(0, 4).forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'related-item';
+                div.setAttribute('onclick', `viewProductDetail(${item.id})`);
+                div.innerHTML = `
+                    <img class="related-item-img" src="${item.image}">
+                    <div>
+                        <div class="related-item-name">${item.name}</div>
+                        <div class="related-item-price">${item.currentPrice.toLocaleString()} ₫</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function switchTab(tabId, buttonElement) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if(buttonElement) buttonElement.classList.add('active');
+        }
+
+        function backToHome(event) {
+            if(event) event.preventDefault();
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('productDetailSection').classList.remove('active');
+            document.getElementById('mainBanner').style.display = 'flex';
+            document.getElementById('categoryNav').style.display = 'flex';
+            filterCategory('TẤT CẢ', document.querySelector('.category-nav .category-btn'));
+        }
+
+        function handleSearch() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            document.getElementById('productDetailSection').classList.remove('active');
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('mainBanner').style.display = 'flex';
+            document.getElementById('categoryNav').style.display = 'flex';
+            document.getElementById('productsContainer').style.display = 'grid';
+
+            const filtered = defaultProducts.filter(p => p.name.toLowerCase().includes(keyword));
+            renderProducts(filtered);
+        }
+
+        function openLoginModal() {
+            if (currentUserSession) {
+                showAdminDashboard();
+            } else {
+                document.getElementById('loginErrorAlert').classList.remove('active');
+                document.getElementById('loginOverlay').classList.add('active');
+            }
+        }
+        function closeLoginModal() { document.getElementById('loginOverlay').classList.remove('active'); }
+        
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const userInput = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPass').value.trim();
+            const alertBox = document.getElementById('loginErrorAlert');
+
+            if (userInput === adminAccount.user && passInput === adminAccount.pass) {
+                currentUserSession = userInput;
+                alertBox.classList.remove('active');
+                closeLoginModal();
+                showAdminDashboard();
+            } else {
+                alertBox.classList.add('active');
+                alert("Đăng nhập thất bại: Sai thông tin Tên đăng nhập hoặc Mật khẩu hệ thống!");
+            }
+        }
+
+        // HÀM ĐIỀU KHIỂN ĐỔI MỚI MẬT KHẨU CHO ADMIN
+        function toggleChangePasswordBox() {
+            document.getElementById('passwordChangeBox').classList.toggle('active');
+        }
+
+        function handleAdminChangePassword(event) {
+            event.preventDefault();
+            const oldPass = document.getElementById('oldAdminPass').value.trim();
+            const newPass = document.getElementById('newAdminPass').value.trim();
+            const confirmPass = document.getElementById('confirmAdminPass').value.trim();
+
+            if (oldPass !== adminAccount.pass) {
+                alert("Lỗi: Mật khẩu hiện tại không chính xác!");
+                return;
+            }
+            if (newPass !== confirmPass) {
+                alert("Lỗi: Mật khẩu mới và mật khẩu nhập lại không trùng khớp!");
+                return;
+            }
+            if (newPass.length < 3) {
+                alert("Lỗi: Mật khẩu mới phải từ 3 ký tự trở lên!");
+                return;
+            }
+
+            // Tiến hành cập nhật mật khẩu mới vào biến hệ thống
+            adminAccount.pass = newPass;
+            alert("Chúc mừng! Thay đổi mật khẩu quản trị thành công.");
+            
+            // Đóng form và reset trường nhập liệu
+            document.getElementById('oldAdminPass').value = '';
+            document.getElementById('newAdminPass').value = '';
+            document.getElementById('confirmAdminPass').value = '';
+            toggleChangePasswordBox();
+        }
+
+        function logoutAdmin() {
+            currentUserSession = null;
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('passwordChangeBox').classList.remove('active');
+            backToHome(null);
+            alert("Đã đăng xuất hệ thống an toàn.");
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('mainBanner').style.display = 'none';
+            document.getElementById('categoryNav').style.display = 'none';
+            document.getElementById('productsContainer').style.display = 'none';
+            document.getElementById('productDetailSection').classList.remove('active');
+            document.getElementById('adminSection').classList.add('active');
+
+            updateAdminStats();
+            renderAdminTable();
+        }
+
+        function updateAdminStats() {
+            document.getElementById('statTotalProducts').innerText = defaultProducts.length;
+            document.getElementById('statInStock').innerText = defaultProducts.filter(p => p.stock > 0).length;
+            document.getElementById('statOutOfStock').innerText = defaultProducts.filter(p => p.stock <= 0).length;
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+            defaultProducts.forEach(product => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${product.image}" style="width:45px; height:45px; object-fit:cover; border-radius:4px;"></td>
+                    <td style="font-weight:600;">${product.name}</td>
+                    <td>${product.category}</td>
+                    <td style="color:#ff0000; font-weight:bold;">${product.currentPrice.toLocaleString()} ₫</td>
+                    <td style="font-weight:bold; color: ${product.stock > 0 ? '#27ae60' : '#e74c3c'}">${product.stock}</td>
+                    <td>
+                        <button class="action-btn edit" onclick="editProduct(${product.id})">Sửa chi tiết</button>
+                        <button class="action-btn delete" onclick="deleteProduct(${product.id})">Xóa</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteProduct(id) {
+            if (confirm("Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm này?")) {
+                defaultProducts = defaultProducts.filter(p => p.id !== id);
+                showAdminDashboard();
+            }
+        }
+
+        function editProduct(id) {
+            const product = defaultProducts.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('prodName').value = product.name;
+            document.getElementById('prodCategory').value = product.category;
+            document.getElementById('prodCurrPrice').value = product.currentPrice;
+            document.getElementById('prodOrigPrice').value = product.originalPrice || '';
+            document.getElementById('prodStock').value = product.stock;
+            document.getElementById('prodImage').value = product.image;
+            
+            document.getElementById('prodDescription').value = product.description || '';
+            document.getElementById('prodSpecs').value = product.specs || '';
+            document.getElementById('prodIngredients').value = product.ingredients || '';
+            document.getElementById('prodUsage').value = product.usage || '';
+
+            document.getElementById('formTitle').innerText = "Chỉnh Sửa Toàn Diện Sản Phẩm ID: " + id;
+            document.getElementById('submitFormBtn').innerText = "Cập nhật dữ liệu";
+            window.scrollTo({ top: 350, behavior: 'smooth' });
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            const id = document.getElementById('editProductId').value;
+            const name = document.getElementById('prodName').value.trim();
+            const category = document.getElementById('prodCategory').value;
+            const currentPrice = parseFloat(document.getElementById('prodCurrPrice').value);
+            const originalPrice = parseFloat(document.getElementById('prodOrigPrice').value) || currentPrice;
+            const stock = parseInt(document.getElementById('prodStock').value);
+            const image = document.getElementById('prodImage').value.trim();
+            
+            const description = document.getElementById('prodDescription').value.trim();
+            const specs = document.getElementById('prodSpecs').value.trim();
+            const ingredients = document.getElementById('prodIngredients').value.trim();
+            const usage = document.getElementById('prodUsage').value.trim();
+
+            if (id) {
+                const index = defaultProducts.findIndex(p => p.id == id);
+                if (index !== -1) {
+                    defaultProducts[index].name = name;
+                    defaultProducts[index].category = category;
+                    defaultProducts[index].currentPrice = currentPrice;
+                    defaultProducts[index].originalPrice = originalPrice;
+                    defaultProducts[index].stock = stock;
+                    defaultProducts[index].image = image;
+                    
+                    defaultProducts[index].description = description;
+                    defaultProducts[index].specs = specs;
+                    defaultProducts[index].ingredients = ingredients;
+                    defaultProducts[index].usage = usage;
+                }
+                alert("Đã cập nhật toàn bộ thông tin chi tiết sản phẩm!");
+            } else {
+                const newProd = {
+                    id: Date.now(),
+                    name, category, currentPrice, originalPrice, stock, image,
+                    description, specs, ingredients, usage,
+                    reviews: []
+                };
+                defaultProducts.unshift(newProd);
+                alert("Đã thêm sản phẩm mới kèm nội dung chi tiết thành công!");
+            }
+
+            resetAdminForm();
+            showAdminDashboard();
+        }
+
+        function resetAdminForm() {
+            document.getElementById('adminForm').reset();
+            document.getElementById('editProductId').value = '';
+            document.getElementById('formTitle').innerText = "Thêm Sản Phẩm Mới Vào Hệ Thống";
+            document.getElementById('submitFormBtn').innerText = "Lưu sản phẩm";
+        }
+
+        function toggleCart(open) {
+            const drawer = document.getElementById('cartDrawer');
+            const overlay = document.getElementById('cartOverlay');
+            if (open) { drawer.classList.add('active'); overlay.classList.add('active'); renderCartItems(); }
+            else { drawer.classList.remove('active'); overlay.classList.remove('active'); }
+        }
+        function addToCart(productId, event) {
+            if(event) event.stopPropagation();
+            const product = defaultProducts.find(p => p.id === productId);
+            if (!product) return;
+            if(product.stock <= 0) { alert("Sản phẩm này tạm hết hàng!"); return; }
+
+            const existing = cart.find(i => i.id === productId);
+            if (existing) existing.quantity += 1;
+            else cart.push({ ...product, quantity: 1 });
+            
+            document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.quantity, 0);
+            alert(`Đã thêm vào giỏ hàng thành công!`);
+        }
+        function changeQuantity(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            item.quantity += delta;
+            if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+            document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.quantity, 0);
+            renderCartItems();
+        }
+        function renderCartItems() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                total += item.currentPrice * item.quantity;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <img class="cart-item-image" src="${item.image}">
+                    <div class="cart-item-details">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div>${(item.currentPrice * item.quantity).toLocaleString()} ₫</div>
+                        <div>
+                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('cartTotalAmount').innerText = total.toLocaleString();
+        }
+
+        window.onload = function() { renderProducts(defaultProducts); };
+    </script>
+</body>
+</html>
