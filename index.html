@@ -139,6 +139,7 @@
         .logout-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         
         /* Thống kê KPI Administrator */
+        /* ... (các style khác) ... */
         .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 35px; }
         .stat-card { padding: 20px; border-radius: 8px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .stat-card.blue { background: linear-gradient(135deg, #0056b3, #007bff); }
@@ -152,6 +153,16 @@
         /* Khung Đổi Mật Khẩu */
         .password-change-box { display: none; background: #fffcf5; border: 1px solid #f39c12; border-radius: 8px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(243,156,18,0.06); }
         .password-change-box.active { display: block; }
+        
+        /* New class to explicitly hide elements via JS */
+        .hidden-by-js {
+            display: none !important;
+        }
+        
+        /* Ẩn phần quản lý người dùng mặc định bằng CSS */
+        #employeeManagementSection {
+            margin-top: 50px; /* Di chuyển margin-top từ inline style vào CSS */
+        }
 
         /* Form và bộ layout điều khiển admin */
         .admin-form-box { background: #fdfdfd; border: 1px solid #dcdcdc; border-radius: 8px; padding: 25px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
@@ -198,7 +209,7 @@
         /* Giỏ hàng Drawer */
         .cart-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.5); }
         .cart-overlay.active { display: block; }
-        .cart-drawer { position: fixed; top: 0; right: -420px; width: 420px; height: 100vh; background-color: #ffffff; z-index: 1000; transition: right 0.4s ease; display: flex; flex-direction: column; }
+        .cart-drawer { position: fixed; top: 0; right: -420px; width: 100%; max-width: 420px; height: 100vh; background-color: #ffffff; z-index: 1000; transition: right 0.4s ease; display: flex; flex-direction: column; }
         .cart-drawer.active { right: 0; }
         .cart-header { background-color: #0056b3; color: #ffffff; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
         .cart-items { flex: 1; overflow-y: auto; padding: 20px 0; }
@@ -367,9 +378,11 @@
             <div class="admin-top-header">
                 <div>
                     <h2>HỆ THỐNG QUẢN TRỊ ADMINISTRATOR</h2>
-                    <div class="admin-user-info" id="adminUserInfo">
-                        <span>Đang đăng nhập: admin</span>
-                        <button class="change-pass-toggle-btn" onclick="toggleChangePasswordBox()">🔒 Đổi mật khẩu</button>
+                    <div class="admin-user-info" id="adminUserInfoDisplay">
+                        <span>Đang đăng nhập: 
+                            <span id="loggedInUsername"></span> (<span id="loggedInUserRole"></span>)
+                        </span>
+                        <button class="change-pass-toggle-btn" onclick="toggleChangePasswordBox()" id="changePassBtn">🔒 Đổi mật khẩu</button>
                     </div>
                 </div>
                 <button class="logout-btn" onclick="logoutAdmin()">Đăng xuất hệ thống</button>
@@ -422,7 +435,7 @@
                 </div>
             </div>
 
-            <div class="admin-form-box" id="adminFormBox">
+            <div class="admin-form-box hidden-by-js" id="adminFormBox">
                 <h3 id="formTitle">Thêm Sản Phẩm Mới Vào Hệ Thống</h3>
                 <form id="adminForm" onsubmit="saveProduct(event)">
                     <input type="hidden" id="editProductId" value="">
@@ -493,6 +506,48 @@
                 </form>
             </div>
 
+            <!-- Quản lý Tài khoản Người dùng -->
+            <div class="admin-form-box hidden-by-js" id="employeeManagementSection"> 
+                <h3>Quản Lý Tài Khoản Người Dùng</h3>
+                <form id="addEmployeeForm" onsubmit="addEmployee(event)">
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="form-group">
+                            <label>Tên tài khoản *</label>
+                            <input type="text" id="newEmployeeUsername" required placeholder="Ví dụ: nhanvien01">
+                        </div>
+                        <div class="form-group">
+                            <label>Mật khẩu *</label>
+                            <input type="password" id="newEmployeePassword" required placeholder="Mật khẩu cho người dùng">
+                        </div>
+                        <div class="form-group">
+                            <label>Vai trò *</label>
+                            <select id="newUserRole" required>
+                                <option value="employee">Nhân viên</option>
+                                <option value="admin">Quản trị viên</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions-row">
+                        <button type="submit" class="form-btn submit" style="background:#007bff;">Thêm Người Dùng Mới</button>
+                    </div>
+                </form>
+
+                <div class="table-responsive" style="margin-top: 30px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Tên tài khoản</th>
+                                <th>Vai trò</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeTableBody">
+                            <!-- Employee rows will be rendered here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="admin-table">
                     <thead>
@@ -517,14 +572,16 @@
         <div class="login-card">
             <h3>Đăng Nhập Hệ Thống Quản Trị</h3>
             <div class="login-error-alert" id="loginErrorAlert">Mật khẩu hệ thống Admin chưa chính xác!</div>
-            <form onsubmit="handleAdminLogin(event)">
+            <form onsubmit="handleAdminLogin(event)"> 
                 <div class="form-group">
                     <label>Tài khoản</label>
-                    <input type="text" id="loginUser" value="admin" readonly style="background:#f0f0f0; cursor:not-allowed;">
+                    <!-- Cho phép nhập tài khoản để phân biệt admin/employee -->
+                    <input type="text" id="loginUser" required placeholder="Nhập tài khoản..." value="admin" oninput="document.getElementById('loginErrorAlert').classList.remove('active')">
                 </div>
                 <div class="form-group">
                     <label>Mật khẩu kiểm soát *</label>
-                    <input type="password" id="loginPassword" required placeholder="Nhập mật khẩu truy cập...">
+                    <input type="password" id="loginPassword" required placeholder="Nhập mật khẩu truy cập..." oninput="document.getElementById('loginErrorAlert').classList.remove('active')">
+                    <!-- Đã sửa lỗi trùng lặp input và thêm .trim() trong JS -->
                 </div>
                 <div class="form-actions-row" style="margin-top:20px;">
                     <button type="button" class="form-btn cancel" onclick="closeLoginModal()">Thoát ra</button>
@@ -642,7 +699,13 @@
         ];
 
         // Mật khẩu Admin mặc định ban đầu
-        let CURRENT_ADMIN_PASSWORD = "admin";
+        let USER_CREDENTIALS = {}; // Sẽ được tải từ localStorage hoặc khởi tạo mặc định
+        const DEFAULT_USER_CREDENTIALS = { // Định nghĩa các tài khoản và vai trò mặc định
+            "admin": { password: "Admin@123", role: "admin" },
+            "employee": { password: "Employee@123", role: "employee" } // Tài khoản nhân viên
+        };
+        let currentUserRole = null; // Lưu vai trò của người dùng hiện tại ('admin' hoặc 'employee')
+        let currentLoggedInUser = null; // Lưu tên tài khoản đang đăng nhập
         let cart = [];
         let currentFilterCategory = "TẤT CẢ";
         let activeDetailProductId = null;
@@ -1082,6 +1145,7 @@
         // CƠ CHẾ BẢO MẬT & ĐIỀU KHIỂN QUẢN TRỊ (ADMINISTRATOR)
         function openLoginModal() { document.getElementById('loginModal').classList.add('active'); }
         function closeLoginModal() { 
+            // console.log('DEBUG: closeLoginModal called.');
             document.getElementById('loginModal').classList.remove('active'); 
             document.getElementById('loginErrorAlert').classList.remove('active');
             document.getElementById('loginPassword').value = '';
@@ -1089,17 +1153,25 @@
 
         function handleAdminLogin(e) {
             e.preventDefault();
-            const passInput = document.getElementById('loginPassword').value;
+            console.log('DEBUG: handleAdminLogin called, preventDefault executed.');
+            console.log('DEBUG: Attempting login for user:', document.getElementById('loginUser').value.trim());
+            const user = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPassword').value.trim();
             
-            if (passInput === CURRENT_ADMIN_PASSWORD) {
+            if (USER_CREDENTIALS[user] && USER_CREDENTIALS[user].password === passInput) {
+                currentLoggedInUser = user;
+                currentUserRole = USER_CREDENTIALS[user].role;
+                console.log('DEBUG: Login successful. User:', currentLoggedInUser, ' Role:', currentUserRole);
                 closeLoginModal();
                 activateAdminDashboard();
             } else {
+                console.log('DEBUG: Login failed for user:', user); // Added log
                 document.getElementById('loginErrorAlert').classList.add('active');
             }
         }
 
-        function activateAdminDashboard() {
+        function activateAdminDashboard() { // Thêm tham số user và role
+            console.log('DEBUG: activateAdminDashboard called. Current user:', currentLoggedInUser, ' Role:', currentUserRole);
             // Ẩn toàn bộ các phần trang chủ & trang chi tiết sản phẩm
             document.getElementById('productsContainer').style.display = 'none';
             document.getElementById('categoryNav').style.display = 'none';
@@ -1108,26 +1180,76 @@
             
             // Mở bảng Admin
             document.getElementById('adminSection').classList.add('active');
+            
+            // Cập nhật thông tin người dùng và vai trò
+            document.getElementById('loggedInUsername').innerText = currentLoggedInUser;
+            document.getElementById('loggedInUserRole').innerText = currentUserRole === 'admin' ? 'Quản trị viên' : 'Nhân viên';
+
+            // --- Bắt đầu logic hiển thị/ẩn các phần tử quản trị theo vai trò ---
+            const employeeManagementSection = document.getElementById('employeeManagementSection');
+            const adminFormBox = document.getElementById('adminFormBox'); // Form thêm/sửa sản phẩm
+            const changePassBtn = document.getElementById('changePassBtn'); // Nút "Đổi mật khẩu"
+
+            // 1. Ẩn tất cả các phần tử nhạy cảm này mặc định
+            if (employeeManagementSection) employeeManagementSection.classList.add('hidden-by-js');
+            if (adminFormBox) adminFormBox.classList.add('hidden-by-js');
+            if (changePassBtn) changePassBtn.classList.add('hidden-by-js');
+
+            // 2. Hiển thị các phần tử tương ứng dựa trên vai trò
+            if (currentUserRole === 'admin') {
+                if (employeeManagementSection) employeeManagementSection.classList.remove('hidden-by-js');
+                if (adminFormBox) adminFormBox.classList.remove('hidden-by-js');
+                if (changePassBtn) changePassBtn.classList.remove('hidden-by-js'); // Admin có thể thấy nút đổi mật khẩu
+            } else if (currentUserRole === 'employee') {
+                // Nhân viên chỉ được thấy form quản lý sản phẩm
+                if (adminFormBox) adminFormBox.classList.remove('hidden-by-js');
+                // Nhân viên không được thấy quản lý người dùng và nút đổi mật khẩu
+            }
+            // --- Kết thúc logic hiển thị/ẩn các phần tử quản trị theo vai trò ---
+
+            // Debug logs để kiểm tra trạng thái cuối cùng
+            console.log('DEBUG: employeeManagementSection classList:', employeeManagementSection ? employeeManagementSection.classList : 'N/A');
+            console.log('DEBUG: adminFormBox classList:', adminFormBox ? adminFormBox.classList : 'N/A');
+            console.log('DEBUG: changePassBtn classList:', changePassBtn ? changePassBtn.classList : 'N/A');
+            console.log('DEBUG: employeeManagementSection computed display style:', employeeManagementSection ? window.getComputedStyle(employeeManagementSection).display : 'N/A');
+            console.log('DEBUG: adminFormBox computed display style:', adminFormBox ? window.getComputedStyle(adminFormBox).display : 'N/A');
+            console.log('DEBUG: changePassBtn computed display style:', changePassBtn ? window.getComputedStyle(changePassBtn).display : 'N/A');
+
             renderAdminTable();
+            renderEmployeeTable(); // Đảm bảo bảng người dùng được render (và ẩn nếu không phải admin)
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function logoutAdmin() {
             backToHome();
-            alert("🔒 Đã đăng xuất khỏi tài khoản Quản trị hệ thống an toàn.");
+            currentUserRole = null; // Reset vai trò
+            currentLoggedInUser = null; // Reset người dùng
+            console.log('DEBUG: Logout successful. currentUserRole reset to:', currentUserRole);
+            alert("🔒 Đã đăng xuất khỏi tài khoản hệ thống an toàn.");
         }
 
         function toggleChangePasswordBox() {
-            document.getElementById('passwordChangeBox').classList.toggle('active');
+            if (currentUserRole !== 'admin') {
+                alert("❌ Bạn không có quyền truy cập chức năng này!");
+                return;
+            }
+            // Hộp đổi mật khẩu được điều khiển bằng class 'active'
+            document.getElementById('passwordChangeBox').classList.toggle('active'); 
         }
 
         function handleAdminChangePassword(e) {
             e.preventDefault();
-            const oldP = document.getElementById('oldAdminPass').value;
-            const newP = document.getElementById('newAdminPass').value;
-            const confP = document.getElementById('confirmAdminPass').value;
+            console.log('DEBUG: handleAdminChangePassword called, preventDefault executed.');
+            if (currentUserRole !== 'admin') {
+                alert("❌ Bạn không có quyền thay đổi mật khẩu quản trị!");
+                return;
+            }
 
-            if (oldP !== CURRENT_ADMIN_PASSWORD) {
+            const oldP = document.getElementById('oldAdminPass').value.trim();
+            const newP = document.getElementById('newAdminPass').value.trim();
+            const confP = document.getElementById('confirmAdminPass').value.trim();
+
+            if (oldP !== USER_CREDENTIALS[currentLoggedInUser].password) {
                 alert("❌ Mật khẩu cũ không chính xác!");
                 return;
             }
@@ -1135,13 +1257,18 @@
                 alert("❌ Xác nhận mật khẩu mới không trùng khớp nhau!");
                 return;
             }
+            if (newP.length < 6) { // Thêm kiểm tra độ dài mật khẩu cơ bản
+                alert("❌ Mật khẩu mới phải có ít nhất 6 ký tự!");
+                return;
+            }
 
-            CURRENT_ADMIN_PASSWORD = newP;
+            USER_CREDENTIALS[currentLoggedInUser].password = newP; // Cập nhật mật khẩu trong đối tượng
             alert("🔑 Thay đổi mật khẩu Quản trị mới thành công!");
             document.getElementById('oldAdminPass').value = '';
             document.getElementById('newAdminPass').value = '';
             document.getElementById('confirmAdminPass').value = '';
             toggleChangePasswordBox();
+            saveCredentialsToLocalStorage();
         }
 
         // ĐỒNG BỘ SỐ LIỆU THỐNG KÊ KPI TRONG ADMIN
@@ -1167,11 +1294,20 @@
                     <td>${p.brand}</td>
                     <td><span style="color:${p.stock==='ConHang'?'#27ae60':'#e74c3c'}; font-weight:bold;">${p.stock==='ConHang'?'Còn Hàng Tồn':'Hết Hàng Đợt Này'}</span></td>
                     <td>
-                        <button class="action-btn edit" onclick="startEditProduct('${p.id}')">Sửa</button>
-                        <button class="action-btn delete" onclick="deleteProduct('${p.id}')">Xóa</button>
+                        <button class="action-btn edit hidden-by-js" onclick="startEditProduct('${p.id}')">Sửa</button> 
+                        <button class="action-btn delete hidden-by-js" onclick="deleteProduct('${p.id}')">Xóa</button>
                     </td>
                 `;
-                tbody.appendChild(tr);
+                tbody.appendChild(tr); // Append first to query buttons
+
+                const editBtn = tr.querySelector('.action-btn.edit');
+                const deleteBtn = tr.querySelector('.action-btn.delete');
+
+                // Chỉ admin mới có quyền sửa/xóa sản phẩm
+                if (currentUserRole === 'admin' || currentUserRole === 'employee') { // Cả admin và employee đều có quyền
+                    editBtn.classList.remove('hidden-by-js');
+                    deleteBtn.classList.remove('hidden-by-js');
+                }
             });
             updateKPIStats();
         }
@@ -1185,6 +1321,10 @@
 
         // BẮT ĐẦU CHỌN SỬA SẢN PHẨM LÊN FORM
         function startEditProduct(id) {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') { // Cả admin và employee đều có quyền
+                alert("❌ Bạn không có quyền sửa sản phẩm!");
+                return;
+            }
             const p = APP_PRODUCTS.find(item => item.id === id);
             if (!p) return;
 
@@ -1208,7 +1348,13 @@
 
         // LƯU HOẶC THÊM MỚI SẢN PHẨM TRONG ADMIN
         function saveProduct(e) {
+            console.log('DEBUG: saveProduct called, preventDefault executed.');
+            // console.log('DEBUG: saveProduct called, preventDefault executed.'); // Already exists, no change
             e.preventDefault();
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') { // Cả admin và employee đều có quyền
+                alert("❌ Bạn không có quyền thêm/sửa sản phẩm!");
+                return;
+            }
             const editId = document.getElementById('editProductId').value;
 
             const name = document.getElementById('prodName').value.trim();
@@ -1244,11 +1390,162 @@
 
         // LỆNH XÓA SẢN PHẨM TRONG ADMIN
         function deleteProduct(id) {
+            // console.log('DEBUG: deleteProduct called.'); // Already exists, no change
+            console.log('DEBUG: deleteProduct called.'); 
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') { // Cả admin và employee đều có quyền
+                alert("❌ Bạn không có quyền xóa sản phẩm!"); 
+                return;
+            }
             if (confirm("⚠️ Bạn chắc chắn có muốn xóa vĩnh viễn sản phẩm này ra khỏi bộ nhớ hệ thống?")) {
                 APP_PRODUCTS = APP_PRODUCTS.filter(p => p.id !== id);
                 renderAdminTable();
                 renderProductsGrid();
             }
+        }
+
+        // Lưu thông tin tài khoản vào Local Storage
+        function saveCredentialsToLocalStorage() {
+            try {
+                localStorage.setItem('USER_CREDENTIALS', JSON.stringify(USER_CREDENTIALS));
+                // console.log('DEBUG: USER_CREDENTIALS successfully saved to localStorage.');
+                console.log('DEBUG: USER_CREDENTIALS successfully saved to localStorage.');
+            } catch (e) {
+                console.error('ERROR: Failed to save USER_CREDENTIALS to localStorage:', e);
+                alert('Lỗi: Không thể lưu dữ liệu vào bộ nhớ cục bộ của trình duyệt. Vui lòng kiểm tra cài đặt trình duyệt.');
+            }
+        }
+
+        // Tải thông tin tài khoản từ Local Storage
+        function loadCredentialsFromLocalStorage() {
+            const storedCredentials = localStorage.getItem('USER_CREDENTIALS');
+            if (storedCredentials) {
+                USER_CREDENTIALS = JSON.parse(storedCredentials);
+                // console.log('DEBUG: Loaded credentials from localStorage:', USER_CREDENTIALS);
+                console.log('DEBUG: Loaded credentials from localStorage:', USER_CREDENTIALS);
+            } else {
+                USER_CREDENTIALS = { ...DEFAULT_USER_CREDENTIALS }; // Sử dụng mặc định nếu chưa có
+                // console.log('DEBUG: Initialized credentials with defaults:', USER_CREDENTIALS);
+                console.log('DEBUG: Initialized credentials with defaults:', USER_CREDENTIALS);
+            }
+        }
+
+        // KHI TRANG WEB KHỞI CHẠY LÊN
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCredentialsFromLocalStorage(); // Tải thông tin tài khoản khi khởi động
+            console.log('DEBUG: DOMContentLoaded - USER_CREDENTIALS after loading:', USER_CREDENTIALS);
+            renderProductsGrid();
+            updateKPIStats();
+        });
+
+        // HIỂN THỊ DANH SÁCH TÀI KHOẢN NGƯỜI DÙNG TRONG ADMIN
+        function renderEmployeeTable() { // Giữ tên hàm cũ để tránh lỗi gọi hàm
+            const tbody = document.getElementById('employeeTableBody');
+            if (!tbody) {
+                console.error('DEBUG: Element with ID "employeeTableBody" not found!');
+                return;
+            }
+            tbody.innerHTML = '';
+            // console.log('DEBUG: Rendering employee table with USER_CREDENTIALS:', USER_CREDENTIALS);
+            console.log('DEBUG: Rendering employee table with USER_CREDENTIALS:', USER_CREDENTIALS);
+            
+            for (const username in USER_CREDENTIALS) { // Lặp qua tất cả người dùng
+                const user = USER_CREDENTIALS[username];
+                const roleDisplay = user.role === 'admin' ? 'Quản trị viên' : 'Nhân viên';
+                
+                let actionButtons = '';
+                // Chỉ cho phép xóa tài khoản nhân viên, hoặc tài khoản admin khác (không phải tài khoản đang đăng nhập)
+                // Để đơn giản và an toàn hơn cho ứng dụng client-side, chỉ cho phép xóa tài khoản nhân viên.
+                // Và không cho phép admin tự xóa tài khoản của mình.
+                if (user.role === 'employee') {
+                    actionButtons = `<button class="action-btn delete" onclick="deleteEmployee('${username}')">Xóa</button>`;
+                } else if (username === currentLoggedInUser) {
+                    actionButtons = `<button class="action-btn delete" disabled title="Không thể xóa tài khoản đang đăng nhập">Xóa</button>`;
+                } else if (user.role === 'admin') {
+                    actionButtons = `<button class="action-btn delete" disabled title="Không thể xóa tài khoản quản trị viên">Xóa</button>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${username}</td>
+                    <td>${roleDisplay}</td>
+                    <td>
+                        ${actionButtons}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        // THÊM NGƯỜI DÙNG MỚI
+        function addEmployee(e) { // Giữ tên hàm cũ để tránh lỗi gọi hàm từ form
+            e.preventDefault();
+            // console.log('DEBUG: addEmployee called, preventDefault executed.');
+            console.log('DEBUG: addEmployee called, preventDefault executed.');
+            if (currentUserRole !== 'admin') {
+                alert("❌ Bạn không có quyền thêm người dùng mới!");
+                return;
+            }
+
+            const newUsername = document.getElementById('newEmployeeUsername').value.trim();
+            const newPassword = document.getElementById('newEmployeePassword').value.trim();
+            const newUserRole = document.getElementById('newUserRole').value; // Lấy vai trò được chọn
+
+            if (!newUsername || !newPassword) {
+                alert("Vui lòng nhập đầy đủ tên tài khoản và mật khẩu.");
+                return;
+            }
+            if (USER_CREDENTIALS[newUsername]) {
+                alert(`Tài khoản "${newUsername}" đã tồn tại. Vui lòng chọn tên khác.`);
+                return;
+            }
+            if (newPassword.length < 6) { // Kiểm tra độ dài mật khẩu cơ bản
+                alert("❌ Mật khẩu phải có ít nhất 6 ký tự!");
+                return;
+            }
+
+            USER_CREDENTIALS[newUsername] = { password: newPassword, role: newUserRole }; // Lưu vai trò được chọn
+            // console.log('DEBUG: USER_CREDENTIALS after adding new user:', USER_CREDENTIALS);
+            console.log('DEBUG: USER_CREDENTIALS after adding new user:', USER_CREDENTIALS);
+            saveCredentialsToLocalStorage();
+            // console.log('DEBUG: Credentials saved to localStorage.');
+            console.log('DEBUG: Credentials saved to localStorage.');
+            renderEmployeeTable(); // Cập nhật lại bảng người dùng
+            document.getElementById('addEmployeeForm').reset();
+            alert(`✅ Đã thêm tài khoản "${newUsername}" với vai trò "${newUserRole === 'admin' ? 'Quản trị viên' : 'Nhân viên'}" thành công!`);
+        }
+
+        // XÓA NGƯỜI DÙNG
+        function deleteEmployee(username) { // Giữ tên hàm cũ để tránh lỗi gọi hàm
+            // console.log('DEBUG: deleteEmployee called for user:', username);
+            console.log('DEBUG: deleteEmployee called for user:', username);
+            if (currentUserRole !== 'admin') {
+                alert("❌ Bạn không có quyền xóa tài khoản người dùng!");
+                return;
+            }
+            if (username === currentLoggedInUser) {
+                alert("❌ Bạn không thể xóa tài khoản của chính mình!");
+                return;
+            }
+            if (USER_CREDENTIALS[username] && USER_CREDENTIALS[username].role === 'admin') {
+                // Đảm bảo không xóa tài khoản quản trị viên cuối cùng
+                const adminCount = Object.values(USER_CREDENTIALS).filter(u => u.role === 'admin').length;
+                if (adminCount <= 1) {
+                    alert("❌ Không thể xóa tài khoản quản trị viên cuối cùng!");
+                    return;
+                }
+                if (!confirm(`⚠️ Bạn chắc chắn muốn xóa tài khoản quản trị viên "${username}"? Hành động này không thể hoàn tác.`)) {
+                    return;
+                }
+            } else { // Xóa tài khoản nhân viên
+                if (!confirm(`⚠️ Bạn chắc chắn muốn xóa tài khoản nhân viên "${username}"?`)) {
+                    return;
+                }
+            }
+            
+            delete USER_CREDENTIALS[username];
+            saveCredentialsToLocalStorage();
+            renderEmployeeTable(); // Cập nhật lại bảng người dùng
+            alert(`✅ Đã xóa tài khoản "${username}" thành công.`);
         }
     </script>
 
