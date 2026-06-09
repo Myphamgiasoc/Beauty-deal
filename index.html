@@ -12,7 +12,11 @@
         /* Header & Menu Dropdown */
         header { background-color: #0056b3; color: #ffffff; padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0, 86, 179, 0.15); }
         .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
-        .logo { font-size: 26px; font-weight: bold; letter-spacing: 1.5px; color: #ffffff; text-decoration: none; }
+        
+        /* Chỗ thương hiệu chỉnh lại flex cột để hỗ trợ slogan */
+        .logo-container { display: flex; flex-direction: column; text-decoration: none; }
+        .logo { font-size: 26px; font-weight: bold; letter-spacing: 1.5px; color: #ffffff; text-decoration: none; line-height: 1.2; }
+        .logo-slogan { font-size: 12px; color: #e0e0e0; font-weight: normal; margin-top: 2px; letter-spacing: 0.5px; }
         
         .menu-dropdown-wrapper { position: relative; }
         .menu-toggle-btn { background: none; border: none; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 4px; transition: background 0.2s; text-transform: uppercase; }
@@ -32,12 +36,13 @@
         .cart-icon { position: relative; font-size: 28px; }
         .cart-count { position: absolute; top: -10px; right: -10px; background-color: #ff0000; color: #ffffff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid #ffffff; }
 
-        /* Banner Slider */
+        /* Banner Slider & Hiệu ứng nút bấm gốc */
         .banner-slider { position: relative; width: 100%; min-height: 380px; background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; }
         .slide-content { color: #ffffff; text-align: center; padding: 40px; }
         .slide-title { font-size: 42px; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
         .slide-subtitle { font-size: 18px; margin-bottom: 25px; opacity: 0.95; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); }
-        .slide-btn { padding: 12px 32px; background-color: #ffffff; color: #0056b3; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .slide-btn { padding: 12px 32px; background-color: #ffffff; color: #0056b3; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; }
+        .slide-btn:hover { background-color: #f0f4f8; transform: scale(1.06); box-shadow: 0 4px 15px rgba(255,255,255,0.2); }
 
         /* Main Container */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -152,6 +157,7 @@
         .admin-form-box { background: #fdfdfd; border: 1px solid #dcdcdc; border-radius: 8px; padding: 25px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .admin-form-box h3 { color: #0056b3; font-size: 18px; margin-bottom: 15px; border-bottom: 2px dashed #eee; padding-bottom: 10px; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .form-group { display: flex; flex-direction: column; margin-bottom: 12px; }
         .form-group label { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444; }
         .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; font-family: inherit; }
@@ -218,7 +224,10 @@
 
     <header>
         <div class="header-container">
-            <a href="#" class="logo" onclick="backToHome(event)">BEAUTY DEAL</a>
+            <a href="#" class="logo-container" onclick="backToHome(event)">
+                <span class="logo">BEAUTY DEAL</span>
+                <span class="logo-slogan">Mỹ Phẩm Giá Sốc</span>
+            </a>
             
             <div class="menu-dropdown-wrapper">
                 <button class="menu-toggle-btn" onclick="toggleMenuDropdown(event)">
@@ -230,7 +239,7 @@
                     <button class="dropdown-item" onclick="selectFromDropdown('DẦU GỘI & CHĂM SÓC TÓC')">Dầu gội & chăm sóc tóc</button>
                     <button class="dropdown-item" onclick="selectFromDropdown('KEM CHỐNG NẮNG')">Kem chống nắng</button>
                     <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC DA MẶT')">Chăm sóc da mặt</button>
-                    <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC CƠ THỂ')">Chăm sóc cơ thể</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SOK CƠ THỂ')">Chăm sóc cơ thể</button>
                 </div>
             </div>
 
@@ -251,7 +260,7 @@
         <div class="slide-content">
             <h1 class="slide-title">Bùng Nổ Siêu Deal Mỹ Phẩm</h1>
             <p class="slide-subtitle">Cam kết chính hãng 100% - Hoàn tiền 200% nếu phát hiện hàng giả</p>
-            <button class="slide-btn">Mua Ngay</button>
+            <button id="btn-mua-ngay" class="slide-btn">Mua Ngay</button>
         </div>
     </section>
 
@@ -421,10 +430,10 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Tên sản phẩm *</label>
-                            <input type="text" id="prodName" required placeholder="Nhập tên sản phẩm...">
+                            <input type="text" id="prodName" required placeholder="Ví dụ: Nước tẩy trang Bioderma 500ml">
                         </div>
                         <div class="form-group">
-                            <label>Danh mục nhóm *</label>
+                            <label>Danh mục hệ thống *</label>
                             <select id="prodCategory" required>
                                 <option value="TRANG ĐIỂM">Trang điểm</option>
                                 <option value="DẦU GỘI & CHĂM SÓC TÓC">Dầu gội & chăm sóc tóc</option>
@@ -434,89 +443,93 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Giá bán hiện tại (₫) *</label>
-                            <input type="number" id="prodCurrPrice" required placeholder="Ví dụ: 150000">
+                            <label>Giá bán hiện tại (đ) *</label>
+                            <input type="number" id="prodCurrPrice" required placeholder="Ví dụ: 145000">
                         </div>
                         <div class="form-group">
-                            <label>Giá gốc niêm yết (₫)</label>
-                            <input type="number" id="prodOrigPrice" placeholder="Ví dụ: 200000">
+                            <label>Giá gốc thị trường (đ)</label>
+                            <input type="number" id="prodOrigPrice" placeholder="Ví dụ: 210000">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Đường dẫn hình ảnh (URL Link) *</label>
+                            <input type="text" id="prodImage" required placeholder="Nhập link ảnh HTTPS từ Unsplash hoặc máy chủ của bạn...">
                         </div>
                         <div class="form-group">
-                            <label>Số lượng tồn kho *</label>
-                            <input type="number" id="prodStock" required placeholder="Ví dụ: 50" value="50">
+                            <label>Thương hiệu *</label>
+                            <input type="text" id="prodBrand" required placeholder="Ví dụ: L'Oreal, La Roche-Posay...">
                         </div>
                         <div class="form-group">
-                            <label>Đường dẫn hình ảnh URL *</label>
-                            <input type="url" id="prodImage" required placeholder="https://example.com/image.jpg">
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="form-group">
-                            <label>Mục 1: Nội dung Mô tả sản phẩm</label>
-                            <textarea id="prodDescription" rows="4" placeholder="Nhập thông tin giới thiệu chi tiết sản phẩm..."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Mục 2: Nội dung Thông số kỹ thuật</label>
-                            <textarea id="prodSpecs" rows="4" placeholder="Ví dụ: Dung tích: 500ml | Xuất xứ: Pháp | Thương hiệu: Laroche..."></textarea>
+                            <label>Trạng thái kho hàng *</label>
+                            <select id="prodStock" required>
+                                <option value="ConHang">Còn Hàng Tồn</option>
+                                <option value="HetHang">Hết Hàng Toàn Hệ Thống</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div style="margin-top: 0px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-tabs-inputs" style="margin-top: 15px;">
                         <div class="form-group">
-                            <label>Mục 3: Nội dung Thành phần hóa học</label>
-                            <textarea id="prodIngredients" rows="4" placeholder="Nhập chi tiết các thành phần dưỡng chất có trong sản phẩm..."></textarea>
+                            <label>Mô tả chi tiết sản phẩm</label>
+                            <textarea id="prodDesc" rows="3" placeholder="Nhập đặc điểm nổi bật..."></textarea>
                         </div>
                         <div class="form-group">
-                            <label>Mục 4: Nội dung Hướng dẫn sử dụng (HDSD)</label>
-                            <textarea id="prodUsage" rows="4" placeholder="Nhập các bước sử dụng sản phẩm hiệu quả nhất..."></textarea>
+                            <label>Thông số kỹ thuật (Dung tích, loại da, hạn dùng...)</label>
+                            <textarea id="prodSpecs" rows="2" placeholder="Dung tích: 500ml&#10;Loại da: Mọi loại da"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Thành phần chính</label>
+                            <textarea id="prodIngredients" rows="2" placeholder="Aqua, Glycerin, Peg-6 Caprylic..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Hướng dẫn sử dụng (HDSD)</label>
+                            <textarea id="prodUsage" rows="2" placeholder="Thấm đều ra bông tẩy trang, lau nhẹ..."></textarea>
                         </div>
                     </div>
 
                     <div class="form-actions-row">
-                        <button type="button" class="form-btn cancel" onclick="resetAdminForm()">Hủy thao tác</button>
-                        <button type="submit" class="form-btn submit" id="submitFormBtn">Lưu sản phẩm</button>
+                        <button type="button" class="form-btn cancel" onclick="cancelAdminEdit()">Hủy lệnh</button>
+                        <button type="submit" class="form-btn submit">Lưu dữ liệu sản phẩm</button>
                     </div>
                 </form>
             </div>
 
-            <h3>DANH SÁCH QUẢN LÝ SẢN PHẨM HỆ THỐNG</h3>
             <div class="table-responsive">
                 <table class="admin-table">
                     <thead>
                         <tr>
-                            <th>Hình ảnh</th>
+                            <th>Ảnh</th>
                             <th>Tên sản phẩm</th>
                             <th>Danh mục</th>
                             <th>Giá bán</th>
-                            <th>Tồn kho</th>
-                            <th>Thao tác quản lý</th>
+                            <th>Giá gốc</th>
+                            <th>Thương hiệu</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
-                    <tbody id="adminTableBody"></tbody>
+                    <tbody id="adminProductsTableBody"></tbody>
                 </table>
             </div>
         </section>
     </main>
 
-    <div class="login-overlay" id="loginOverlay" onclick="closeLoginModal()">
-        <div class="login-card" onclick="event.stopPropagation()">
-            <h3>Đăng Nhập Quản Trị Hệ Thống</h3>
-            
-            <div class="login-error-alert" id="loginErrorAlert">
-                ❌ Đăng nhập Thất bại! Sai Tên tài khoản hoặc Mật khẩu.
-            </div>
-
+    <div class="login-overlay" id="loginModal">
+        <div class="login-card">
+            <h3>Đăng Nhập Hệ Thống Quản Trị</h3>
+            <div class="login-error-alert" id="loginErrorAlert">Mật khẩu hệ thống Admin chưa chính xác!</div>
             <form onsubmit="handleAdminLogin(event)">
-                <div style="margin-bottom: 15px; display: flex; flex-direction: column;">
-                    <label style="font-size: 13px; font-weight:600; margin-bottom:5px;">Tên tài khoản</label>
-                    <input type="text" id="loginUser" required style="padding: 10px; border: 1px solid #ccc; border-radius:6px;" placeholder="Nhập tài khoản admin...">
+                <div class="form-group">
+                    <label>Tài khoản</label>
+                    <input type="text" id="loginUser" value="admin" readonly style="background:#f0f0f0; cursor:not-allowed;">
                 </div>
-                <div style="margin-bottom: 20px; display: flex; flex-direction: column;">
-                    <label style="font-size: 13px; font-weight:600; margin-bottom:5px;">Mật khẩu bảo mật</label>
-                    <input type="password" id="loginPass" required style="padding: 10px; border: 1px solid #ccc; border-radius:6px;" placeholder="Mật khẩu...">
+                <div class="form-group">
+                    <label>Mật khẩu kiểm soát *</label>
+                    <input type="password" id="loginPassword" required placeholder="Nhập mật khẩu truy cập...">
                 </div>
-                <button type="submit" style="width: 100%; padding: 12px; background: #0056b3; color: white; border: none; border-radius:6px; font-weight: bold; cursor: pointer;">ĐĂNG NHẬP HỆ THỐNG</button>
+                <div class="form-actions-row" style="margin-top:20px;">
+                    <button type="button" class="form-btn cancel" onclick="closeLoginModal()">Thoát ra</button>
+                    <button type="submit" class="form-btn submit" style="background:#0056b3;">Đăng nhập</button>
+                </div>
             </form>
         </div>
     </div>
@@ -524,577 +537,720 @@
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart(false)"></div>
     <div class="cart-drawer" id="cartDrawer">
         <div class="cart-header">
-            <h2>Giỏ Hàng Của Bạn</h2>
-            <button style="background:none; border:none; color:white; font-size:24px; cursor:pointer;" onclick="toggleCart(false)">×</button>
+            <h3>Giỏ Hàng Của Bạn</h3>
+            <button onclick="toggleCart(false)" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
         </div>
         <div class="cart-items" id="cartItemsContainer"></div>
         <div class="cart-footer">
-            <div class="cart-total">
-                <span>Tổng tiền:</span>
-                <span class="cart-total-amount" id="cartTotalAmount">0</span> ₫
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:bold; font-size:16px;">
+                <span>Tổng tiền tạm tính:</span>
+                <span id="cartTotalValue" style="color:#ff0000;">0đ</span>
             </div>
-            <button class="checkout-btn" onclick="alert('Tính năng đang phát triển!')">Thanh Toán Ngay</button>
+            <button class="checkout-btn" onclick="processCheckout()">TIẾN HÀNH THANH TOÁN</button>
         </div>
     </div>
 
+    <div id="popup-dat-hang" style="display: none; position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: popupFade 0.3s ease;">
+            <span id="closePopupBtn" style="position: absolute; right: 20px; top: 12px; font-size: 32px; cursor: pointer; color: #aaa; transition: color 0.2s;">&times;</span>
+            <h3 style="color: #0056b3; margin-top: 5px; font-size: 22px; font-weight: bold; margin-bottom: 8px;">ĐĂNG KÝ NHẬN ƯU ĐÃI</h3>
+            <p style="color: #555; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">Để lại thông tin, shop sẽ gọi điện xác nhận ưu đãi "Mỹ Phẩm Giá Sốc" ngay cho bạn nhé!</p>
+            <form id="popupForm">
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 12px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Họ và tên của bạn *</label>
+                    <input type="text" id="popupCustomerName" required placeholder="Ví dụ: Nguyễn Thúy Vi" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 18px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Số điện thoại nhận hàng *</label>
+                    <input type="tel" id="popupCustomerPhone" required placeholder="Ví dụ: 0912xxxxxx" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box;">
+                </div>
+                <button type="submit" style="background-color: #0056b3; color: white; padding: 13px; border: none; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,86,179,0.2);">Gửi Đăng Ký Ngay</button>
+            </form>
+        </div>
+    </div>
+    <style>
+        @keyframes popupFade {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        #closePopupBtn:hover { color: #333 !important; }
+    </style>
+
     <footer>
-        <p>© 2026 Beauty Deal - Mỹ Phẩm Chính Hãng. Tất Cả Quyền Được Bảo Lưu.</p>
+        <p>&copy; 2026 BEAUTY DEAL - HỆ THỐNG PHÂN PHỐI MỸ PHẨM CHÍNH HÃNG TOÀN QUỐC</p>
     </footer>
 
     <script>
-        // Mảng dữ liệu sản phẩm mẫu gốc đã đồng bộ chuẩn hoa thường danh mục
-        let defaultProducts = [
+        // CƠ SỞ DỮ LIỆU SẢN PHẨM MẪU BAN ĐẦU (MÀU CHUẨN GỐC)
+        let APP_PRODUCTS = [
             {
-                id: 1,
-                name: "Kem Dưỡng Ẩm Làm Sáng Da Cao Cấp",
+                id: "1710001",
+                name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml",
                 category: "CHĂM SÓC DA MẶT",
-                originalPrice: 600000,
-                currentPrice: 520000,
-                stock: 45,
-                image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80",
-                description: "Kem dưỡng giúp da mềm mịn, cấp ẩm sâu và làm sáng da tự nhiên. Thiết kế sang trọng, dễ thẩm thấu, phù hợp cho mọi loại da.",
-                specs: "Dung tích: 50ml\nXuất xứ: Pháp\nThương hiệu: L'Oreal Paris",
-                ingredients: "Aqua, Glycerin, Niacinamide, Isopropyl Isostearate, Polyacrylamide, Tocopheryl Acetate, Panthenol.",
-                usage: "Thoa đều một lượng kem vừa đủ lên da mặt sạch vào mỗi buổi sáng và tối, vỗ nhẹ để dưỡng chất thẩm thấu tốt hơn.",
-                reviews: [
-                    { author: "Hương Giang", stars: 5, date: "2026-05-14", content: "Mùi hương dễ chịu, dưỡng ẩm cực kỳ tốt cho mùa hanh khô!" }
-                ]
+                currPrice: 395000,
+                origPrice: 495000,
+                image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80",
+                brand: "Bioderma",
+                stock: "ConHang",
+                desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.",
+                specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp",
+                ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.",
+                usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn."
             },
             {
-                id: 2,
-                name: "Cushion Trang Điểm IOPE Chuyên Sâu",
+                id: "1710002",
+                name: "Son Kem Lì Maybelline New York Superstay Matte Ink Slay 5ml",
                 category: "TRANG ĐIỂM",
-                originalPrice: 720000,
-                currentPrice: 520000,
-                stock: 12,
+                currPrice: 198000,
+                origPrice: 245000,
                 image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80",
-                description: "Phấn nước che khuyết điểm hoàn hảo, mang lại lớp nền tự nhiên bền màu mỏng nhẹ suốt cả ngày.",
-                specs: "Trọng lượng: 15g\nXuất xứ: Hàn Quốc\nThương hiệu: IOPE",
-                ingredients: "Titanium Dioxide, Cyclopentasiloxane, Ethylhexyl Methoxycinnamate, Zinc Oxide, Phenyl Trimethicone.",
-                usage: "Dùng bông phấn dặm nhẹ đều khắp bề mặt da mặt để tạo độ che phủ mịn màng nhất.",
-                reviews: []
+                brand: "Maybelline",
+                stock: "ConHang",
+                desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.",
+                specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ",
+                ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.",
+                usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn."
             },
             {
-                id: 3,
-                name: "Son Lì Mac Fix+ Ruby Đỏ Quyến Rũ",
-                category: "TRANG ĐIỂM",
-                originalPrice: 650000,
-                currentPrice: 450000,
-                stock: 25,
-                image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80",
-                description: "Sắc đỏ chuẩn mực quyến rũ, chất son lì mịn bám môi lâu trôi không gây khô môi.",
-                specs: "Trọng lượng: 3g\nXuất xứ: Mỹ\nThương hiệu: M.A.C",
-                ingredients: "Dimethicone, Isoeicosane, Kaolin, Ceresin, Paraffin, Silica.",
-                usage: "Thoa trực tiếp lên môi hoặc lòng môi theo phong cách make-up mong muốn.",
-                reviews: []
-            },
-            {
-                id: 4,
-                name: "Kem Chống Nắng SPF50 Neutrogena",
+                id: "1710003",
+                name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml",
                 category: "KEM CHỐNG NẮNG",
-                originalPrice: 380000,
-                currentPrice: 220000,
-                stock: 50,
-                image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=500&q=80",
-                description: "Bảo vệ da vượt trội dưới ánh nắng mặt trời, không gây nhờn rít, chống thấm nước tốt.",
-                specs: "Dung tích: 88ml\nXuất xứ: Mỹ\nThương hiệu: Neutrogena",
-                ingredients: "Avobenzone, Homosalate, Octisalate, Octocrylene, Oxybenzone.",
-                usage: "Thoa trước khi ra ngoài nắng khoảng 20 phút. Thoa lại sau mỗi 2 tiếng nếu hoạt động liên tục ngoài trời.",
-                reviews: []
+                currPrice: 425000,
+                origPrice: 515000,
+                image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80",
+                brand: "La Roche-Posay",
+                stock: "ConHang",
+                desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.",
+                specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu",
+                ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.",
+                usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút."
+            },
+            {
+                id: "1710004",
+                name: "Dầu Gội L'Oréal Professionnel Serie Expert Absolut Repair 500ml",
+                category: "DẦU GỘI & CHĂM SÓC TÓC",
+                currPrice: 560000,
+                origPrice: 680000,
+                image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80",
+                brand: "L'Oréal Professionnel",
+                stock: "ConHang",
+                desc: "Dầu gội cao cấp phục hồi hư tổn xơ rối nặng chuyên sâu nhờ dưỡng chất Protein hạt diêm mạch vàng (Gold Quinoa).",
+                specs: "Dung tích: 500ml\nLoại tóc: Tóc hư tổn, chẻ ngọn\nThương hiệu: Pháp",
+                ingredients: "Aqua / Water / Eau, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Dimethicone, Sodium Chloride, Citric Acid.",
+                usage: "Thoa đều dầu gội lên tóc ướt, massage nhẹ nhàng da đầu và ngọn tóc, sau đó xả sạch lại với nước."
             }
         ];
 
-        // Tài khoản admin kiểm tra
-        let adminAccount = { user: "admin", pass: "123" };
-        let currentUserSession = null;
+        // Mật khẩu Admin mặc định ban đầu
+        let CURRENT_ADMIN_PASSWORD = "admin";
         let cart = [];
-        let currentSelectedCategory = "TẤT CẢ";
-        let activeProductIdReview = null;
-        let reviewFilterStars = 'all';
+        let currentFilterCategory = "TẤT CẢ";
+        let activeDetailProductId = null;
 
-        function toggleMenuDropdown(event) {
-            if(event) event.stopPropagation();
-            document.getElementById('dropdownMenu').classList.toggle('active');
-        }
-        function selectFromDropdown(categoryName) {
-            document.getElementById('dropdownMenu').classList.remove('active');
-            const buttons = document.querySelectorAll('.category-btn');
-            let targetButton = null;
-            buttons.forEach(btn => {
-                if(btn.innerText.toUpperCase() === categoryName.toUpperCase()) targetButton = btn;
-            });
-            filterCategory(categoryName, targetButton);
-        }
-        document.addEventListener('click', function() {
-            document.getElementById('dropdownMenu').classList.remove('active');
+        // Dữ liệu đánh giá Hasaki giả lập đồng bộ theo Product ID
+        let HASAKI_REVIEWS_DB = {
+            "1710001": [
+                { user: "Trần Thị Trà My", stars: 5, date: "24/05/2026", content: "Tẩy trang bioderma nắp hồng thì quá đỉnh rồi ạ, sạch sâu, dịu nhẹ không hề gây rát hay lên mụn, giao hàng siêu nhanh." },
+                { user: "Hoàng Linh Chi", stars: 5, date: "18/05/2026", content: "Hàng chuẩn chính hãng quét mã ra đầy đủ thông tin nha mọi người. Đóng gói cẩn thận bọc chống sốc dầy dặn lắm." },
+                { user: "Nguyễn Vũ Long", stars: 4, date: "10/05/2026", content: "Tẩy trang sạch tốt, chai to xài cực kỳ tiết kiệm, tuy nhiên nắp bật hơi chặt tí." }
+            ],
+            "1710002": [
+                { user: "Lê Mỹ Duyên", stars: 5, date: "22/05/2026", content: "Màu son slay cực kỳ tôn da nha các bạn, chất son siêu lì ăn uống thoải mái không lo trôi son đâu ạ." },
+                { user: "Phạm Minh Thư", stars: 3, date: "15/05/2026", content: "Son giữ màu siêu lâu thật nhưng hơi khô môi nha, bạn nào môi khô nhớ lót một lớp son dưỡng trước." }
+            ]
+        };
+
+        // KHI TRANG WEB KHỞI CHẠY LÊN
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProductsGrid();
+            updateKPIStats();
         });
 
-        // Hàm Render lưới sản phẩm ra màn hình chính
-        function renderProducts(productsList) {
+        // 1. TÍCH HỢP: XỬ LÝ SỰ KIỆN CHO POPUP FORM "MUA NGAY"
+        const popupDatHang = document.getElementById("popup-dat-hang");
+        const btnMuaNgay = document.getElementById("btn-mua-ngay");
+        const closePopupBtn = document.getElementById("closePopupBtn");
+        const popupForm = document.getElementById("popupForm");
+
+        // Bấm nút Mua Ngay -> Mở Popup dưới dạng Flexbox
+        if(btnMuaNgay) {
+            btnMuaNgay.addEventListener("click", function(e) {
+                e.preventDefault(); // Tránh lỗi cuộn trang đột ngột
+                popupDatHang.style.display = "flex";
+            });
+        }
+        // Bấm dấu X -> Đóng Popup
+        closePopupBtn.addEventListener("click", function() {
+            popupDatHang.style.display = "none";
+        });
+        // Bấm ra nền đen mờ -> Tự đóng Popup
+        window.addEventListener("click", function(e) {
+            if (e.target === popupDatHang) {
+                popupDatHang.style.display = "none";
+            }
+        });
+        // Xử lý gửi Form Đăng ký thông tin khách hàng
+        popupForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const name = document.getElementById("popupCustomerName").value;
+            const phone = document.getElementById("popupCustomerPhone").value;
+            
+            alert(`🎉 Đăng ký nhận ưu đãi thành công!\nChào ${name}, Shop Beauty Deal sẽ gọi vào số điện thoại ${phone} để gửi mã giảm giá "Mỹ Phẩm Giá Sốc" cho bạn ngay nha!`);
+            
+            // Reset form và ẩn popup
+            popupForm.reset();
+            popupDatHang.style.display = "none";
+        });
+
+
+        // HÀM HIỂN THỊ DANH SÁCH SẢN PHẨM RA MÀN HÌNH CHÍNH
+        function renderProductsGrid(productsToRender = APP_PRODUCTS) {
             const container = document.getElementById('productsContainer');
             container.innerHTML = '';
-            if (!productsList || productsList.length === 0) {
-                container.innerHTML = `<div style="text-align:center; width:100%; grid-column: 1/-1; padding: 60px; color:#999; font-size:15px;">Không tìm thấy sản phẩm phù hợp trong danh mục này.</div>`;
+
+            if (productsToRender.length === 0) {
+                container.innerHTML = `<p style="grid-column: span 4; text-align:center; padding: 40px; color:#999; font-weight:600;">Không có sản phẩm nào phù hợp với yêu cầu tìm kiếm!</p>`;
                 return;
             }
-            productsList.forEach(product => {
-                const discount = product.originalPrice ? Math.round(((product.originalPrice - product.currentPrice) / product.originalPrice) * 100) : 0;
+
+            productsToRender.forEach(prod => {
+                const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
+                
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.setAttribute('onclick', `viewProductDetail(${product.id}, event)`);
+                card.onclick = () => openProductDetail(prod.id);
+
                 card.innerHTML = `
                     <div class="product-image-wrapper">
+                        <img src="${prod.image}" class="product-image" alt="${prod.name}">
                         ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
-                        <img class="product-image" src="${product.image}">
                     </div>
                     <div class="product-info">
-                        <div class="product-name">${product.name}</div>
+                        <div class="product-name">${prod.name}</div>
                         <div class="product-prices">
-                            <span class="current-price">${product.currentPrice.toLocaleString()} ₫</span>
-                            ${discount > 0 ? `<span class="original-price">${product.originalPrice.toLocaleString()} ₫</span>` : ''}
+                            <span class="current-price">${prod.currPrice.toLocaleString()}đ</span>
+                            ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
                         </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(${product.id}, event)">Thêm vào giỏ</button>
+                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', event)">Thêm giỏ hàng</button>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // Lọc danh mục sản phẩm theo nhãn
-        function filterCategory(categoryName, element) {
-            currentSelectedCategory = categoryName.trim().toUpperCase();
-            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-            if(element) element.classList.add('active');
+        // BỘ LỌC TÌM KIẾM THEO CHỮ (SEARCH KEYWORD)
+        function handleSearch() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            let filtered = APP_PRODUCTS;
 
-            document.getElementById('productDetailSection').classList.remove('active');
-            document.getElementById('adminSection').classList.remove('active');
-            document.getElementById('mainBanner').style.display = 'flex';
-            document.getElementById('categoryNav').style.display = 'flex';
-            document.getElementById('productsContainer').style.display = 'grid';
-
-            if (currentSelectedCategory === "TẤT CẢ") {
-                renderProducts(defaultProducts);
-            } else {
-                const filtered = defaultProducts.filter(p => p.category.trim().toUpperCase() === currentSelectedCategory);
-                renderProducts(filtered);
+            if (currentFilterCategory !== "TẤT CẢ") {
+                filtered = filtered.filter(p => p.category === currentFilterCategory);
             }
+            if (keyword !== "") {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(keyword) || p.brand.toLowerCase().includes(keyword));
+            }
+            renderProductsGrid(filtered);
         }
 
-        function viewProductDetail(productId, event) {
-            if (event && event.target.classList.contains('add-to-cart-btn')) return;
-            const product = defaultProducts.find(p => p.id === productId);
-            if (!product) return;
-
-            activeProductIdReview = productId;
-            reviewFilterStars = 'all';
-
-            document.getElementById('mainBanner').style.display = 'none';
-            document.getElementById('categoryNav').style.display = 'none';
-            document.getElementById('productsContainer').style.display = 'none';
-            document.getElementById('adminSection').classList.remove('active');
-            document.getElementById('productDetailSection').classList.add('active');
-
-            const discount = product.originalPrice ? Math.round(((product.originalPrice - product.currentPrice) / product.originalPrice) * 100) : 0;
+        // BỘ LỌC THEO CATEGORY BUTTON
+        function filterCategory(catName, btnElement) {
+            currentFilterCategory = catName;
             
-            document.getElementById('detailProductTopBox').innerHTML = `
-                <div class="detail-top-left">
-                    <img src="${product.image}" alt="${product.name}">
-                </div>
-                <div class="detail-top-right">
-                    <h1 class="detail-top-title">${product.name}</h1>
-                    <div class="detail-top-brand-row">Danh mục: <span>${product.category}</span> | Tồn kho: <span>${product.stock > 0 ? product.stock + ' sản phẩm' : 'Tạm hết hàng'}</span></div>
-                    <div class="detail-top-price-card">
-                        <span class="detail-top-curr-price">${product.currentPrice.toLocaleString()} ₫</span>
-                        ${discount > 0 ? `<span class="detail-top-orig-price">${product.originalPrice.toLocaleString()} ₫</span>` : ''}
-                    </div>
-                    <button class="detail-top-buy-btn" onclick="addToCart(${product.id}, null)">🛒 THÊM VÀO GIỎ HÀNG NGAY</button>
-                </div>
-            `;
+            // Đổi class active ở giao diện nút bấm ngang
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
 
-            document.getElementById('mota').innerHTML = `<h3>Mô tả sản phẩm</h3><div class="tab-content-text">${product.description || 'Đang cập nhật nội dung...'}</div>`;
-            document.getElementById('thongso').innerHTML = `<h3>Thông số kỹ thuật</h3><div class="tab-content-text">${product.specs || 'Đang cập nhật...'}</div>`;
-            document.getElementById('thanhphan').innerHTML = `<h3>Thành phần sản phẩm</h3><div class="tab-content-text">${product.ingredients || 'Đang cập nhật...'}</div>`;
-            document.getElementById('hdsd').innerHTML = `<h3>Hướng dẫn sử dụng</h3><div class="tab-content-text">${product.usage || 'Đang cập nhật...'}</div>`;
-            document.getElementById('hoidap').innerHTML = `<h3>Hỏi đáp thắc mắc</h3><div class="tab-content-text">Chưa có câu hỏi nào từ phía khách hàng.</div>`;
+            // Đồng bộ trạng thái active sang menu dọc nếu có
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.style.backgroundColor = '';
+                item.style.color = '';
+            });
 
-            refreshHasakiReviewsUI();
-            switchTab('mota', document.querySelector('.tab-btn'));
-            renderRelatedProducts(product.category, product.id);
+            handleSearch();
+        }
+
+        // ĐIỀU KHIỂN DROPDOWN MENU DANH MỤC DI ĐỘNG/MÁY TÍNH
+        function toggleMenuDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('dropdownMenu').classList.toggle('active');
+        }
+
+        function selectFromDropdown(catName) {
+            document.getElementById('dropdownMenu').classList.remove('active');
+            
+            // Tìm nút tương ứng ở thanh ngang để kích hoạt
+            const buttons = document.querySelectorAll('.category-btn');
+            let targetBtn = null;
+            buttons.forEach(btn => {
+                if (btn.innerText.toUpperCase().includes(catName.substring(0, 4))) {
+                    targetBtn = btn;
+                }
+            });
+            filterCategory(catName, targetBtn);
+        }
+
+        // ĐÓNG MENU DROPDOWN KHI BẤM RA NGOÀI VÙNG TRỐNG
+        window.addEventListener('click', () => {
+            document.getElementById('dropdownMenu').classList.remove('remove');
+            document.getElementById('dropdownMenu').classList.remove('active');
+        });
+
+        // ĐIỀU HƯỚNG QUAY LẠI TRANG CHỦ
+        function backToHome(e) {
+            if(e) e.preventDefault();
+            document.getElementById('productDetailSection').classList.remove('active');
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('productsContainer').style.display = 'grid';
+            document.getElementById('categoryNav').style.display = 'flex';
+            document.getElementById('mainBanner').style.display = 'flex';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function toggleReviewForm() { document.getElementById('writeReviewFormBlock').classList.toggle('active'); }
+        // MỞ GIAO DIỆN CHI TIẾT SẢN PHẨM & CÁC TAB THÔNG TIN
+        function openProductDetail(productId) {
+            const prod = APP_PRODUCTS.find(p => p.id === productId);
+            if (!prod) return;
 
-        function setStarPickerValue(starCount) {
-            document.getElementById('selectedStarRating').value = starCount;
-            const stars = document.querySelectorAll('#starPicker span');
-            stars.forEach((s, idx) => {
-                if (idx < starCount) s.classList.add('selected');
-                else s.classList.remove('selected');
-            });
-        }
+            activeDetailProductId = productId;
 
-        function refreshHasakiReviewsUI() {
-            const product = defaultProducts.find(p => p.id === activeProductIdReview);
-            if (!product) return;
-            if (!product.reviews) product.reviews = [];
-
-            let totalReviews = product.reviews.length;
-            let avgRating = 5.0;
-            if (totalReviews > 0) {
-                let sum = product.reviews.reduce((acc, r) => acc + r.stars, 0);
-                avgRating = (sum / totalReviews).toFixed(1);
-            }
-
-            document.getElementById('avgRatingNum').innerText = avgRating;
-            document.getElementById('totalReviewText').innerText = `${totalReviews} đánh giá`;
-
-            const listWrapper = document.getElementById('reviewsListWrapper');
-            listWrapper.innerHTML = '';
-
-            let filteredReviews = product.reviews;
-            if (reviewFilterStars !== 'all') {
-                filteredReviews = product.reviews.filter(r => r.stars === parseInt(reviewFilterStars));
-            }
-
-            if (filteredReviews.length === 0) {
-                listWrapper.innerHTML = `<div style="text-align:center; padding:20px; color:#999; font-size:14px;">Chưa có đánh giá nào cho bộ lọc sao này.</div>`;
-                return;
-            }
-
-            filteredReviews.forEach(rev => {
-                let starString = '★'.repeat(rev.stars) + '☆'.repeat(5 - rev.stars);
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'single-review-item';
-                itemDiv.innerHTML = `
-                    <div class="review-item-header">
-                        <div class="review-item-user">${rev.author} <span class="buyer-badge">✓ Đã mua hàng</span></div>
-                        <div class="review-item-date">${rev.date}</div>
-                    </div>
-                    <div class="review-item-stars">${starString}</div>
-                    <div class="review-item-content">${rev.content}</div>
-                `;
-                listWrapper.appendChild(itemDiv);
-            });
-        }
-
-        function filterReviewStars(stars, btnElement) {
-            reviewFilterStars = stars;
-            document.querySelectorAll('.filter-stars-btn').forEach(b => b.classList.remove('active'));
-            if(btnElement) btnElement.classList.add('active');
-            refreshHasakiReviewsUI();
-        }
-
-        function submitNewUserReview(event) {
-            event.preventDefault();
-            const product = defaultProducts.find(p => p.id === activeProductIdReview);
-            if (!product) return;
-
-            const stars = parseInt(document.getElementById('selectedStarRating').value);
-            const author = document.getElementById('reviewAuthor').value.trim();
-            const content = document.getElementById('reviewTextContent').value.trim();
-            const currentDate = new Date().toISOString().split('T')[0];
-
-            product.reviews.unshift({ author, stars, date: currentDate, content });
-            alert("Cảm ơn bạn đã gửi đánh giá nhận xét sản phẩm!");
+            // Ẩn trang chủ
+            document.getElementById('productsContainer').style.display = 'none';
+            document.getElementById('categoryNav').style.display = 'none';
+            document.getElementById('mainBanner').style.display = 'none';
+            document.getElementById('adminSection').classList.remove('active');
             
-            document.getElementById('reviewAuthor').value = '';
-            document.getElementById('reviewTextContent').value = '';
-            setStarPickerValue(5);
-            document.getElementById('writeReviewFormBlock').classList.remove('active');
-            refreshHasakiReviewsUI();
+            // Hiện chi tiết
+            const detailSection = document.getElementById('productDetailSection');
+            detailSection.classList.add('active');
+
+            // Điền thông tin phần Header Chi Tiết
+            const topBox = document.getElementById('detailProductTopBox');
+            topBox.innerHTML = `
+                <div class="detail-top-left">
+                    <img src="${prod.image}" alt="${prod.name}">
+                </div>
+                <div class="detail-top-right">
+                    <h1 class="detail-top-title">${prod.name}</h1>
+                    <div class="detail-top-brand-row">Thương hiệu: <span>${prod.brand}</span> | Mã hệ thống: <span>${prod.id}</span></div>
+                    <div class="detail-top-price-card">
+                        <span class="detail-top-curr-price">${prod.currPrice.toLocaleString()}đ</span>
+                        ${prod.origPrice ? `<span class="detail-top-orig-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
+                    </div>
+                    <button class="detail-top-buy-btn" onclick="addToCart('${prod.id}', event)">Thêm vào giỏ hàng ngay</button>
+                </div>
+            `;
+
+            // Điền nội dung cho từng tab
+            document.getElementById('mota').innerHTML = `<h3>Mô tả sản phẩm</h3><div class="tab-content-text">${prod.desc || 'Đang cập nhật nội dung...'}</div>`;
+            document.getElementById('thongso').innerHTML = `<h3>Thông số kỹ thuật</h3><div class="tab-content-text">${prod.specs || 'Đang cập nhật nội dung...'}</div>`;
+            document.getElementById('thanhphan').innerHTML = `<h3>Thành phần chính</h3><div class="tab-content-text">${prod.ingredients || 'Đang cập nhật nội dung...'}</div>`;
+            document.getElementById('hdsd').innerHTML = `<h3>Hướng dẫn sử dụng</h3><div class="tab-content-text">${prod.usage || 'Đang cập nhật nội dung...'}</div>`;
+            document.getElementById('hoidap').innerHTML = `<h3>Hỏi đáp chuyên gia</h3><div class="tab-content-text">Sản phẩm hiện tại chưa có câu hỏi nào. Hãy gửi câu hỏi nếu bạn cần ban cố vấn chuyên gia da liễu Beauty Deal giải đáp thắc mắc nhé!</div>`;
+
+            // Reset tab về mặc định "mota"
+            switchTab('mota', document.querySelector('.tab-btn'));
+
+            // Tải danh sách đánh giá chuẩn Hasaki
+            renderHasakiReviews();
+
+            // Tải danh sách cột sản phẩm xem cùng bên phải (Random)
+            renderRelatedSidebar(prod.category, prod.id);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function renderRelatedProducts(category, currentProductId) {
+        // CHUYỂN ĐỔI TAB CHI TIẾT
+        function switchTab(tabId, btnElement) {
+            const card = btnElement.closest('.main-detail-card');
+            card.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            card.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            btnElement.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // SIDEBAR: SẢN PHẨM XEM CÙNG BÊN PHẢI
+        function renderRelatedSidebar(categoryName, currentProdId) {
             const container = document.getElementById('relatedProductsContainer');
             container.innerHTML = '';
-            if(!category) return;
-            const related = defaultProducts.filter(p => p.category.trim().toUpperCase() === category.trim().toUpperCase() && p.id !== currentProductId);
-            related.slice(0, 4).forEach(item => {
+
+            let related = APP_PRODUCTS.filter(p => p.category === categoryName && p.id !== currentProdId);
+            if(related.length === 0) {
+                related = APP_PRODUCTS.filter(p => p.id !== currentProdId).slice(0, 3);
+            }
+
+            related.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'related-item';
-                div.setAttribute('onclick', `viewProductDetail(${item.id})`);
+                div.onclick = () => openProductDetail(item.id);
                 div.innerHTML = `
-                    <img class="related-item-img" src="${item.image}">
+                    <img src="${item.image}" class="related-item-img" alt="${item.name}">
                     <div>
-                        <div class="related-item-name">${item.name}</div>
-                        <div class="related-item-price">${item.currentPrice.toLocaleString()} ₫</div>
+                        <div class="related-item-name">${item.name.substring(0, 50)}...</div>
+                        <div class="related-item-price">${item.currPrice.toLocaleString()}đ</div>
                     </div>
                 `;
                 container.appendChild(div);
             });
         }
 
-        function switchTab(tabId, buttonElement) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            if(buttonElement) buttonElement.classList.add('active');
+        // LOGIC PHẦN ĐÁNH GIÁ CHUẨN HASAKI
+        let currentReviewStarFilter = 'all';
+
+        function renderHasakiReviews() {
+            const wrapper = document.getElementById('reviewsListWrapper');
+            wrapper.innerHTML = '';
+
+            let list = HASAKI_REVIEWS_DB[activeDetailProductId] || [];
+
+            // Tính toán số liệu tổng quan trung bình sao
+            const totalCount = list.length;
+            const avgRating = totalCount > 0 ? (list.reduce((sum, r) => sum + r.stars, 0) / totalCount).toFixed(1) : "5.0";
+            
+            document.getElementById('avgRatingNum').innerText = avgRating;
+            document.getElementById('totalReviewText').innerText = `${totalCount} nhận xét`;
+
+            // Áp dụng bộ lọc số sao
+            if (currentReviewStarFilter !== 'all') {
+                list = list.filter(r => r.stars === parseInt(currentReviewStarFilter));
+            }
+
+            if (list.length === 0) {
+                wrapper.innerHTML = `<p style="text-align:center; padding:20px; font-size:13px; color:#999;">Chưa có nhận xét nào phù hợp với bộ lọc!</p>`;
+                return;
+            }
+
+            list.forEach(rev => {
+                let starString = '★'.repeat(rev.stars) + '☆'.repeat(5 - rev.stars);
+                const item = document.createElement('div');
+                item.className = 'single-review-item';
+                item.innerHTML = `
+                    <div class="review-item-header">
+                        <div class="review-item-user">
+                            ${rev.user} 
+                            <span class="buyer-badge">✔ Đã mua hàng tại Beauty Deal</span>
+                        </div>
+                        <div class="review-item-date">${rev.date}</div>
+                    </div>
+                    <div class="review-item-stars">${starString}</div>
+                    <div class="review-item-content">${rev.content}</div>
+                `;
+                wrapper.appendChild(item);
+            });
         }
 
-        function backToHome(event) {
-            if(event) event.preventDefault();
-            document.getElementById('adminSection').classList.remove('active');
-            document.getElementById('productDetailSection').classList.remove('active');
-            document.getElementById('mainBanner').style.display = 'flex';
-            document.getElementById('categoryNav').style.display = 'flex';
-            filterCategory('TẤT CẢ', document.querySelector('.category-nav .category-btn'));
+        function filterReviewStars(starVal, btnElement) {
+            currentReviewStarFilter = starVal;
+            btnElement.closest('.summary-center-filters').querySelectorAll('.filter-stars-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderHasakiReviews();
         }
 
-        function handleSearch() {
-            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
-            document.getElementById('productDetailSection').classList.remove('active');
-            document.getElementById('adminSection').classList.remove('active');
-            document.getElementById('mainBanner').style.display = 'flex';
-            document.getElementById('categoryNav').style.display = 'flex';
-            document.getElementById('productsContainer').style.display = 'grid';
-
-            const filtered = defaultProducts.filter(p => p.name.toLowerCase().includes(keyword));
-            renderProducts(filtered);
+        function toggleReviewForm() {
+            document.getElementById('writeReviewFormBlock').classList.toggle('active');
         }
 
-        function openLoginModal() {
-            if (currentUserSession) {
-                showAdminDashboard();
+        function setStarPickerValue(val) {
+            document.getElementById('selectedStarRating').value = val;
+            const spans = document.getElementById('starPicker').querySelectorAll('span');
+            spans.forEach((s, idx) => {
+                if(idx < val) s.classList.add('selected');
+                else s.classList.remove('selected');
+            });
+        }
+
+        function submitNewUserReview(e) {
+            e.preventDefault();
+            const stars = parseInt(document.getElementById('selectedStarRating').value);
+            const author = document.getElementById('reviewAuthor').value.trim();
+            const content = document.getElementById('reviewTextContent').value.trim();
+            
+            const today = new Date();
+            const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+
+            if(!HASAKI_REVIEWS_DB[activeDetailProductId]) {
+                HASAKI_REVIEWS_DB[activeDetailProductId] = [];
+            }
+
+            HASAKI_REVIEWS_DB[activeDetailProductId].unshift({
+                user: author,
+                stars: stars,
+                date: dateStr,
+                content: content
+            });
+
+            // Reset Form và cập nhật giao diện
+            document.getElementById('reviewAuthor').value = '';
+            document.getElementById('reviewTextContent').value = '';
+            setStarPickerValue(5);
+            toggleReviewForm();
+            renderHasakiReviews();
+        }
+
+        // HỆ THỐNG GIỎ HÀNG (SHOPPING CART DRAWER)
+        function toggleCart(status) {
+            const overlay = document.getElementById('cartOverlay');
+            const drawer = document.getElementById('cartDrawer');
+            if (status) {
+                overlay.classList.add('active');
+                drawer.classList.add('active');
+                renderCartContents();
             } else {
-                document.getElementById('loginErrorAlert').classList.remove('active');
-                document.getElementById('loginOverlay').classList.add('active');
+                overlay.classList.remove('active');
+                drawer.classList.remove('active');
             }
         }
-        function closeLoginModal() { document.getElementById('loginOverlay').classList.remove('active'); }
-        
-        function handleAdminLogin(event) {
-            event.preventDefault();
-            const userInput = document.getElementById('loginUser').value.trim();
-            const passInput = document.getElementById('loginPass').value.trim();
-            const alertBox = document.getElementById('loginErrorAlert');
 
-            if (userInput === adminAccount.user && passInput === adminAccount.pass) {
-                currentUserSession = userInput;
-                alertBox.classList.remove('active');
+        function addToCart(productId, event) {
+            if(event) event.stopPropagation();
+            const prod = APP_PRODUCTS.find(p => p.id === productId);
+            if (!prod) return;
+
+            if (prod.stock === "HetHang") {
+                alert("🔴 Thành thật xin lỗi quý khách, sản phẩm này hiện tại đã hết hàng trên toàn hệ thống!");
+                return;
+            }
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ id: prod.id, name: prod.name, price: prod.currPrice, image: prod.image, quantity: 1 });
+            }
+
+            updateCartBadge();
+            alert(`🛒 Đã thêm sản phẩm "${prod.name}" vào giỏ hàng thành công!`);
+        }
+
+        function updateCartBadge() {
+            const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').innerText = totalQty;
+        }
+
+        function renderCartContents() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p style="text-align:center; padding: 50px 20px; color:#aaa; font-weight:500;">Giỏ hàng của bạn đang trống rỗng!</p>`;
+                document.getElementById('cartTotalValue').innerText = '0đ';
+                return;
+            }
+
+            let grandTotal = 0;
+            cart.forEach(item => {
+                grandTotal += item.price * item.quantity;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <img src="${item.image}" class="cart-item-image" alt="${item.name}">
+                    <div class="cart-item-details">
+                        <div style="font-size:13px; font-weight:600; color:#333; margin-bottom:5px;">${item.name}</div>
+                        <div style="font-size:14px; color:#ff0000; font-weight:700;">${item.price.toLocaleString()}đ</div>
+                        <div style="display:flex; align-items:center; gap:5px; margin-top:5px;">
+                            <button class="quantity-btn" onclick="changeCartQty('${item.id}', -1)">-</button>
+                            <span style="font-size:14px; font-weight:bold; width:30px; text-align:center;">${item.quantity}</span>
+                            <button class="quantity-btn" onclick="changeCartQty('${item.id}', 1)">+</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('cartTotalValue').innerText = grandTotal.toLocaleString() + 'đ';
+        }
+
+        function changeCartQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (!item) return;
+
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                cart = cart.filter(c => c.id !== id);
+            }
+            updateCartBadge();
+            renderCartContents();
+        }
+
+        function processCheckout() {
+            if (cart.length === 0) return;
+            alert("🎉 Cảm ơn bạn đã đặt hàng! Đơn hàng thử nghiệm của bạn đã được gửi lên hệ thống giả lập Beauty Deal.");
+            cart = [];
+            updateCartBadge();
+            toggleCart(false);
+        }
+
+        // CƠ CHẾ BẢO MẬT & ĐIỀU KHIỂN QUẢN TRỊ (ADMINISTRATOR)
+        function openLoginModal() { document.getElementById('loginModal').classList.add('active'); }
+        function closeLoginModal() { 
+            document.getElementById('loginModal').classList.remove('active'); 
+            document.getElementById('loginErrorAlert').classList.remove('active');
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const passInput = document.getElementById('loginPassword').value;
+            
+            if (passInput === CURRENT_ADMIN_PASSWORD) {
                 closeLoginModal();
-                showAdminDashboard();
+                activateAdminDashboard();
             } else {
-                alertBox.classList.add('active');
-                alert("Đăng nhập thất bại: Sai thông tin Tên đăng nhập hoặc Mật khẩu hệ thống!");
+                document.getElementById('loginErrorAlert').classList.add('active');
             }
         }
 
-        // HÀM ĐIỀU KHIỂN ĐỔI MỚI MẬT KHẨU CHO ADMIN
+        function activateAdminDashboard() {
+            // Ẩn toàn bộ các phần trang chủ & trang chi tiết sản phẩm
+            document.getElementById('productsContainer').style.display = 'none';
+            document.getElementById('categoryNav').style.display = 'none';
+            document.getElementById('mainBanner').style.display = 'none';
+            document.getElementById('productDetailSection').classList.remove('active');
+            
+            // Mở bảng Admin
+            document.getElementById('adminSection').classList.add('active');
+            renderAdminTable();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function logoutAdmin() {
+            backToHome();
+            alert("🔒 Đã đăng xuất khỏi tài khoản Quản trị hệ thống an toàn.");
+        }
+
         function toggleChangePasswordBox() {
             document.getElementById('passwordChangeBox').classList.toggle('active');
         }
 
-        function handleAdminChangePassword(event) {
-            event.preventDefault();
-            const oldPass = document.getElementById('oldAdminPass').value.trim();
-            const newPass = document.getElementById('newAdminPass').value.trim();
-            const confirmPass = document.getElementById('confirmAdminPass').value.trim();
+        function handleAdminChangePassword(e) {
+            e.preventDefault();
+            const oldP = document.getElementById('oldAdminPass').value;
+            const newP = document.getElementById('newAdminPass').value;
+            const confP = document.getElementById('confirmAdminPass').value;
 
-            if (oldPass !== adminAccount.pass) {
-                alert("Lỗi: Mật khẩu hiện tại không chính xác!");
+            if (oldP !== CURRENT_ADMIN_PASSWORD) {
+                alert("❌ Mật khẩu cũ không chính xác!");
                 return;
             }
-            if (newPass !== confirmPass) {
-                alert("Lỗi: Mật khẩu mới và mật khẩu nhập lại không trùng khớp!");
-                return;
-            }
-            if (newPass.length < 3) {
-                alert("Lỗi: Mật khẩu mới phải từ 3 ký tự trở lên!");
+            if (newP !== confP) {
+                alert("❌ Xác nhận mật khẩu mới không trùng khớp nhau!");
                 return;
             }
 
-            // Tiến hành cập nhật mật khẩu mới vào biến hệ thống
-            adminAccount.pass = newPass;
-            alert("Chúc mừng! Thay đổi mật khẩu quản trị thành công.");
-            
-            // Đóng form và reset trường nhập liệu
+            CURRENT_ADMIN_PASSWORD = newP;
+            alert("🔑 Thay đổi mật khẩu Quản trị mới thành công!");
             document.getElementById('oldAdminPass').value = '';
             document.getElementById('newAdminPass').value = '';
             document.getElementById('confirmAdminPass').value = '';
             toggleChangePasswordBox();
         }
 
-        function logoutAdmin() {
-            currentUserSession = null;
-            document.getElementById('adminSection').classList.remove('active');
-            document.getElementById('passwordChangeBox').classList.remove('active');
-            backToHome(null);
-            alert("Đã đăng xuất hệ thống an toàn.");
+        // ĐỒNG BỘ SỐ LIỆU THỐNG KÊ KPI TRONG ADMIN
+        function updateKPIStats() {
+            document.getElementById('statTotalProducts').innerText = APP_PRODUCTS.length;
+            document.getElementById('statInStock').innerText = APP_PRODUCTS.filter(p => p.stock === "ConHang").length;
+            document.getElementById('statOutOfStock').innerText = APP_PRODUCTS.filter(p => p.stock === "HetHang").length;
         }
 
-        function showAdminDashboard() {
-            document.getElementById('mainBanner').style.display = 'none';
-            document.getElementById('categoryNav').style.display = 'none';
-            document.getElementById('productsContainer').style.display = 'none';
-            document.getElementById('productDetailSection').classList.remove('active');
-            document.getElementById('adminSection').classList.add('active');
-
-            updateAdminStats();
-            renderAdminTable();
-        }
-
-        function updateAdminStats() {
-            document.getElementById('statTotalProducts').innerText = defaultProducts.length;
-            document.getElementById('statInStock').innerText = defaultProducts.filter(p => p.stock > 0).length;
-            document.getElementById('statOutOfStock').innerText = defaultProducts.filter(p => p.stock <= 0).length;
-        }
-
+        // HIỂN THỊ DANH SÁCH BẢNG DỮ LIỆU SẢN PHẨM TRONG ADMIN
         function renderAdminTable() {
-            const tbody = document.getElementById('adminTableBody');
+            const tbody = document.getElementById('adminProductsTableBody');
             tbody.innerHTML = '';
-            defaultProducts.forEach(product => {
+
+            APP_PRODUCTS.forEach(p => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><img src="${product.image}" style="width:45px; height:45px; object-fit:cover; border-radius:4px;"></td>
-                    <td style="font-weight:600;">${product.name}</td>
-                    <td>${product.category}</td>
-                    <td style="color:#ff0000; font-weight:bold;">${product.currentPrice.toLocaleString()} ₫</td>
-                    <td style="font-weight:bold; color: ${product.stock > 0 ? '#27ae60' : '#e74c3c'}">${product.stock}</td>
+                    <td><img src="${p.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"></td>
+                    <td style="font-weight:600;">${p.name}</td>
+                    <td>${p.category}</td>
+                    <td style="color:#0056b3; font-weight:bold;">${p.currPrice.toLocaleString()}đ</td>
+                    <td style="color:#999; text-decoration:line-through;">${p.origPrice ? p.origPrice.toLocaleString() + 'đ' : '-'}</td>
+                    <td>${p.brand}</td>
+                    <td><span style="color:${p.stock==='ConHang'?'#27ae60':'#e74c3c'}; font-weight:bold;">${p.stock==='ConHang'?'Còn Hàng Tồn':'Hết Hàng Đợt Này'}</span></td>
                     <td>
-                        <button class="action-btn edit" onclick="editProduct(${product.id})">Sửa chi tiết</button>
-                        <button class="action-btn delete" onclick="deleteProduct(${product.id})">Xóa</button>
+                        <button class="action-btn edit" onclick="startEditProduct('${p.id}')">Sửa</button>
+                        <button class="action-btn delete" onclick="deleteProduct('${p.id}')">Xóa</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+            updateKPIStats();
         }
 
-        function deleteProduct(id) {
-            if (confirm("Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm này?")) {
-                defaultProducts = defaultProducts.filter(p => p.id !== id);
-                showAdminDashboard();
-            }
-        }
-
-        function editProduct(id) {
-            const product = defaultProducts.find(p => p.id === id);
-            if (!product) return;
-
-            document.getElementById('editProductId').value = product.id;
-            document.getElementById('prodName').value = product.name;
-            document.getElementById('prodCategory').value = product.category;
-            document.getElementById('prodCurrPrice').value = product.currentPrice;
-            document.getElementById('prodOrigPrice').value = product.originalPrice || '';
-            document.getElementById('prodStock').value = product.stock;
-            document.getElementById('prodImage').value = product.image;
-            
-            document.getElementById('prodDescription').value = product.description || '';
-            document.getElementById('prodSpecs').value = product.specs || '';
-            document.getElementById('prodIngredients').value = product.ingredients || '';
-            document.getElementById('prodUsage').value = product.usage || '';
-
-            document.getElementById('formTitle').innerText = "Chỉnh Sửa Toàn Diện Sản Phẩm ID: " + id;
-            document.getElementById('submitFormBtn').innerText = "Cập nhật dữ liệu";
-            window.scrollTo({ top: 350, behavior: 'smooth' });
-        }
-
-        function saveProduct(event) {
-            event.preventDefault();
-            const id = document.getElementById('editProductId').value;
-            const name = document.getElementById('prodName').value.trim();
-            const category = document.getElementById('prodCategory').value;
-            const currentPrice = parseFloat(document.getElementById('prodCurrPrice').value);
-            const originalPrice = parseFloat(document.getElementById('prodOrigPrice').value) || currentPrice;
-            const stock = parseInt(document.getElementById('prodStock').value);
-            const image = document.getElementById('prodImage').value.trim();
-            
-            const description = document.getElementById('prodDescription').value.trim();
-            const specs = document.getElementById('prodSpecs').value.trim();
-            const ingredients = document.getElementById('prodIngredients').value.trim();
-            const usage = document.getElementById('prodUsage').value.trim();
-
-            if (id) {
-                const index = defaultProducts.findIndex(p => p.id == id);
-                if (index !== -1) {
-                    defaultProducts[index].name = name;
-                    defaultProducts[index].category = category;
-                    defaultProducts[index].currentPrice = currentPrice;
-                    defaultProducts[index].originalPrice = originalPrice;
-                    defaultProducts[index].stock = stock;
-                    defaultProducts[index].image = image;
-                    
-                    defaultProducts[index].description = description;
-                    defaultProducts[index].specs = specs;
-                    defaultProducts[index].ingredients = ingredients;
-                    defaultProducts[index].usage = usage;
-                }
-                alert("Đã cập nhật toàn bộ thông tin chi tiết sản phẩm!");
-            } else {
-                const newProd = {
-                    id: Date.now(),
-                    name, category, currentPrice, originalPrice, stock, image,
-                    description, specs, ingredients, usage,
-                    reviews: []
-                };
-                defaultProducts.unshift(newProd);
-                alert("Đã thêm sản phẩm mới kèm nội dung chi tiết thành công!");
-            }
-
-            resetAdminForm();
-            showAdminDashboard();
-        }
-
-        function resetAdminForm() {
+        // HỦY BỎ LỆNH HOẶC LÀM MỚI FORM SỬA/THÊM SẢN PHẨM
+        function cancelAdminEdit() {
             document.getElementById('adminForm').reset();
             document.getElementById('editProductId').value = '';
             document.getElementById('formTitle').innerText = "Thêm Sản Phẩm Mới Vào Hệ Thống";
-            document.getElementById('submitFormBtn').innerText = "Lưu sản phẩm";
         }
 
-        function toggleCart(open) {
-            const drawer = document.getElementById('cartDrawer');
-            const overlay = document.getElementById('cartOverlay');
-            if (open) { drawer.classList.add('active'); overlay.classList.add('active'); renderCartItems(); }
-            else { drawer.classList.remove('active'); overlay.classList.remove('active'); }
-        }
-        function addToCart(productId, event) {
-            if(event) event.stopPropagation();
-            const product = defaultProducts.find(p => p.id === productId);
-            if (!product) return;
-            if(product.stock <= 0) { alert("Sản phẩm này tạm hết hàng!"); return; }
+        // BẮT ĐẦU CHỌN SỬA SẢN PHẨM LÊN FORM
+        function startEditProduct(id) {
+            const p = APP_PRODUCTS.find(item => item.id === id);
+            if (!p) return;
 
-            const existing = cart.find(i => i.id === productId);
-            if (existing) existing.quantity += 1;
-            else cart.push({ ...product, quantity: 1 });
-            
-            document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.quantity, 0);
-            alert(`Đã thêm vào giỏ hàng thành công!`);
-        }
-        function changeQuantity(id, delta) {
-            const item = cart.find(i => i.id === id);
-            if (!item) return;
-            item.quantity += delta;
-            if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
-            document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.quantity, 0);
-            renderCartItems();
-        }
-        function renderCartItems() {
-            const container = document.getElementById('cartItemsContainer');
-            container.innerHTML = '';
-            let total = 0;
-            cart.forEach(item => {
-                total += item.currentPrice * item.quantity;
-                const div = document.createElement('div');
-                div.className = 'cart-item';
-                div.innerHTML = `
-                    <img class="cart-item-image" src="${item.image}">
-                    <div class="cart-item-details">
-                        <div class="cart-item-name">${item.name}</div>
-                        <div>${(item.currentPrice * item.quantity).toLocaleString()} ₫</div>
-                        <div>
-                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
-                            <span>${item.quantity}</span>
-                            <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-            document.getElementById('cartTotalAmount').innerText = total.toLocaleString();
+            document.getElementById('editProductId').value = p.id;
+            document.getElementById('formTitle').innerText = `Đang Cập Nhật Sản Phẩm [Mã: ${p.id}]`;
+
+            document.getElementById('prodName').value = p.name;
+            document.getElementById('prodCategory').value = p.category;
+            document.getElementById('prodCurrPrice').value = p.currPrice;
+            document.getElementById('prodOrigPrice').value = p.origPrice || '';
+            document.getElementById('prodImage').value = p.image;
+            document.getElementById('prodBrand').value = p.brand;
+            document.getElementById('prodStock').value = p.stock;
+            document.getElementById('prodDesc').value = p.desc || '';
+            document.getElementById('prodSpecs').value = p.specs || '';
+            document.getElementById('prodIngredients').value = p.ingredients || '';
+            document.getElementById('prodUsage').value = p.usage || '';
+
+            window.scrollTo({ top: document.getElementById('adminFormBox').offsetTop - 20, behavior: 'smooth' });
         }
 
-        window.onload = function() { renderProducts(defaultProducts); };
+        // LƯU HOẶC THÊM MỚI SẢN PHẨM TRONG ADMIN
+        function saveProduct(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editProductId').value;
+
+            const name = document.getElementById('prodName').value.trim();
+            const cat = document.getElementById('prodCategory').value;
+            const currP = parseInt(document.getElementById('prodCurrPrice').value);
+            const origP = document.getElementById('prodOrigPrice').value ? parseInt(document.getElementById('prodOrigPrice').value) : null;
+            const img = document.getElementById('prodImage').value.trim();
+            const brand = document.getElementById('prodBrand').value.trim();
+            const stock = document.getElementById('prodStock').value;
+            const desc = document.getElementById('prodDesc').value.trim();
+            const specs = document.getElementById('prodSpecs').value.trim();
+            const ingr = document.getElementById('prodIngredients').value.trim();
+            const usg = document.getElementById('prodUsage').value.trim();
+
+            if (editId !== "") {
+                // Lệnh cập nhật sản phẩm cũ
+                const idx = APP_PRODUCTS.findIndex(p => p.id === editId);
+                if (idx !== -1) {
+                    APP_PRODUCTS[idx] = { ...APP_PRODUCTS[idx], name, category: cat, currPrice: currP, origPrice: origP, image: img, brand, stock, desc, specs, ingredients: ingr, usage: usg };
+                    alert("✅ Cập nhật thay đổi thông tin sản phẩm thành công!");
+                }
+            } else {
+                // Lệnh thêm sản phẩm mới hoàn toàn
+                const newId = "171000" + (APP_PRODUCTS.length + 1);
+                APP_PRODUCTS.push({ id: newId, name, category: cat, currPrice: currP, origPrice: origP, image: img, brand, stock, desc, specs, ingredients: ingr, usage: usg });
+                alert("✅ Đã chèn thêm một sản phẩm mới thành công!");
+            }
+
+            cancelAdminEdit();
+            renderAdminTable();
+            renderProductsGrid(); // Cập nhật lại kho sản phẩm bên ngoài trang chủ luôn
+        }
+
+        // LỆNH XÓA SẢN PHẨM TRONG ADMIN
+        function deleteProduct(id) {
+            if (confirm("⚠️ Bạn chắc chắn có muốn xóa vĩnh viễn sản phẩm này ra khỏi bộ nhớ hệ thống?")) {
+                APP_PRODUCTS = APP_PRODUCTS.filter(p => p.id !== id);
+                renderAdminTable();
+                renderProductsGrid();
+            }
+        }
     </script>
+
 </body>
 </html>
