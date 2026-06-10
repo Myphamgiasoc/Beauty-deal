@@ -563,6 +563,42 @@
                 </form>
             </div>
 
+            <!-- NEW: Admin Panel for Shop Info -->
+            <div class="admin-form-box hidden-by-js" id="shopInfoManagementSection">
+                <h3>Quản Lý Thông Tin Cửa Hàng (Hiển thị ở Footer)</h3>
+                <form id="shopInfoForm" onsubmit="saveShopInfo(event)">
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Địa chỉ</label>
+                            <input type="text" id="shopInfoAddress" placeholder="123 Đường ABC, Quận XYZ, TP.HCM">
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="text" id="shopInfoPhone" placeholder="0987 654 321">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="shopInfoEmail" placeholder="info@beautydeal.vn">
+                        </div>
+                        <div class="form-group">
+                            <label>Link Facebook</label>
+                            <input type="text" id="shopInfoFacebook" placeholder="https://facebook.com/yourpage">
+                        </div>
+                        <div class="form-group">
+                            <label>Link Instagram</label>
+                            <input type="text" id="shopInfoInstagram" placeholder="https://instagram.com/yourprofile">
+                        </div>
+                        <div class="form-group">
+                            <label>Link Tiktok</label>
+                            <input type="text" id="shopInfoTiktok" placeholder="https://tiktok.com/@yourchannel">
+                        </div>
+                    </div>
+                    <div class="form-actions-row">
+                        <button type="submit" class="form-btn submit">Lưu Thông Tin Cửa Hàng</button>
+                    </div>
+                </form>
+            </div>
+
             <div class="admin-form-box hidden-by-js" id="brandManagementSection">
                 <h3 id="brandFormTitle">Thêm Thương Hiệu Mới</h3>
                 <form id="brandForm" onsubmit="addNewBrand(event)">
@@ -930,21 +966,21 @@
             </div>
             <div class="footer-col">
                 <h4>Liên hệ</h4>
-                <p>Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM</p>
-                <p>Điện thoại: 0987 654 321</p>
-                <p>Email: info@beautydeal.vn</p>
+                <p id="footerContactAddress">Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM</p>
+                <p id="footerContactPhone">Điện thoại: 0987 654 321</p>
+                <p id="footerContactEmail">Email: info@beautydeal.vn</p>
                 <div class="social-links">
-                    <a href="#" class="social-icon">F</a>
-                    <a href="#" class="social-icon">I</a>
-                    <a href="#" class="social-icon">T</a>
+                    <a href="#" id="footerSocialFacebook" class="social-icon" target="_blank">F</a>
+                    <a href="#" id="footerSocialInstagram" class="social-icon" target="_blank">I</a>
+                    <a href="#" id="footerSocialTiktok" class="social-icon" target="_blank">T</a>
                 </div>
             </div>
             <div class="footer-col">
                 <h4>Phương thức thanh toán</h4>
                 <div class="payment-logos">
-                    <img src="https://via.placeholder.com/60x30/E0E0E0/333333?text=Visa" alt="Visa">
-                    <img src="https://via.placeholder.com/60x30/E0E0E0/333333?text=Momo" alt="Momo">
-                    <img src="https://via.placeholder.com/60x30/E0E0E0/333333?text=ZaloPay" alt="ZaloPay">
+                    <img src="https://via.placeholder.com/60x30/FFFFFF/333333?text=Visa" alt="Visa">
+                    <img src="https://via.placeholder.com/60x30/FFFFFF/333333?text=Momo" alt="Momo">
+                    <img src="https://via.placeholder.com/60x30/FFFFFF/333333?text=ZaloPay" alt="ZaloPay">
                 </div>
                 <h4>Đối tác vận chuyển</h4>
                 <div class="shipping-logos">
@@ -964,6 +1000,7 @@
         let APP_PRODUCTS = [];
         let APP_BRANDS = [];
         let APP_BANNERS = [];
+        let APP_SHOP_INFO = {}; // NEW
         let USER_CREDENTIALS = {};
         
         const DEFAULT_PRODUCTS = [
@@ -986,6 +1023,16 @@
             { id: "promo001", type: "flashsale", imageUrl: "https://via.placeholder.com/600x200/FFD700/FFFFFF?text=Flash+Sale", title: "Flash Sale Giới Hạn", description: "Giảm đến 50% các sản phẩm chọn lọc!", buttonText: "Mua ngay", buttonLink: "#" },
             { id: "promo002", type: "newarrival", imageUrl: "https://via.placeholder.com/600x200/ADD8E6/FFFFFF?text=New+Arrivals", title: "Sản Phẩm Mới Về", description: "Khám phá bộ sưu tập mới nhất!", buttonText: "Xem ngay", buttonLink: "#" }
         ];
+        const DEFAULT_SHOP_INFO = { // NEW
+            contact: {
+                address: "123 Đường ABC, Quận XYZ, TP.HCM",
+                phone: "0987 654 321",
+                email: "info@beautydeal.vn"
+            },
+            social: {
+                facebook: "#", instagram: "#", tiktok: "#"
+            }
+        };
         const DEFAULT_USER_CREDENTIALS = {
             "admin": { password: "Admin@123", role: "admin" },
             "employee": { password: "Employee@123", role: "employee" }
@@ -1037,10 +1084,12 @@
             APP_PRODUCTS = loadDataFromLocalStorage('APP_PRODUCTS', DEFAULT_PRODUCTS);
             APP_BRANDS = loadDataFromLocalStorage('APP_BRANDS', DEFAULT_BRANDS);
             APP_BANNERS = loadDataFromLocalStorage('APP_BANNERS', DEFAULT_BANNERS);
+            APP_SHOP_INFO = loadDataFromLocalStorage('APP_SHOP_INFO', DEFAULT_SHOP_INFO); // NEW
             USER_CREDENTIALS = loadDataFromLocalStorage('USER_CREDENTIALS', DEFAULT_USER_CREDENTIALS);
 
             renderProductsGrid();
             renderBrandsGrid();
+            renderFooter(); // NEW
             renderPromoBanners();
             updateKPIStats();
 
@@ -1130,6 +1179,18 @@
             });
         }
 
+        // NEW: Hàm hiển thị thông tin ở Footer
+        function renderFooter() {
+            const info = APP_SHOP_INFO;
+            document.getElementById('footerContactAddress').innerText = 'Địa chỉ: ' + info.contact.address;
+            document.getElementById('footerContactPhone').innerText = 'Điện thoại: ' + info.contact.phone;
+            document.getElementById('footerContactEmail').innerText = 'Email: ' + info.contact.email;
+
+            document.getElementById('footerSocialFacebook').href = info.social.facebook;
+            document.getElementById('footerSocialInstagram').href = info.social.instagram;
+            document.getElementById('footerSocialTiktok').href = info.social.tiktok;
+        }
+
         function handleSearch() {
             const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
             let filtered = APP_PRODUCTS;
@@ -1184,7 +1245,7 @@
                     <div class="detail-top-brand-row">Thương hiệu: <span>${prod.brand}</span> | Mã hệ thống: <span>${prod.id}</span></div>
                     <div class="detail-top-price-card">
                         <span class="detail-top-curr-price">${prod.currPrice.toLocaleString()}đ</span>
-                        ${prod.origPrice ? `<span class="detail-top-orig-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
+                        ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
                     </div>
                     <button class="detail-top-buy-btn" onclick="addToCart('${prod.id}', event)">Thêm vào giỏ hàng ngay</button>
                 </div>`;
@@ -1395,6 +1456,7 @@
             const sections = {
                 employee: document.getElementById('employeeManagementSection'),
                 productForm: document.getElementById('adminFormBox'),
+                shopInfo: document.getElementById('shopInfoManagementSection'), // NEW
                 changePass: document.getElementById('changePassBtn'),
                 brand: document.getElementById('brandManagementSection'),
                 banner: document.getElementById('bannerManagementSection')
@@ -1410,6 +1472,7 @@
                 if (sections.banner) sections.banner.classList.remove('hidden-by-js');
             }
             
+            populateShopInfoForm(); // NEW
             renderAdminBrandsTable();
             renderAdminBannersTable();
             renderAdminTable();
@@ -1570,10 +1633,18 @@
                     <td style="font-weight:600;">${brand.name}</td>
                     <td><a href="${brand.link}" target="_blank">${brand.link}</a></td>
                     <td>
-                        <button class="action-btn edit" onclick="startEditBrand('${brand.id}')">Sửa</button> 
-                        <button class="action-btn delete" onclick="deleteBrand('${brand.id}')">Xóa</button>
+                        <button class="action-btn edit hidden-by-js" onclick="startEditBrand('${brand.id}')">Sửa</button> 
+                        <button class="action-btn delete hidden-by-js" onclick="deleteBrand('${brand.id}')">Xóa</button>
                     </td>`;
                 tbody.appendChild(tr);
+
+                const editBtn = tr.querySelector('.action-btn.edit');
+                const deleteBtn = tr.querySelector('.action-btn.delete');
+
+                if (currentUserRole === 'admin' || currentUserRole === 'employee') {
+                    if(editBtn) editBtn.classList.remove('hidden-by-js');
+                    if(deleteBtn) deleteBtn.classList.remove('hidden-by-js');
+                }
             });
         }
 
@@ -1589,6 +1660,9 @@
 
         function addNewBrand(e) {
             e.preventDefault();
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền thêm thương hiệu!");
+            }
             const name = document.getElementById('brandName').value.trim();
             const logoUrl = document.getElementById('brandLogoUrl').value.trim();
             const link = document.getElementById('brandLink').value.trim();
@@ -1603,6 +1677,9 @@
         }
 
         function startEditBrand(id) {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền sửa thương hiệu!");
+            }
             const brand = APP_BRANDS.find(item => item.id === id);
             if (!brand) return;
             document.getElementById('brandEditModal').classList.add('active');
@@ -1615,6 +1692,9 @@
 
         function saveEditedBrand(e) {
             e.preventDefault();
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền sửa thương hiệu!");
+            }
             const id = document.getElementById('modalEditBrandId').value;
             const name = document.getElementById('modalBrandName').value.trim();
             const logoUrl = document.getElementById('modalBrandLogoUrl').value.trim();
@@ -1635,6 +1715,9 @@
         }
 
         function deleteBrand(id) {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền xóa thương hiệu!");
+            }
             if (confirm("⚠️ Bạn chắc chắn muốn xóa thương hiệu này?")) {
                 APP_BRANDS = APP_BRANDS.filter(b => b.id !== id);
                 saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
@@ -1767,6 +1850,33 @@
                 renderEmployeeTable();
                 alert(`✅ Đã xóa tài khoản "${username}".`);
             }
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ THÔNG TIN CỬA HÀNG ---
+        function populateShopInfoForm() {
+            const info = APP_SHOP_INFO;
+            document.getElementById('shopInfoAddress').value = info.contact.address;
+            document.getElementById('shopInfoPhone').value = info.contact.phone;
+            document.getElementById('shopInfoEmail').value = info.contact.email;
+            document.getElementById('shopInfoFacebook').value = info.social.facebook;
+            document.getElementById('shopInfoInstagram').value = info.social.instagram;
+            document.getElementById('shopInfoTiktok').value = info.social.tiktok;
+        }
+
+        function saveShopInfo(e) {
+            e.preventDefault();
+            if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền thay đổi thông tin cửa hàng!");
+
+            APP_SHOP_INFO.contact.address = document.getElementById('shopInfoAddress').value.trim();
+            APP_SHOP_INFO.contact.phone = document.getElementById('shopInfoPhone').value.trim();
+            APP_SHOP_INFO.contact.email = document.getElementById('shopInfoEmail').value.trim();
+            APP_SHOP_INFO.social.facebook = document.getElementById('shopInfoFacebook').value.trim();
+            APP_SHOP_INFO.social.instagram = document.getElementById('shopInfoInstagram').value.trim();
+            APP_SHOP_INFO.social.tiktok = document.getElementById('shopInfoTiktok').value.trim();
+
+            saveDataToLocalStorage('APP_SHOP_INFO', APP_SHOP_INFO);
+            renderFooter();
+            alert("✅ Cập nhật thông tin cửa hàng thành công!");
         }
     </script>
 
