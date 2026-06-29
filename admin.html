@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Deal - Quản Trị Hệ Thống</title>
+    <style>
+        /* CSS GIAO DIỆN CHÍNH */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; line-height: 1.6; }
+        
+        /* Header & Menu Dropdown */
+        header { background-color: #0056b3; color: #ffffff; padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0, 86, 179, 0.15); }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        
+        .logo-container { display: flex; flex-direction: column; text-decoration: none; }
+        .logo { font-size: 26px; font-weight: bold; letter-spacing: 1.5px; color: #ffffff; text-decoration: none; line-height: 1.2; }
+        .logo-slogan { font-size: 12px; color: #e0e0e0; font-weight: normal; margin-top: 2px; letter-spacing: 0.5px; }
+        
+        /* Admin specific styles */
+        .admin-section { display: none; margin-top: 30px; margin-bottom: 60px; background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 30px; }
+        .admin-section.active { display: block; }
+        .admin-top-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0056b3; padding-bottom: 15px; margin-bottom: 25px; }
+        .admin-user-info { font-size: 14px; color: #666; font-weight: 500; display: flex; gap: 15px; align-items: center; }
+        .change-pass-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
+        .logout-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 35px; }
+        .stat-card { padding: 20px; border-radius: 8px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-card.blue { background: linear-gradient(135deg, #0056b3, #007bff); }
+        .stat-card.green { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .stat-card.purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+        .stat-card.orange { background: linear-gradient(135deg, #d35400, #e67e22); }
+        .stat-card.red { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+        .stat-card h4 { font-size: 13px; text-transform: uppercase; opacity: 0.9; margin-bottom: 5px; }
+        .stat-card .stat-number { font-size: 26px; font-weight: bold; }
+
+        .password-change-box { display: none; background: #fffcf5; border: 1px solid #f39c12; border-radius: 8px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(243,156,18,0.06); }
+        .password-change-box.active { display: block; }
+        
+        .brand-edit-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 2000; align-items: center; justify-content: center; }
+        .brand-edit-modal-overlay.active { display: flex; }
+        .brand-edit-modal-content { background: white; padding: 30px; border-radius: 10px; width: 100%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); position: relative; }
+        .brand-edit-modal-content h3 { color: #0056b3; margin-bottom: 20px; border-bottom: 2px dashed #eee; padding-bottom: 10px; }
+        
+        .hidden-by-js { display: none !important; }
+        
+        .admin-form-box { background: #fdfdfd; border: 1px solid #dcdcdc; border-radius: 8px; padding: 25px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .admin-form-box h3 { color: #0056b3; font-size: 18px; margin-bottom: 15px; border-bottom: 2px dashed #eee; padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 12px; }
+        .form-group label { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; font-family: inherit; }
+        .form-group textarea { resize: vertical; }
+
+        .form-actions-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+        .form-btn { padding: 10px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; }
+        .form-btn.submit { background: #27ae60; color: white; }
+        .form-btn.cancel { background: #7f8c8d; color: white; }
+
+        .table-responsive { overflow-x: auto; margin-top: 10px; border: 1px solid #e2e8f0; border-radius: 6px; }
+        .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; background: white; }
+        .admin-table th, .admin-table td { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; }
+        .admin-table th { background-color: #0056b3; color: white; font-weight: 600; }
+        .admin-table tr:hover { background-color: #f1f5f9; }
+        
+        .action-btn { padding: 5px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-right: 4px; color: white; }
+        .action-btn.edit { background-color: #f1c40f; color: #333; }
+        .action-btn.delete { background-color: #e74c3c; }
+
+        .login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .login-overlay.active { display: flex; }
+        .login-card { background: white; padding: 30px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .login-card h3 { text-align: center; color: #0056b3; margin-bottom: 20px; }
+
+        .login-error-alert { display: none; background-color: #fde8e8; border: 1px solid #f8b4b4; color: #9b1c1c; padding: 12px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 15px; text-align: center; }
+        .login-error-alert.active { display: block; animation: shake 0.3s ease-in-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        /* --- MEDIA QUERIES --- */
+        @media (max-width: 768px) {
+            .admin-top-header {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                row-gap: 15px;
+            }
+            .admin-user-info { flex-wrap: wrap; }
+        }
+
+        @media (max-width: 576px) {
+            .admin-top-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .admin-top-header h2 { font-size: 20px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-actions-row { flex-direction: column; gap: 10px; }
+            .form-btn { width: 100%; }
+            .login-card { padding: 20px; }
+            .login-card h3 { font-size: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .admin-stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo-container">
+                <span class="logo">BEAUTY DEAL</span>
+                <span class="logo-slogan">Quản Trị Hệ Thống</span>
+            </a>
+            <div class="header-right">
+                <span style="color:white; font-weight:bold; margin-right:10px;">Xin chào, <span id="loggedInUsername"></span> (<span id="loggedInUserRole"></span>)</span>
+                <button class="logout-btn" onclick="logoutAdmin()">Đăng xuất</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="admin-section" id="adminSection">
+            <div class="admin-top-header">
+                <div>
+                    <h2>HỆ THỐNG QUẢN TRỊ ADMINISTRATOR</h2>
+                    <div class="admin-user-info" id="adminUserInfoDisplay">
+                        <span>Đang đăng nhập: 
+                            <span id="loggedInUsername"></span> (<span id="loggedInUserRole"></span>)
+                        </span>
+                        <button class="change-pass-toggle-btn" onclick="toggleChangePasswordBox()" id="changePassBtn">🔒 Đổi mật khẩu</button>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logoutAdmin()">Đăng xuất hệ thống</button>
+            </div>
+
+            <div class="password-change-box" id="passwordChangeBox">
+                <h3 style="color:#d35400; font-size:16px; margin-bottom:15px; border-bottom:1px solid #f39c12; padding-bottom:5px;">Thay Đổi Mật Khẩu Đăng Nhập Hệ Thống</h3>
+                <form onsubmit="handleAdminChangePassword(event)">
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                        <div class="form-group">
+                            <label>Mật khẩu hiện tại *</label>
+                            <input type="password" id="oldAdminPass" required placeholder="Nhập mật khẩu cũ...">
+                        </div>
+                        <div class="form-group">
+                            <label>Mật khẩu mới *</label>
+                            <input type="password" id="newAdminPass" required placeholder="Mật khẩu mới...">
+                        </div>
+                        <div class="form-group">
+                            <label>Xác nhận mật khẩu mới *</label>
+                            <input type="password" id="confirmAdminPass" required placeholder="Nhập lại mật khẩu mới...">
+                        </div>
+                    </div>
+                    <div class="form-actions-row" style="margin-top:10px;">
+                        <button type="button" class="form-btn cancel" style="background:#95a5a6; padding:6px 15px;" onclick="toggleChangePasswordBox()">Hủy bỏ</button>
+                        <button type="submit" class="form-btn submit" style="background:#e67e22; padding:6px 15px;">Xác nhận thay đổi</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Admin Panel for Shop Info -->
+            <div class="admin-form-box hidden-by-js" id="shopInfoManagementSection">
+                <h3>Quản Lý Thông Tin Cửa Hàng (Hiển thị ở Footer)</h3>
+                <form id="shopInfoForm" onsubmit="saveShopInfo(event)">
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Địa chỉ</label>
+                            <input type="text" id="shopInfoAddress" placeholder="123 Đường ABC, Quận XYZ, TP.HCM">
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại</label>
+                            <input type="text" id="shopInfoPhone" placeholder="0987 654 321">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="shopInfoEmail" placeholder="info@beautydeal.vn">
+                        </div>
+                        <div class="form-group">
+                            <label>Link Facebook</label>
+                            <input type="text" id="shopInfoFacebook" placeholder="https://facebook.com/yourpage">
+                        </div>
+                        <div class="form-group">
+                            <label>Link Instagram</label>
+                            <input type="text" id="shopInfoInstagram" placeholder="https://instagram.com/yourprofile">
+                        </div>
+                        <div class="form-group">
+                            <label>Link Tiktok</label>
+                            <input type="text" id="shopInfoTiktok" placeholder="https://tiktok.com/@yourchannel">
+                        </div>
+                    </div>
+                    <div class="form-actions-row">
+                        <button type="submit" class="form-btn submit">Lưu Thông Tin Cửa Hàng</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-form-box hidden-by-js" id="brandManagementSection">
+                <h3 id="brandFormTitle">Thêm Thương Hiệu Mới</h3>
+                <form id="brandForm" onsubmit="addNewBrand(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tên thương hiệu *</label>
+                            <input type="text" id="brandName" required placeholder="Ví dụ: Obagi">
+                        </div>
+                        <div class="form-group">
+                            <label>URL Logo / Tải ảnh lên *</label>
+                            <input type="file" id="brandLogoFile" accept="image/*" onchange="previewImage(event, 'brandLogoPreview', 'brandLogoHidden')">
+                            <input type="hidden" id="brandLogoHidden">
+                            <img id="brandLogoPreview" src="" alt="Xem trước logo" style="max-width: 80px; max-height: 40px; margin-top: 10px; border: 1px solid #eee; display: none;">
+                            <input type="text" id="brandLogoUrlInput" placeholder="Hoặc dán link ảnh logo từ web vào đây..." oninput="clearFileInput('brandLogoFile', 'brandLogoPreview', 'brandLogoHidden')">
+                        </div>
+                        <div class="form-group">
+                            <label>Liên kết (URL)</label>
+                            <input type="text" id="brandLink" placeholder="https://obagi.com">
+                        </div>
+                    </div>
+                    <div class="form-actions-row">
+                        <button type="button" class="form-btn cancel" onclick="cancelBrandEdit()">Hủy</button>
+                        <button type="submit" class="form-btn submit">Thêm Thương Hiệu</button>
+                    </div>
+                </form>
+                <h3 style="margin-top: 40px; margin-bottom: 20px; border-bottom: 2px dashed #eee; padding-bottom: 10px;">Danh Sách Thương Hiệu</h3>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="brandFilterInput">Lọc theo tên thương hiệu:</label>
+                    <input type="text" id="brandFilterInput" placeholder="Nhập tên thương hiệu để lọc..." oninput="filterBrands()">
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Logo</th>
+                                <th>Tên thương hiệu</th>
+                                <th>Liên kết</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBrandsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-form-box hidden-by-js" id="bannerManagementSection">
+                <h3 id="bannerFormTitle">Thêm Banner Mới</h3>
+                <form id="bannerForm" onsubmit="saveBanner(event)">
+                    <input type="hidden" id="editBannerId" value="">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Loại Banner *</label>
+                            <select id="bannerType" required>
+                                <option value="flashsale">Flash Sale</option>
+                                <option value="newarrival">Sản Phẩm Mới</option>
+                                <option value="promotion">Khuyến Mãi Chung</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>URL Hình ảnh / Tải ảnh lên *</label>
+                            <input type="file" id="bannerImageFile" accept="image/*" onchange="previewImage(event, 'bannerImagePreview', 'bannerImageHidden')">
+                            <input type="hidden" id="bannerImageHidden">
+                            <img id="bannerImagePreview" src="" alt="Xem trước banner" style="max-width: 150px; max-height: 50px; margin-top: 10px; border: 1px solid #eee; display: none;">
+                            <input type="text" id="bannerImageUrlInput" required placeholder="Hoặc dán link ảnh HTTPS từ Unsplash hoặc máy chủ của bạn..." oninput="clearFileInput('bannerImageFile', 'bannerImagePreview', 'bannerImageHidden')">
+                        </div>
+                        <div class="form-group">
+                            <label>Tiêu đề *</label>
+                            <input type="text" id="bannerTitle" required placeholder="Flash Sale Giới Hạn">
+                        </div>
+                        <div class="form-group">
+                            <label>Mô tả</label>
+                            <input type="text" id="bannerDescription" placeholder="Giảm đến 50% các sản phẩm chọn lọc!">
+                        </div>
+                        <div class="form-group">
+                            <label>Văn bản nút *</label>
+                            <input type="text" id="bannerButtonText" required placeholder="Mua ngay">
+                        </div>
+                        <div class="form-group">
+                            <label>Liên kết nút (URL) *</label>
+                            <input type="text" id="bannerButtonLink" required placeholder="#">
+                        </div>
+                    </div>
+                    <div class="form-actions-row">
+                        <button type="button" class="form-btn cancel" onclick="cancelBannerEdit()">Hủy</button>
+                        <button type="submit" class="form-btn submit">Lưu Banner</button>
+                    </div>
+                </form>
+                <div class="table-responsive" style="margin-top: 30px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Loại</th>
+                                <th>Hình ảnh</th>
+                                <th>Tiêu đề</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminBannersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 id="adminProductListTitle" style="color:#0056b3; margin-top: 40px; margin-bottom: 20px; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">Quản Lý Sản Phẩm</h2>
+
+            <div class="admin-stats-grid">
+                <div class="stat-card blue" onclick="filterAndDisplayProducts('all')">
+                    <h4>Tổng sản phẩm</h4>
+                    <div class="stat-number" id="statTotalProducts">0</div>
+                </div>
+                <div class="stat-card green" onclick="filterAndDisplayProducts('soldOut')">
+                    <h4>Tổng lượt bán</h4>
+                    <div class="stat-number">452</div>
+                </div>
+                <div class="stat-card purple" onclick="alert('Tính năng này chưa được triển khai.')">
+                    <h4>Log lượt truy cập</h4>
+                    <div class="stat-number">1,948</div>
+                </div>
+                <div class="stat-card orange" onclick="filterAndDisplayProducts('inStock')">
+                    <h4>Sản phẩm còn tồn</h4>
+                    <div class="stat-number" id="statInStock">0</div>
+                </div>
+                <div class="stat-card red" onclick="filterAndDisplayProducts('outOfStock')">
+                    <h4>Sản phẩm hết hàng</h4>
+                    <div class="stat-number" id="statOutOfStock">0</div>
+                </div>
+            </div>
+
+            <div class="admin-form-box hidden-by-js" id="adminFormBox">
+                <h3 id="formTitle">Thêm Sản Phẩm Mới Vào Hệ Thống</h3>
+                <form id="adminForm" onsubmit="saveProduct(event)">
+                    <input type="hidden" id="editProductId" value="">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tên sản phẩm *</label>
+                            <input type="text" id="prodName" required placeholder="Ví dụ: Nước tẩy trang Bioderma 500ml">
+                        </div>
+                        <div class="form-group">
+                            <label>Danh mục hệ thống *</label>
+                            <select id="prodCategory" required>
+                                <option value="TRANG ĐIỂM">Trang điểm</option>
+                                <option value="DẦU GỘI & CHĂM SÓC TÓC">Dầu gội & chăm sóc tóc</option>
+                                <option value="KEM CHỐNG NẮNG">Kem chống nắng</option>
+                                <option value="CHĂM SÓC DA MẶT">Chăm sóc da mặt</option>
+                                <option value="CHĂM SÓC CƠ THỂ">Chăm sóc cơ thể</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Giá bán hiện tại (đ) *</label>
+                            <input type="number" id="prodCurrPrice" required placeholder="Ví dụ: 145000">
+                        </div>
+                        <div class="form-group">
+                            <label>Giá gốc thị trường (đ)</label>
+                            <input type="number" id="prodOrigPrice" placeholder="Ví dụ: 210000">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Đường dẫn hình ảnh (URL Link) / Tải ảnh lên *</label>
+                            <input type="file" id="prodImageFile" accept="image/*" onchange="previewImage(event, 'prodImagePreview', 'prodImageHidden')">
+                            <input type="hidden" id="prodImageHidden">
+                            <img id="prodImagePreview" src="" alt="Xem trước ảnh sản phẩm" style="max-width: 100px; max-height: 100px; margin-top: 10px; border: 1px solid #eee; display: none;">
+                            <input type="text" id="prodImageUrl" required placeholder="Hoặc dán link ảnh HTTPS từ Unsplash hoặc máy chủ của bạn..." oninput="clearFileInput('prodImageFile', 'prodImagePreview', 'prodImageHidden')">
+                        </div>
+                        <div class="form-group">
+                            <label>Thương hiệu *</label>
+                            <input type="text" id="prodBrand" required placeholder="Ví dụ: L'Oreal, La Roche-Posay...">
+                        </div>
+                        <div class="form-group">
+                            <label>Trạng thái kho hàng *</label>
+                            <select id="prodStock" required>
+                                <option value="ConHang">Còn Hàng Tồn</option>
+                                <option value="HetHang">Hết Hàng Toàn Hệ Thống</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-tabs-inputs" style="margin-top: 15px;">
+                        <div class="form-group">
+                            <label>Mô tả chi tiết sản phẩm</label>
+                            <textarea id="prodDesc" rows="3" placeholder="Nhập đặc điểm nổi bật..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Thông số kỹ thuật (Dung tích, loại da, hạn dùng...)</label>
+                            <textarea id="prodSpecs" rows="2" placeholder="Dung tích: 500ml&#10;Loại da: Mọi loại da"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Thành phần chính</label>
+                            <textarea id="prodIngredients" rows="2" placeholder="Aqua, Glycerin, Peg-6 Caprylic..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Hướng dẫn sử dụng (HDSD)</label>
+                            <textarea id="prodUsage" rows="2" placeholder="Thấm đều ra bông tẩy trang, lau nhẹ..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-row">
+                        <button type="button" class="form-btn cancel" onclick="cancelAdminEdit()">Hủy lệnh</button>
+                        <button type="submit" class="form-btn submit">Lưu dữ liệu sản phẩm</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-form-box hidden-by-js" id="employeeManagementSection"> 
+                <h3>Quản Lý Tài Khoản Người Dùng</h3>
+                <form id="addEmployeeForm" onsubmit="addEmployee(event)">
+                    <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                        <div class="form-group">
+                            <label>Tên tài khoản *</label>
+                            <input type="text" id="newEmployeeUsername" required placeholder="Ví dụ: nhanvien01">
+                        </div>
+                        <div class="form-group">
+                            <label>Mật khẩu *</label>
+                            <input type="password" id="newEmployeePassword" required placeholder="Mật khẩu cho người dùng">
+                        </div>
+                        <div class="form-group">
+                            <label>Vai trò *</label>
+                            <select id="newUserRole" required>
+                                <option value="employee">Nhân viên</option>
+                                <option value="admin">Quản trị viên</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions-row">
+                        <button type="submit" class="form-btn submit" style="background:#007bff;">Thêm Người Dùng Mới</button>
+                    </div>
+                </form>
+
+                <div class="table-responsive" style="margin-top: 30px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Tên tài khoản</th>
+                                <th>Vai trò</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 style="color:#0056b3; margin-top: 40px; margin-bottom: 20px; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">Danh Sách Sản Phẩm</h2>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Giá bán</th>
+                            <th>Giá gốc</th>
+                            <th>Thương hiệu</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminProductsTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div class="login-overlay" id="loginModal">
+        <div class="login-card">
+            <h3>Đăng Nhập Hệ Thống Quản Trị</h3>
+            <div class="login-error-alert" id="loginErrorAlert">Mật khẩu hệ thống Admin chưa chính xác!</div>
+            <form onsubmit="handleAdminLogin(event)"> 
+                <div class="form-group">
+                    <label>Tài khoản</label>
+                    <input type="text" id="loginUser" required placeholder="Nhập tài khoản..." oninput="document.getElementById('loginErrorAlert').classList.remove('active')">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu kiểm soát *</label>
+                    <input type="password" id="loginPassword" required placeholder="Nhập mật khẩu truy cập..." oninput="document.getElementById('loginErrorAlert').classList.remove('active')">
+                </div>
+                <div class="form-actions-row" style="margin-top:20px;">
+                    <button type="button" class="form-btn cancel" onclick="closeLoginModal()">Thoát ra</button>
+                    <button type="submit" class="form-btn submit" style="background:#0056b3;">Đăng nhập</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="brand-edit-modal-overlay" id="brandEditModal">
+        <div class="brand-edit-modal-content">
+            <h3 id="modalBrandFormTitle">Chỉnh Sửa Thương Hiệu</h3>
+            <form id="modalBrandForm" onsubmit="saveEditedBrand(event)">
+                <input type="hidden" id="modalEditBrandId" value="">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tên thương hiệu</label>
+                        <input type="text" id="modalBrandName" required placeholder="Ví dụ: Obagi">
+                    </div>
+                    <div class="form-group">
+                        <label>Liên kết (URL)</label>
+                        <input type="text" id="modalBrandLink" placeholder="https://obagi.com">
+                    </div>
+                    <div class="form-group">
+                        <label>URL Logo / Tải ảnh lên *</label>
+                        <input type="file" id="modalBrandLogoFile" accept="image/*" onchange="previewImage(event, 'modalBrandLogoPreview', 'modalBrandLogoHidden')">
+                        <input type="hidden" id="modalBrandLogoHidden">
+                        <img id="modalBrandLogoPreview" src="" alt="Xem trước logo" style="max-width: 80px; max-height: 40px; margin-top: 10px; border: 1px solid #eee; display: none;">
+                        <input type="text" id="modalBrandLogoUrlInput" placeholder="Hoặc dán link ảnh logo từ web vào đây..." oninput="clearFileInput('modalBrandLogoFile', 'modalBrandLogoPreview', 'modalBrandLogoHidden')">
+                    </div>
+                </div>
+                <div class="form-actions-row">
+                    <button type="button" class="form-btn cancel" onclick="closeBrandEditModal()">Hủy</button>
+                    <button type="submit" class="form-btn submit">Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        console.log("--- SCRIPT VERSION: ADMIN-PANEL-2024-06-07 ---"); // Dấu hiệu nhận biết phiên bản code mới nhất
+        
+        let APP_PRODUCTS = [];
+        let APP_BRANDS = [];
+        let APP_BANNERS = [];
+        let APP_SHOP_INFO = {};
+        let USER_CREDENTIALS = {};
+        
+        const DEFAULT_PRODUCTS = [
+            { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: "ConHang", desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
+            { id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink Slay 5ml", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: "ConHang", desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn." },
+            { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: "ConHang", desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
+            { id: "1710004", name: "Dầu Gội L'Oréal Professionnel Serie Expert Absolut Repair 500ml", category: "DẦU GỘI & CHĂM SÓC TÓC", currPrice: 560000, origPrice: 680000, image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80", brand: "L'Oréal Professionnel", stock: "ConHang", desc: "Dầu gội cao cấp phục hồi hư tổn xơ rối nặng chuyên sâu nhờ dưỡng chất Protein hạt diêm mạch vàng (Gold Quinoa).", specs: "Dung tích: 500ml\nLoại tóc: Tóc hư tổn, chẻ ngọn\nThương hiệu: Pháp", ingredients: "Aqua / Water / Eau, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Dimethicone, Sodium Chloride, Citric Acid.", usage: "Thoa đều dầu gội lên tóc ướt, massage nhẹ nhàng da đầu và ngọn tóc, sau đó xả sạch lại với nước." }
+        ];
+        const DEFAULT_BRANDS = [
+            { id: "brand001", name: "Obagi", logoUrl: "assets/logos/obagi.png", link: "#" },
+            { id: "brand002", name: "SVR", logoUrl: "assets/logos/svr.png", link: "#" },
+            { id: "brand003", name: "Anessa", logoUrl: "assets/logos/anessa.png", link: "#" },
+            { id: "brand004", name: "Vacosi", logoUrl: "assets/logos/vacosi.png", link: "#" },
+            { id: "brand005", name: "3CE", logoUrl: "assets/logos/3ce.png", link: "#" },
+            { id: "brand006", name: "Cetaphil", logoUrl: "assets/logos/cetaphil.png", link: "#" },
+            { id: "brand007", name: "Cocon", logoUrl: "assets/logos/cocon.png", link: "#" },
+            { id: "brand008", name: "Garnier", logoUrl: "assets/logos/garnier.png", link: "#" }
+        ];
+        const DEFAULT_BANNERS = [
+            { id: "promo001", type: "flashsale", imageUrl: "https://via.placeholder.com/600x200/FFD700/FFFFFF?text=Flash+Sale", title: "Flash Sale Giới Hạn", description: "Giảm đến 50% các sản phẩm chọn lọc!", buttonText: "Mua ngay", buttonLink: "#" },
+            { id: "promo002", type: "newarrival", imageUrl: "https://via.placeholder.com/600x200/ADD8E6/FFFFFF?text=New+Arrivals", title: "Sản Phẩm Mới Về", description: "Khám phá bộ sưu tập mới nhất!", buttonText: "Xem ngay", buttonLink: "#" }
+        ];
+        const DEFAULT_SHOP_INFO = {
+            contact: {
+                address: "123 Đường ABC, Quận XYZ, TP.HCM",
+                phone: "0987 654 321",
+                email: "info@beautydeal.vn"
+            },
+            social: {
+                facebook: "#", instagram: "#", tiktok: "#"
+            }
+        };
+        const DEFAULT_USER_CREDENTIALS = {
+            "admin": { password: "Admin@123", role: "admin" },
+            "employee": { password: "Employee@123", role: "employee" }
+        };
+        
+        let currentUserRole = null;
+        let currentLoggedInUser = null;
+
+        // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ LOCALSTORAGE ---
+        function saveDataToLocalStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (e) {
+                console.error(`Lỗi khi lưu dữ liệu '${key}' vào localStorage:`, e);
+            }
+        }
+
+        function loadDataFromLocalStorage(key, defaultValue) {
+            try {
+                const storedData = localStorage.getItem(key);
+                if (storedData) {
+                    return JSON.parse(storedData);
+                }
+                saveDataToLocalStorage(key, defaultValue); // Lưu giá trị mặc định nếu chưa có
+                return defaultValue;
+            } catch (e) {
+                console.error(`Lỗi khi tải dữ liệu '${key}' từ localStorage:`, e);
+                return defaultValue;
+            }
+        }
+
+        // --- KHỞI TẠO KHI TRANG TẢI ---
+        window.addEventListener('DOMContentLoaded', () => {
+            APP_PRODUCTS = loadDataFromLocalStorage('APP_PRODUCTS', DEFAULT_PRODUCTS);
+            APP_BRANDS = loadDataFromLocalStorage('APP_BRANDS', DEFAULT_BRANDS);
+            APP_BANNERS = loadDataFromLocalStorage('APP_BANNERS', DEFAULT_BANNERS);
+            APP_SHOP_INFO = loadDataFromLocalStorage('APP_SHOP_INFO', DEFAULT_SHOP_INFO);
+            USER_CREDENTIALS = loadDataFromLocalStorage('USER_CREDENTIALS', DEFAULT_USER_CREDENTIALS);
+            
+            // NEW: Always show login modal when admin.html is opened
+            // Clear any previous login session to force re-login
+            localStorage.removeItem('loggedInUser');
+            localStorage.removeItem('loggedInUserRole');
+            currentLoggedInUser = null;
+            currentUserRole = null;
+
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('adminSection').style.display = 'none'; // Ensure admin section is hidden
+        });
+        
+        // NEW: Hàm xử lý xem trước ảnh và lưu Data URL
+        function previewImage(event, previewId, hiddenInputId) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const output = document.getElementById(previewId);
+                const hiddenInput = document.getElementById(hiddenInputId);
+                output.src = reader.result;
+                output.style.display = 'block';
+                hiddenInput.value = reader.result; // Store Data URL
+
+                // Clear the corresponding URL input if a file is selected
+                if (previewId === 'prodImagePreview') {
+                    document.getElementById('prodImageUrl').value = '';
+                } else if (previewId === 'brandLogoPreview' || previewId === 'modalBrandLogoPreview') {
+                    document.getElementById(previewId.replace('Preview', 'UrlInput')).value = '';
+                } else if (previewId === 'bannerImagePreview') {
+                    document.getElementById('bannerImageUrlInput').value = '';
+                }
+            };
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            } else {
+                document.getElementById(previewId).style.display = 'none';
+                document.getElementById(hiddenInputId).value = '';
+            }
+        }
+        // NEW: Hàm xóa input file và preview khi người dùng nhập URL
+        function clearFileInput(fileInputId, previewId, hiddenInputId) {
+            document.getElementById(fileInputId).value = ''; // Clear the file input selection
+            document.getElementById(previewId).style.display = 'none'; // Hide preview
+            document.getElementById(previewId).src = ''; // Clear preview src
+            document.getElementById(hiddenInputId).value = ''; // Clear hidden data URL
+        }
+
+        // --- HÀM XỬ LÝ QUẢN TRỊ ---
+        function closeLoginModal() { 
+            document.getElementById('loginModal').classList.remove('active'); 
+            document.getElementById('loginErrorAlert').classList.remove('active');
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPassword').value.trim();
+            const loginErrorAlert = document.getElementById('loginErrorAlert');
+            loginErrorAlert.classList.remove('active');
+
+            if (!USER_CREDENTIALS[user]) {
+                loginErrorAlert.innerText = 'Tài khoản không tồn tại!';
+                loginErrorAlert.classList.add('active');
+            } else if (USER_CREDENTIALS[user].password !== passInput) {
+                loginErrorAlert.innerText = 'Mật khẩu không chính xác!';
+                loginErrorAlert.classList.add('active');
+            } else {
+                currentLoggedInUser = user;
+                currentUserRole = USER_CREDENTIALS[user].role;
+                localStorage.setItem('loggedInUser', currentLoggedInUser);
+                localStorage.setItem('loggedInUserRole', currentUserRole);
+                closeLoginModal();
+                activateAdminDashboard();
+            }
+        }
+
+        function activateAdminDashboard() {
+            document.getElementById('adminSection').style.display = 'block'; // Show admin section
+            document.getElementById('loginModal').classList.remove('active'); // Hide login modal
+            
+            document.getElementById('loggedInUsername').innerText = currentLoggedInUser;
+            document.getElementById('loggedInUserRole').innerText = currentUserRole === 'admin' ? 'Quản trị viên' : 'Nhân viên';
+
+            const sections = {
+                employee: document.getElementById('employeeManagementSection'),
+                productForm: document.getElementById('adminFormBox'),
+                shopInfo: document.getElementById('shopInfoManagementSection'),
+                changePass: document.getElementById('changePassBtn'),
+                brand: document.getElementById('brandManagementSection'),
+                banner: document.getElementById('bannerManagementSection')
+            };
+
+            Object.values(sections).forEach(sec => sec && sec.classList.add('hidden-by-js'));
+
+            if (currentUserRole === 'admin') {
+                Object.values(sections).forEach(sec => sec && sec.classList.remove('hidden-by-js'));
+            } else if (currentUserRole === 'employee') {
+                if (sections.productForm) sections.productForm.classList.remove('hidden-by-js');
+                if (sections.brand) sections.brand.classList.remove('hidden-by-js');
+                if (sections.banner) sections.banner.classList.remove('hidden-by-js');
+            }
+            
+            populateShopInfoForm();
+            renderAdminBrandsTable();
+            renderAdminBannersTable();
+            renderAdminTable();
+            renderEmployeeTable();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function logoutAdmin() {
+            currentUserRole = null;
+            currentLoggedInUser = null;
+            localStorage.removeItem('loggedInUser');
+            localStorage.removeItem('loggedInUserRole');
+            alert("🔒 Đã đăng xuất an toàn.");
+            window.location.href = 'index.html'; // Redirect to main site
+        }
+
+        function toggleChangePasswordBox() {
+            if (currentUserRole !== 'admin') {
+                alert("❌ Bạn không có quyền truy cập chức năng này!");
+                return;
+            }
+            document.getElementById('passwordChangeBox').classList.toggle('active'); 
+        }
+
+        function handleAdminChangePassword(e) {
+            e.preventDefault();
+            if (currentUserRole !== 'admin') {
+                alert("❌ Bạn không có quyền thay đổi mật khẩu!");
+                return;
+            }
+            const oldP = document.getElementById('oldAdminPass').value.trim();
+            const newP = document.getElementById('newAdminPass').value.trim();
+            const confP = document.getElementById('confirmAdminPass').value.trim();
+
+            if (oldP !== USER_CREDENTIALS[currentLoggedInUser].password) return alert("❌ Mật khẩu cũ không chính xác!");
+            if (newP !== confP) return alert("❌ Mật khẩu mới không trùng khớp!");
+            if (newP.length < 6) return alert("❌ Mật khẩu mới phải có ít nhất 6 ký tự!");
+
+            USER_CREDENTIALS[currentLoggedInUser].password = newP;
+            saveDataToLocalStorage('USER_CREDENTIALS', USER_CREDENTIALS);
+            alert("🔑 Thay đổi mật khẩu thành công!");
+            document.getElementById('oldAdminPass').value = '';
+            document.getElementById('newAdminPass').value = '';
+            document.getElementById('confirmAdminPass').value = '';
+            toggleChangePasswordBox();
+        }
+
+        function updateKPIStats() {
+            document.getElementById('statTotalProducts').innerText = APP_PRODUCTS.length;
+            document.getElementById('statInStock').innerText = APP_PRODUCTS.filter(p => p.stock === "ConHang").length;
+            document.getElementById('statOutOfStock').innerText = APP_PRODUCTS.filter(p => p.stock === "HetHang").length;
+        }
+
+        // NEW: Function to filter and display products based on stat card click
+        function filterAndDisplayProducts(filterType) {
+            let productsToDisplay = APP_PRODUCTS;
+            const productListTitle = document.getElementById('adminProductListTitle');
+
+            if (filterType === 'inStock') {
+                productsToDisplay = APP_PRODUCTS.filter(p => p.stock === "ConHang");
+                productListTitle.innerText = "Danh Sách Sản Phẩm Còn Tồn";
+            } else if (filterType === 'outOfStock') {
+                productsToDisplay = APP_PRODUCTS.filter(p => p.stock === "HetHang");
+                productListTitle.innerText = "Danh Sách Sản Phẩm Hết Hàng";
+            } else if (filterType === 'soldOut') {
+                productsToDisplay = APP_PRODUCTS.filter(p => p.stock === "HetHang");
+                productListTitle.innerText = "Danh Sách Sản Phẩm Đã Bán Hết (Mô phỏng)";
+            } else { // 'all'
+                productListTitle.innerText = "Danh Sách Sản Phẩm";
+            }
+
+            renderAdminTable(productsToDisplay);
+            // Scroll to the product table
+            const productTableSection = document.getElementById('adminProductsTableBody');
+            if (productTableSection) {
+                productTableSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function renderAdminTable(productsToRender = APP_PRODUCTS) { // Modified to accept productsToRender
+            const tbody = document.getElementById('adminProductsTableBody');
+            tbody.innerHTML = '';
+            if (!Array.isArray(productsToRender)) { // Ensure productsToRender is an array
+                productsToRender = [];
+            }
+            productsToRender.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${p.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"></td>
+                    <td style="font-weight:600;">${p.name}</td>
+                    <td>${p.category}</td>
+                    <td style="color:#0056b3; font-weight:bold;">${p.currPrice.toLocaleString('vi-VN')}đ</td>
+                    <td style="color:#999; text-decoration:line-through;">${p.origPrice ? p.origPrice.toLocaleString('vi-VN') + 'đ' : '-'}</td>
+                    <td>${p.brand}</td>
+                    <td><span style="color:${p.stock==='ConHang'?'#27ae60':'#e74c3c'}; font-weight:bold;">${p.stock==='ConHang'?'Còn Hàng':'Hết Hàng'}</span></td>
+                    <td>
+                        <button class="action-btn edit" onclick="startEditProduct('${p.id}')">Sửa</button> 
+                        <button class="action-btn delete" onclick="deleteProduct('${p.id}')">Xóa</button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+            updateKPIStats();
+        }
+
+        function cancelAdminEdit() {
+            document.getElementById('adminForm').reset();
+            document.getElementById('editProductId').value = '';
+            document.getElementById('formTitle').innerText = "Thêm Sản Phẩm Mới";
+            // Clear image preview and hidden input
+            document.getElementById('prodImageFile').value = '';
+            document.getElementById('prodImagePreview').style.display = 'none';
+            document.getElementById('prodImagePreview').src = '';
+            document.getElementById('prodImageHidden').value = '';
+            document.getElementById('prodImageUrl').value = '';
+        }
+
+        function startEditProduct(id) {
+            const p = APP_PRODUCTS.find(item => item.id === id);
+            if (!p) return;
+            document.getElementById('editProductId').value = p.id;
+            document.getElementById('formTitle').innerText = `Cập Nhật Sản Phẩm [Mã: ${p.id}]`;
+            document.getElementById('prodName').value = p.name;
+            document.getElementById('prodCategory').value = p.category;
+            document.getElementById('prodCurrPrice').value = p.currPrice;
+            document.getElementById('prodOrigPrice').value = p.origPrice || '';
+            
+            // Handle image display for edit
+            document.getElementById('prodImageFile').value = ''; // Clear file input
+            document.getElementById('prodImageHidden').value = ''; // Clear hidden input
+            const prodImagePreview = document.getElementById('prodImagePreview');
+            if (p.image.startsWith('data:image')) { // Check if it's a Data URL
+                prodImagePreview.src = p.image;
+                prodImagePreview.style.display = 'block';
+                document.getElementById('prodImageUrl').value = ''; // Clear URL input
+                document.getElementById('prodImageHidden').value = p.image; // Keep data URL in hidden input
+            } else { // It's a regular URL
+                document.getElementById('prodImageUrl').value = p.image;
+                prodImagePreview.style.display = 'none';
+                prodImagePreview.src = '';
+            }
+
+            document.getElementById('prodBrand').value = p.brand;
+            document.getElementById('prodStock').value = p.stock;
+            document.getElementById('prodDesc').value = p.desc || '';
+            document.getElementById('prodSpecs').value = p.specs || '';
+            document.getElementById('prodIngredients').value = p.ingredients || '';
+            document.getElementById('prodUsage').value = p.usage || '';
+            window.scrollTo({ top: document.getElementById('adminFormBox').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editProductId').value;
+
+            // Determine product image source
+            let productImage = '';
+            const prodImageFile = document.getElementById('prodImageFile');
+            const prodImageUrl = document.getElementById('prodImageUrl').value.trim();
+            const prodImageHidden = document.getElementById('prodImageHidden').value.trim();
+
+            if (prodImageFile.files.length > 0 && prodImageHidden) {
+                productImage = prodImageHidden; // Use Data URL from file upload
+            } else if (prodImageUrl) {
+                productImage = prodImageUrl; // Use URL from text input
+            } else if (editId) {
+                // If editing and no new file/URL, retain existing image
+                const existingProduct = APP_PRODUCTS.find(p => p.id === editId);
+                if (existingProduct) {
+                    productImage = existingProduct.image;
+                }
+            }
+
+            if (!productImage) {
+                alert("Vui lòng cung cấp hình ảnh sản phẩm (tải lên hoặc dán URL).");
+                return; // Prevent saving without an image
+            }
+
+            const productData = {
+                name: document.getElementById('prodName').value.trim(),
+                category: document.getElementById('prodCategory').value,
+                currPrice: parseInt(document.getElementById('prodCurrPrice').value),
+                origPrice: document.getElementById('prodOrigPrice').value ? parseInt(document.getElementById('prodOrigPrice').value) : null,
+                image: productImage, // Use the determined image source
+                brand: document.getElementById('prodBrand').value.trim(),
+                stock: document.getElementById('prodStock').value,
+                desc: document.getElementById('prodDesc').value.trim(),
+                specs: document.getElementById('prodSpecs').value.trim(),
+                ingredients: document.getElementById('prodIngredients').value.trim(),
+                usage: document.getElementById('prodUsage').value.trim()
+            };
+
+            if (editId) {
+                const idx = APP_PRODUCTS.findIndex(p => p.id === editId);
+                if (idx !== -1) {
+                    APP_PRODUCTS[idx] = { ...APP_PRODUCTS[idx], ...productData };
+                    alert("✅ Cập nhật sản phẩm thành công!");
+                }
+            } else {
+                const newId = "171000" + (APP_PRODUCTS.length + 1); // Basic ID generation
+                APP_PRODUCTS.push({ id: newId, ...productData });
+                alert("✅ Thêm sản phẩm mới thành công!");
+            }
+            saveDataToLocalStorage('APP_PRODUCTS', APP_PRODUCTS);
+            cancelAdminEdit();
+            renderAdminTable();
+        }
+
+        function deleteProduct(id) {
+            if (confirm("⚠️ Bạn chắc chắn muốn xóa sản phẩm này?")) {
+                APP_PRODUCTS = APP_PRODUCTS.filter(p => p.id !== id);
+                saveDataToLocalStorage('APP_PRODUCTS', APP_PRODUCTS);
+                renderAdminTable();
+            }
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ THƯƠNG HIỆU ---
+        function renderAdminBrandsTable(brandsToRender = APP_BRANDS) {
+            const tbody = document.getElementById('adminBrandsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (brandsToRender.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">Không tìm thấy thương hiệu.</td></tr>';
+                return;
+            }
+            brandsToRender.forEach(brand => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${brand.id}</td>
+                    <td><img src="${brand.logoUrl}" style="width:80px; height:40px; object-fit:contain; border-radius:4px;"></td>
+                    <td style="font-weight:600;">${brand.name}</td>
+                    <td><a href="${brand.link}" target="_blank">${brand.link}</a></td>
+                    <td>
+                        <button class="action-btn edit hidden-by-js" onclick="startEditBrand('${brand.id}')">Sửa</button> 
+                        <button class="action-btn delete hidden-by-js" onclick="deleteBrand('${brand.id}')">Xóa</button>
+                    </td>`;
+                tbody.appendChild(tr);
+
+                const editBtn = tr.querySelector('.action-btn.edit');
+                const deleteBtn = tr.querySelector('.action-btn.delete');
+
+                if (currentUserRole === 'admin' || currentUserRole === 'employee') {
+                    if(editBtn) editBtn.classList.remove('hidden-by-js');
+                    if(deleteBtn) deleteBtn.classList.remove('hidden-by-js');
+                }
+            });
+        }
+
+        function filterBrands() {
+            const filterValue = document.getElementById('brandFilterInput').value.toLowerCase().trim();
+            const filteredBrands = filterValue ? APP_BRANDS.filter(brand => brand.name.toLowerCase().includes(filterValue)) : APP_BRANDS;
+            renderAdminBrandsTable(filteredBrands);
+        }
+
+        function cancelBrandEdit() {
+            document.getElementById('brandForm').reset();
+            // Clear image preview and hidden input
+            document.getElementById('brandLogoFile').value = '';
+            document.getElementById('brandLogoPreview').style.display = 'none';
+            document.getElementById('brandLogoPreview').src = '';
+            document.getElementById('brandLogoHidden').value = '';
+            document.getElementById('brandLogoUrlInput').value = '';
+        }
+
+        function addNewBrand(e) {
+            e.preventDefault();
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền thêm thương hiệu!");
+            }
+            const name = document.getElementById('brandName').value.trim();
+            const link = document.getElementById('brandLink').value.trim();
+
+            // Determine brand logo source
+            let brandLogo = '';
+            const brandLogoFile = document.getElementById('brandLogoFile');
+            const brandLogoUrlInput = document.getElementById('brandLogoUrlInput').value.trim();
+            const brandLogoHidden = document.getElementById('brandLogoHidden').value.trim();
+
+            if (brandLogoFile.files.length > 0 && brandLogoHidden) {
+                brandLogo = brandLogoHidden;
+            } else if (brandLogoUrlInput) {
+                brandLogo = brandLogoUrlInput;
+            }
+
+            if (!name || !brandLogo) return alert("Vui lòng nhập Tên và URL Logo.");
+
+            const newId = "brand" + String(Date.now()).slice(-5);
+            APP_BRANDS.push({ id: newId, name, logoUrl: brandLogo, link });
+            saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
+            alert("✅ Thêm thương hiệu mới thành công!");
+            cancelBrandEdit();
+            renderAdminBrandsTable();
+        }
+
+        function startEditBrand(id) {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền sửa thương hiệu!");
+            }
+            const brand = APP_BRANDS.find(item => item.id === id);
+            if (!brand) return;
+            document.getElementById('brandEditModal').classList.add('active');
+            document.getElementById('modalBrandFormTitle').innerText = `Chỉnh Sửa Thương Hiệu [ID: ${brand.id}]`;
+            document.getElementById('modalEditBrandId').value = brand.id;
+            document.getElementById('modalBrandName').value = brand.name;
+            document.getElementById('modalBrandLink').value = brand.link;
+
+            // Handle modal brand logo display for edit
+            document.getElementById('modalBrandLogoFile').value = ''; // Clear file input
+            document.getElementById('modalBrandLogoHidden').value = ''; // Clear hidden input
+            const modalBrandLogoPreview = document.getElementById('modalBrandLogoPreview');
+            if (brand.logoUrl.startsWith('data:image')) { // Check if it's a Data URL
+                modalBrandLogoPreview.src = brand.logoUrl;
+                modalBrandLogoPreview.style.display = 'block';
+                document.getElementById('modalBrandLogoUrlInput').value = ''; // Clear URL input
+                document.getElementById('modalBrandLogoHidden').value = brand.logoUrl; // Keep data URL in hidden input
+            } else { // It's a regular URL
+                document.getElementById('modalBrandLogoUrlInput').value = brand.logoUrl;
+                modalBrandLogoPreview.style.display = 'none';
+                modalBrandLogoPreview.src = '';
+            }
+        }
+
+        function saveEditedBrand(e) {
+            e.preventDefault();
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền sửa thương hiệu!");
+            }
+            const id = document.getElementById('modalEditBrandId').value;
+            const name = document.getElementById('modalBrandName').value.trim();
+            const link = document.getElementById('modalBrandLink').value.trim();
+
+            // Determine modal brand logo source
+            let brandLogo = '';
+            const modalBrandLogoFile = document.getElementById('modalBrandLogoFile');
+            const modalBrandLogoUrlInput = document.getElementById('modalBrandLogoUrlInput').value.trim();
+            const modalBrandLogoHidden = document.getElementById('modalBrandLogoHidden').value.trim();
+
+            if (modalBrandLogoFile.files.length > 0 && modalBrandLogoHidden) {
+                brandLogo = modalBrandLogoHidden;
+            } else if (modalBrandLogoUrlInput) {
+                brandLogo = modalBrandLogoUrlInput;
+            } else {
+                // If editing and no new file/URL, retain existing logo
+                const existingBrand = APP_BRANDS.find(b => b.id === id);
+                if (existingBrand) {
+                    brandLogo = existingBrand.logoUrl;
+                }
+            }
+
+            if (!brandLogo) {
+                alert("Vui lòng cung cấp logo thương hiệu (tải lên hoặc dán URL).");
+                return;
+            }
+
+            const idx = APP_BRANDS.findIndex(b => b.id === id);
+            if (idx !== -1) {
+                APP_BRANDS[idx] = { ...APP_BRANDS[idx], name, logoUrl: brandLogo, link };
+                saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
+                alert("✅ Cập nhật thương hiệu thành công!");
+            }
+            closeBrandEditModal();
+            renderAdminBrandsTable();
+        }
+
+        function closeBrandEditModal() {
+            document.getElementById('brandEditModal').classList.remove('active');
+            // Clear modal form and image preview
+            document.getElementById('modalBrandForm').reset();
+            document.getElementById('modalBrandLogoFile').value = '';
+            document.getElementById('modalBrandLogoPreview').style.display = 'none';
+            document.getElementById('modalBrandLogoPreview').src = '';
+            document.getElementById('modalBrandLogoHidden').value = '';
+            document.getElementById('modalBrandLogoUrlInput').value = '';
+        }
+
+        function deleteBrand(id) {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền xóa thương hiệu!");
+            }
+            if (confirm("⚠️ Bạn chắc chắn muốn xóa thương hiệu này?")) {
+                APP_BRANDS = APP_BRANDS.filter(b => b.id !== id);
+                saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
+                renderAdminBrandsTable();
+                alert("✅ Đã xóa thương hiệu.");
+            }
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ BANNER ---
+        function renderAdminBannersTable() {
+            const tbody = document.getElementById('adminBannersTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            APP_BANNERS.forEach(banner => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${banner.id}</td>
+                    <td>${banner.type}</td>
+                    <td><img src="${banner.imageUrl}" style="width:80px; height:40px; object-fit:cover; border-radius:4px;"></td>
+                    <td style="font-weight:600;">${banner.title}</td>
+                    <td>
+                        <button class="action-btn edit" onclick="startEditBanner('${banner.id}')">Sửa</button> 
+                        <button class="action-btn delete" onclick="deleteBanner('${banner.id}')">Xóa</button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        function cancelBannerEdit() {
+            document.getElementById('bannerForm').reset();
+            document.getElementById('editBannerId').value = '';
+            document.getElementById('bannerFormTitle').innerText = "Thêm Banner Mới";
+            // Clear image preview and hidden input
+            document.getElementById('bannerImageFile').value = '';
+            document.getElementById('bannerImagePreview').style.display = 'none';
+            document.getElementById('bannerImagePreview').src = '';
+            document.getElementById('bannerImageHidden').value = '';
+            document.getElementById('bannerImageUrlInput').value = '';
+        }
+        function startEditBanner(id) {
+            const banner = APP_BANNERS.find(item => item.id === id);
+            if (!banner) return;
+            document.getElementById('editBannerId').value = banner.id;
+            document.getElementById('bannerFormTitle').innerText = `Cập Nhật Banner [ID: ${banner.id}]`;
+            document.getElementById('bannerType').value = banner.type;
+            
+            // Handle banner image display for edit
+            document.getElementById('bannerImageFile').value = ''; // Clear file input
+            document.getElementById('bannerImageHidden').value = ''; // Clear hidden input
+            const bannerImagePreview = document.getElementById('bannerImagePreview');
+            if (banner.imageUrl.startsWith('data:image')) { // Check if it's a Data URL
+                bannerImagePreview.src = banner.imageUrl;
+                bannerImagePreview.style.display = 'block';
+                document.getElementById('bannerImageUrlInput').value = ''; // Clear URL input
+                document.getElementById('bannerImageHidden').value = banner.imageUrl; // Keep data URL in hidden input
+            } else { // It's a regular URL
+                document.getElementById('bannerImageUrlInput').value = banner.imageUrl;
+                bannerImagePreview.style.display = 'none';
+                bannerImagePreview.src = '';
+            }
+            document.getElementById('bannerTitle').value = banner.title;
+            document.getElementById('bannerDescription').value = banner.description || '';
+            document.getElementById('bannerButtonText').value = banner.buttonText;
+            document.getElementById('bannerButtonLink').value = banner.buttonLink;
+            window.scrollTo({ top: document.getElementById('bannerManagementSection').offsetTop - 20, behavior: 'smooth' });
+        }
+        function saveBanner(e) {
+            e.preventDefault();
+            const id = document.getElementById('editBannerId').value;
+
+            // Determine banner image source
+            let bannerImage = '';
+            const bannerImageFile = document.getElementById('bannerImageFile');
+            const bannerImageUrlInput = document.getElementById('bannerImageUrlInput').value.trim();
+            const bannerImageHidden = document.getElementById('bannerImageHidden').value.trim();
+
+            if (bannerImageFile.files.length > 0 && bannerImageHidden) {
+                bannerImage = bannerImageHidden; // Use Data URL from file upload
+            } else if (bannerImageUrlInput) {
+                bannerImage = bannerImageUrlInput; // Use URL from text input
+            } else if (id) {
+                // If editing and no new file/URL, retain existing image
+                const existingBanner = APP_BANNERS.find(b => b.id === id);
+                if (existingBanner) {
+                    bannerImage = existingBanner.imageUrl;
+                }
+            }
+
+            const bannerData = {
+                type: document.getElementById('bannerType').value,
+                imageUrl: bannerImage, // Use the determined image source
+                title: document.getElementById('bannerTitle').value.trim(),
+                description: document.getElementById('bannerDescription').value.trim(),
+                buttonText: document.getElementById('bannerButtonText').value.trim(),
+                buttonLink: document.getElementById('bannerButtonLink').value.trim()
+            };
+            if (id) {
+                const idx = APP_BANNERS.findIndex(b => b.id === id);
+                if (idx !== -1) {
+                    APP_BANNERS[idx] = { ...APP_BANNERS[idx], ...bannerData };
+                    alert("✅ Cập nhật banner thành công!");
+                }
+            } else {
+                const newId = "promo" + String(Date.now()).slice(-5);
+                APP_BANNERS.push({ id: newId, ...bannerData });
+                alert("✅ Thêm banner mới thành công!");
+            }
+            saveDataToLocalStorage('APP_BANNERS', APP_BANNERS);
+            cancelBannerEdit();
+            renderAdminBannersTable();
+        }
+        function deleteBanner(id) {
+            if (confirm("⚠️ Bạn chắc chắn muốn xóa banner này?")) {
+                APP_BANNERS = APP_BANNERS.filter(b => b.id !== id);
+                saveDataToLocalStorage('APP_BANNERS', APP_BANNERS);
+                renderAdminBannersTable();
+                alert("✅ Đã xóa banner.");
+            }
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ TÀI KHOẢN ---
+        function renderEmployeeTable() {
+            const tbody = document.getElementById('employeeTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            for (const username in USER_CREDENTIALS) {
+                const user = USER_CREDENTIALS[username];
+                const roleDisplay = user.role === 'admin' ? 'Quản trị viên' : 'Nhân viên';
+                let actionButtons = `<button class="action-btn delete" disabled title="Không thể xóa tài khoản này">Xóa</button>`;
+                if (user.role === 'employee' || (user.role === 'admin' && username !== currentLoggedInUser && Object.values(USER_CREDENTIALS).filter(u => u.role === 'admin').length > 1)) {
+                    actionButtons = `<button class="action-btn delete" onclick="deleteEmployee('${username}')">Xóa</button>`;
+                }
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${username}</td>
+                    <td>${roleDisplay}</td>
+                    <td>${actionButtons}</td>`;
+                tbody.appendChild(tr);
+            }
+        }
+        function addEmployee(e) {
+            e.preventDefault();
+            if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền thêm người dùng!");
+            const newUsername = document.getElementById('newEmployeeUsername').value.trim();
+            const newPassword = document.getElementById('newEmployeePassword').value.trim();
+            const newUserRole = document.getElementById('newUserRole').value;
+            if (!newUsername || !newPassword) return alert("Vui lòng nhập đủ thông tin.");
+            if (USER_CREDENTIALS[newUsername]) return alert(`Tài khoản "${newUsername}" đã tồn tại.`);
+            if (newPassword.length < 6) return alert("❌ Mật khẩu phải có ít nhất 6 ký tự!");
+            USER_CREDENTIALS[newUsername] = { password: newPassword, role: newUserRole };
+            saveDataToLocalStorage('USER_CREDENTIALS', USER_CREDENTIALS);
+            renderEmployeeTable();
+            document.getElementById('addEmployeeForm').reset();
+            alert(`✅ Đã thêm tài khoản "${newUsername}" thành công!`);
+        }
+        function deleteEmployee(username) {
+            if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền xóa tài khoản!");
+            if (username === currentLoggedInUser) return alert("❌ Bạn không thể xóa tài khoản của chính mình!");
+            const userToDelete = USER_CREDENTIALS[username];
+            if (userToDelete && userToDelete.role === 'admin') {
+                const adminCount = Object.values(USER_CREDENTIALS).filter(u => u.role === 'admin').length;
+                if (adminCount <= 1) return alert("❌ Không thể xóa tài khoản quản trị viên cuối cùng!");
+            }
+            if (confirm(`⚠️ Bạn chắc chắn muốn xóa tài khoản "${username}"?`)) {
+                delete USER_CREDENTIALS[username];
+                saveDataToLocalStorage('USER_CREDENTIALS', USER_CREDENTIALS);
+                renderEmployeeTable();
+                alert(`✅ Đã xóa tài khoản "${username}".`);
+            }
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ THÔNG TIN CỬA HÀNG ---
+        function populateShopInfoForm() {
+            const info = APP_SHOP_INFO;
+            document.getElementById('shopInfoAddress').value = info.contact.address;
+            document.getElementById('shopInfoPhone').value = info.contact.phone;
+            document.getElementById('shopInfoEmail').value = info.contact.email;
+            document.getElementById('shopInfoFacebook').value = info.social.facebook;
+            document.getElementById('shopInfoInstagram').value = info.social.instagram;
+            document.getElementById('shopInfoTiktok').value = info.social.tiktok;
+        }
+
+        function saveShopInfo(e) {
+            e.preventDefault();
+            if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền thay đổi thông tin cửa hàng!");
+
+            APP_SHOP_INFO.contact.address = document.getElementById('shopInfoAddress').value.trim();
+            APP_SHOP_INFO.contact.phone = document.getElementById('shopInfoPhone').value.trim();
+            APP_SHOP_INFO.contact.email = document.getElementById('shopInfoEmail').value.trim();
+            APP_SHOP_INFO.social.facebook = document.getElementById('shopInfoFacebook').value.trim();
+            APP_SHOP_INFO.social.instagram = document.getElementById('shopInfoInstagram').value.trim();
+            APP_SHOP_INFO.social.tiktok = document.getElementById('shopInfoTiktok').value.trim();
+
+            saveDataToLocalStorage('APP_SHOP_INFO', APP_SHOP_INFO);
+            alert("✅ Cập nhật thông tin cửa hàng thành công!");
+        }
+    </script>
+
+</body>
+</html>

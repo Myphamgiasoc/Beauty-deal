@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beauty Deal - Quản Trị Hệ Thống Toàn Diện</title>
+    <title>Beauty Deal - Mỹ Phẩm Chính Hãng Giá Tốt</title>
     <style>
         /* CSS GIAO DIỆN CHÍNH */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -119,70 +120,6 @@
         .related-item-name { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
         .related-item-price { font-size: 14px; font-weight: bold; color: #ff0000; }
 
-        .admin-section { display: none; margin-top: 30px; margin-bottom: 60px; background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 30px; }
-        .admin-section.active { display: block; }
-        .admin-top-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0056b3; padding-bottom: 15px; margin-bottom: 25px; }
-        .admin-user-info { font-size: 14px; color: #666; font-weight: 500; display: flex; gap: 15px; align-items: center; }
-        .change-pass-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
-        .logout-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        
-        .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 35px; }
-        .stat-card { padding: 20px; border-radius: 8px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .stat-card.blue { background: linear-gradient(135deg, #0056b3, #007bff); }
-        .stat-card.green { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-        .stat-card.purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
-        .stat-card.orange { background: linear-gradient(135deg, #d35400, #e67e22); }
-        .stat-card.red { background: linear-gradient(135deg, #c0392b, #e74c3c); }
-        .stat-card h4 { font-size: 13px; text-transform: uppercase; opacity: 0.9; margin-bottom: 5px; }
-        .stat-card .stat-number { font-size: 26px; font-weight: bold; }
-
-        .password-change-box { display: none; background: #fffcf5; border: 1px solid #f39c12; border-radius: 8px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(243,156,18,0.06); }
-        .password-change-box.active { display: block; }
-        
-        .brand-edit-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 2000; align-items: center; justify-content: center; }
-        .brand-edit-modal-overlay.active { display: flex; }
-        .brand-edit-modal-content { background: white; padding: 30px; border-radius: 10px; width: 100%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); position: relative; }
-        .brand-edit-modal-content h3 { color: #0056b3; margin-bottom: 20px; border-bottom: 2px dashed #eee; padding-bottom: 10px; }
-        
-        .hidden-by-js { display: none !important; }
-        
-        .admin-form-box { background: #fdfdfd; border: 1px solid #dcdcdc; border-radius: 8px; padding: 25px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .admin-form-box h3 { color: #0056b3; font-size: 18px; margin-bottom: 15px; border-bottom: 2px dashed #eee; padding-bottom: 10px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-        .form-group { display: flex; flex-direction: column; margin-bottom: 12px; }
-        .form-group label { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444; }
-        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; font-family: inherit; }
-        .form-group textarea { resize: vertical; }
-
-        .form-actions-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
-        .form-btn { padding: 10px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; }
-        .form-btn.submit { background: #27ae60; color: white; }
-        .form-btn.cancel { background: #7f8c8d; color: white; }
-
-        .table-responsive { overflow-x: auto; margin-top: 10px; border: 1px solid #e2e8f0; border-radius: 6px; }
-        .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; background: white; }
-        .admin-table th, .admin-table td { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; }
-        .admin-table th { background-color: #0056b3; color: white; font-weight: 600; }
-        .admin-table tr:hover { background-color: #f1f5f9; }
-        
-        .action-btn { padding: 5px 10px; border: none; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-right: 4px; color: white; }
-        .action-btn.edit { background-color: #f1c40f; color: #333; }
-        .action-btn.delete { background-color: #e74c3c; }
-
-        .login-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
-        .login-overlay.active { display: flex; }
-        .login-card { background: white; padding: 30px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-        .login-card h3 { text-align: center; color: #0056b3; margin-bottom: 20px; }
-
-        .login-error-alert { display: none; background-color: #fde8e8; border: 1px solid #f8b4b4; color: #9b1c1c; padding: 12px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 15px; text-align: center; }
-        .login-error-alert.active { display: block; animation: shake 0.3s ease-in-out; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
-        }
-
         .cart-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.5); }
         .cart-overlay.active { display: block; }
         .cart-drawer { position: fixed; top: 0; right: -420px; width: 100%; max-width: 420px; height: 100vh; background-color: #ffffff; z-index: 1000; transition: right 0.4s ease; display: flex; flex-direction: column; }
@@ -209,12 +146,11 @@
         .promo-btn { display: inline-block; background-color: #f39c12; color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 13px; transition: background-color 0.2s; }
         .promo-btn:hover { background-color: #e67e22; }
 
-        /* CSS PHẦN THƯƠNG HIỆU NỔI BẬT */
         .brand-showcase-section { margin-bottom: 60px; background-color: #fff; padding: 30px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .brand-logos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; justify-items: center; align-items: center; }
-        .brand-logo-item { display: flex; justify-content: center; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 6px; transition: all 0.2s; background: #ffffff; width: 100%; height: 80px; }
-        .brand-logo-item:hover { border-color: #0056b3; box-shadow: 0 4px 12px rgba(0, 86, 179, 0.15); }
-        .brand-logo-item img { max-width: 100%; max-height: 100%; object-fit: contain; filter: grayscale(100%); transition: filter 0.2s; }
+        .brand-logos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px; justify-items: center; align-items: center; }
+        .brand-logo-item { display: flex; justify-content: center; align-items: center; padding: 10px; border: 1px solid #eee; border-radius: 6px; transition: all 0.2s; }
+        .brand-logo-item:hover { border-color: #0056b3; box-shadow: 0 2px 8px rgba(0, 86, 179, 0.1); }
+        .brand-logo-item img { max-width: 100px; height: 50px; object-fit: contain; filter: grayscale(100%); transition: filter 0.2s; }
         .brand-logo-item:hover img { filter: grayscale(0%); }
 
         .newsletter-section { background: linear-gradient(135deg, #0056b3, #007bff); color: white; padding: 50px 20px; text-align: center; border-radius: 8px; margin-bottom: 60px; box-shadow: 0 8px 20px rgba(0, 86, 179, 0.2); }
@@ -249,20 +185,40 @@
 
         /* --- MEDIA QUERIES --- */
         @media (max-width: 768px) {
-            .header-container { flex-wrap: wrap; justify-content: space-between; row-gap: 15px; }
-            .search-container { order: 1; width: 100%; }
+            /* Tối ưu Header cho Mobile */
+            .header-container {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                row-gap: 15px;
+            }
+            .search-container {
+                order: 1;
+                width: 100%;
+            }
             .settings-icon { font-size: 20px; padding: 4px; }
             .cart-icon { font-size: 24px; }
             .cart-count { width: 20px; height: 20px; font-size: 10px; top: -6px; right: -8px; }
 
-            .value-props-section { display: flex; overflow-x: auto; padding: 10px 0 20px 0; gap: 15px; -ms-overflow-style: none; scrollbar-width: none; }
-            .value-props-section::-webkit-scrollbar { display: none; }
-            .value-prop-item { flex: 0 0 240px; }
+            /* Tối ưu "Tại sao chọn Beauty Deal" cho mobile */
+            .value-props-section {
+                display: flex; /* Chuyển sang flexbox */
+                overflow-x: auto; /* Cho phép cuộn ngang */
+                padding: 10px 0 20px 0; /* Thêm padding cho thanh cuộn */
+                gap: 15px;
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+            .value-props-section::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
+            .value-prop-item {
+                flex: 0 0 240px; /* Không co lại, chiều rộng cơ bản 240px */
+            }
 
+            /* Các layout chung */
             .products-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
             .detail-layout { grid-template-columns: 1fr; }
             .detail-product-top-box { grid-template-columns: 1fr; }
 
+            /* Banner & Newsletter */
             .promo-banner-content h4 { font-size: 18px; }
             .promo-banner-content p { font-size: 12px; }
             .newsletter-content h3 { font-size: 22px; }
@@ -270,24 +226,11 @@
             .newsletter-form { flex-direction: column; align-items: center; }
             .newsletter-form input, .newsletter-form button { width: 100%; max-width: 300px; }
 
+            /* Tối ưu Footer */
             .footer-container { grid-template-columns: 1fr; text-align: center; }
             .footer-col ul { padding-left: 0; }
             .footer-col ul li { display: block; margin-bottom: 10px; }
             .social-links, .payment-logos, .shipping-logos { justify-content: center; }
-        }
-
-        @media (max-width: 576px) {
-            .header-container { padding: 0 15px; }
-            .menu-toggle-btn { width: 100%; justify-content: center; }
-            .dropdown-menu { width: 100%; left: 0; right: 0; min-width: unset; }
-            .admin-top-header { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .admin-user-info { flex-wrap: wrap; }
-            .admin-top-header h2 { font-size: 20px; }
-            .form-grid { grid-template-columns: 1fr; }
-            .form-actions-row { flex-direction: column; gap: 10px; }
-            .form-btn { width: 100%; }
-            .login-card { padding: 20px; }
-            .login-card h3 { font-size: 20px; }
         }
 
         @media (max-width: 480px) {
@@ -309,6 +252,21 @@
             .newsletter-content h3 { font-size: 20px; }
             .newsletter-content p { font-size: 13px; }
         }
+
+        @media (max-width: 576px) {
+            .header-container { padding: 0 15px; }
+            .menu-toggle-btn { width: 100%; justify-content: center; }
+            .dropdown-menu { width: 100%; left: 0; right: 0; min-width: unset; }
+        }
+
+        /* Admin specific styles (removed from index.html) */
+        /* .admin-section, .admin-top-header, .admin-user-info, .change-pass-toggle-btn, .logout-btn, .admin-stats-grid, .stat-card, .password-change-box, .brand-edit-modal-overlay, .brand-edit-modal-content, .hidden-by-js, .admin-form-box, .form-grid, .form-group, .form-actions-row, .form-btn, .table-responsive, .admin-table, .action-btn, .login-overlay, .login-card, .login-error-alert, @keyframes shake */
+        /* All admin-related CSS rules are now in admin.html */
+
+        /* Media queries for admin sections (removed from index.html) */
+        /* @media (max-width: 768px) for admin-top-header, admin-user-info */
+        /* @media (max-width: 576px) for admin-top-header, admin-top-header h2, form-grid, form-actions-row, form-btn, login-card, login-card h3 */
+        /* @media (max-width: 480px) for admin-stats-grid */
     </style>
 </head>
 <body>
@@ -330,7 +288,7 @@
                     <button class="dropdown-item" onclick="selectFromDropdown('DẦU GỘI & CHĂM SÓC TÓC')">Dầu gội & chăm sóc tóc</button>
                     <button class="dropdown-item" onclick="selectFromDropdown('KEM CHỐNG NẮNG')">Kem chống nắng</button>
                     <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC DA MẶT')">Chăm sóc da mặt</button>
-                    <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC CƠ THỂ')">Chăm sóc cơ thể</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SOK CƠ THỂ')">Chăm sóc cơ thể</button>
                 </div>
             </div>
 
@@ -378,66 +336,648 @@
         <section class="promo-banners-section" id="promoBannersContainer">
         </section>
 
+        <h2 class="section-title">Khám Phá Danh Mục Sản Phẩm</h2>
+        <nav class="category-nav" id="categoryNav">
+            <button class="category-btn active" onclick="filterCategory('TẤT CẢ', this)">Tất cả</button>
+            <button class="category-btn" onclick="filterCategory('TRANG ĐIỂM', this)">Trang điểm</button>
+            <button class="category-btn" onclick="filterCategory('DẦU GỘI & CHĂM SÓC TÓC', this)">Dầu gội & chăm sóc tóc</button>
+            <button class="category-btn" onclick="filterCategory('KEM CHỐNG NẮNG', this)">Kem chống nắng</button>
+            <button class="category-btn" onclick="filterCategory('CHĂM SÓC DA MẶT', this)">Chăm sóc da mặt</button>
+            <button class="category-btn" onclick="filterCategory('CHĂM SÓC CƠ THỂ', this)">Chăm sóc cơ thể</button>
+        </nav>
+
+        <h2 class="section-title">Sản Phẩm Nổi Bật</h2>
+        <section class="products-container" id="productsContainer">
+        </section>
+
+        <h2 class="section-title">Sản Phẩm Bán Chạy Nhất</h2>
+        <section class="products-container" id="bestSellerProductsContainer">
+        </section>
+
         <section class="brand-showcase-section">
             <h2 class="section-title">Thương Hiệu Nổi Bật</h2>
             <div class="brand-logos-grid" id="brandsGridContainer">
-                <!-- Brands will be rendered dynamically by JavaScript -->
             </div>
         </section>
 
         <section class="newsletter-section">
             <div class="newsletter-content">
-                <h3>Đăng Ký Nhận Ưu Đãi Ngay</h3>
-                <p>Nhận ngay voucher giảm giá 10% cho đơn hàng đầu tiên và thông tin sale sớm nhất</p>
-                <div class="newsletter-form">
-                    <input type="email" placeholder="Nhập email của bạn...">
-                    <button>Đăng Ký</button>
+                <h3>Đăng Ký Nhận Ưu Đãi Độc Quyền</h3>
+                <p>Nhận thông tin về các chương trình khuyến mãi, sản phẩm mới và mẹo làm đẹp từ Beauty Deal!</p>
+                <form class="newsletter-form" onsubmit="alert('Đăng ký thành công!'); return false;">
+                    <input type="email" placeholder="Nhập địa chỉ email của bạn" required>
+                    <button type="submit">Đăng ký</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="product-detail-section" id="productDetailSection">
+            <button class="back-home-btn" onclick="backToHome(event)">← Quay lại Trang Chủ</button>
+            
+            <div class="detail-layout">
+                <div class="main-detail-card">
+                    <div class="detail-product-top-box" id="detailProductTopBox"></div>
+                    
+                    <div class="detail-tabs">
+                        <button class="tab-btn active" onclick="switchTab('mota', this)">Mô tả</button>
+                        <button class="tab-btn" onclick="switchTab('thongso', this)">Thông số</button>
+                        <button class="tab-btn" onclick="switchTab('thanhphan', this)">Thành phần</button>
+                        <button class="tab-btn" onclick="switchTab('hdsd', this)">HDSD</button>
+                        <button class="tab-btn" onclick="switchTab('danhgia', this)">Đánh giá</button>
+                        <button class="tab-btn" onclick="switchTab('hoidap', this)">Hỏi đáp</button>
+                    </div>
+
+                    <div id="mota" class="tab-content active"></div>
+                    <div id="thongso" class="tab-content"></div>
+                    <div id="thanhphan" class="tab-content"></div>
+                    <div id="hdsd" class="tab-content"></div>
+                    
+                    <div id="danhgia" class="tab-content">
+                        <h3>Đánh giá từ khách hàng</h3>
+                        <div class="hasaki-review-container">
+                            <div class="review-summary-box">
+                                <div class="summary-left">
+                                    <div class="summary-rating-num" id="avgRatingNum">4.8</div>
+                                    <div class="summary-stars">★★★★★</div>
+                                    <div class="summary-total-text" id="totalReviewText">148 đánh giá</div>
+                                </div>
+                                <div class="summary-center-filters">
+                                    <button class="filter-stars-btn active" onclick="filterReviewStars('all', this)">Tất cả</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(5, this)">5 ★</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(4, this)">4 ★</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(3, this)">3 ★</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(2, this)">2 ★</button>
+                                    <button class="filter-stars-btn" onclick="filterReviewStars(1, this)">1 ★</button>
+                                </div>
+                                <div class="summary-right-action">
+                                    <button class="open-review-form-btn" onclick="toggleReviewForm()">Viết đánh giá</button>
+                                </div>
+                            </div>
+
+                            <div class="write-review-form-block" id="writeReviewFormBlock">
+                                <h4 style="margin-bottom: 10px; color:#ff7c00;">Chia sẻ nhận xét của bạn về sản phẩm này</h4>
+                                <form onsubmit="submitNewUserReview(event)">
+                                    <div class="form-group">
+                                        <label>Chọn số sao đánh giá:</label>
+                                        <div class="form-stars-picker" id="starPicker">
+                                            <span onclick="setStarPickerValue(1)">★</span>
+                                            <span onclick="setStarPickerValue(2)">★</span>
+                                            <span onclick="setStarPickerValue(3)">★</span>
+                                            <span onclick="setStarPickerValue(4)">★</span>
+                                            <span onclick="setStarPickerValue(5)" class="selected">★</span>
+                                        </div>
+                                        <input type="hidden" id="selectedStarRating" value="5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tên của bạn:</label>
+                                        <input type="text" id="reviewAuthor" required placeholder="Ví dụ: Nguyễn Văn A">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nội dung đánh giá:</label>
+                                        <textarea id="reviewTextContent" rows="3" required placeholder="Nhập cảm nhận thực tế của bạn khi dùng sản phẩm..."></textarea>
+                                    </div>
+                                    <div class="form-actions-row">
+                                        <button type="button" class="form-btn cancel" onclick="toggleReviewForm()">Hủy bỏ</button>
+                                        <button type="submit" class="form-btn submit" style="background:#ff7c00;">Gửi đánh giá ngay</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="reviews-list-wrapper" id="reviewsListWrapper"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="hoidap" class="tab-content"></div>
+                </div>
+
+                <div class="related-sidebar">
+                    <div class="sidebar-title">Sản phẩm xem cùng</div>
+                    <div id="relatedProductsContainer"></div>
                 </div>
             </div>
         </section>
 
     </main>
 
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart(false)"></div> 
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3>Giỏ Hàng Của Bạn</h3>
+            <button onclick="toggleCart(false)" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItemsContainer"></div>
+        <div class="cart-footer">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:bold; font-size:16px;">
+                <span>Tổng tiền tạm tính:</span>
+                <span id="cartTotalValue" style="color:#ff0000;">0đ</span>
+            </div>
+            <button class="checkout-btn" onclick="processCheckout()">TIẾN HÀNH THANH TOÁN</button>
+        </div>
+    </div>
+
+    <div id="popup-dat-hang" style="display: none; position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: popupFade 0.3s ease;">
+            <span id="closePopupBtn" style="position: absolute; right: 20px; top: 12px; font-size: 32px; cursor: pointer; color: #aaa; transition: color 0.2s;">&times;</span>
+            <h3 style="color: #0056b3; margin-top: 5px; font-size: 22px; font-weight: bold; margin-bottom: 8px;">ĐĂNG KÝ NHẬN ƯU ĐÃI</h3>
+            <p style="color: #555; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">Để lại thông tin, shop sẽ gọi điện xác nhận ưu đãi "Mỹ Phẩm Giá Sốc" ngay cho bạn nhé!</p>
+            <form id="popupForm">
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 12px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Họ và tên của bạn *</label>
+                    <input type="text" id="popupCustomerName" required placeholder="Ví dụ: Nguyễn Thúy Vi" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 18px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Số điện thoại nhận hàng *</label>
+                    <input type="tel" id="popupCustomerPhone" required placeholder="Ví dụ: 0912xxxxxx" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box;">
+                </div>
+                <button type="submit" style="background-color: #0056b3; color: white; padding: 13px; border: none; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,86,179,0.2);">Gửi Đăng Ký Ngay</button>
+            </form>
+        </div>
+    </div>
+    <style>
+        @keyframes popupFade {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        #closePopupBtn:hover { color: #333 !important; }
+    </style>
+
     <footer>
         <div class="footer-container">
             <div class="footer-col">
-                <h4>VỀ BEAUTY DEAL</h4>
-                <p>Hệ thống quản trị và phân phối mỹ phẩm chính hãng toàn diện.</p>
-                <p>Hotline: 1900 xxxx</p>
-            </div>
-            <div class="footer-col">
-                <h4>CHÍNH SÁCH</h4>
+                <h4>Về Beauty Deal</h4>
                 <ul>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                    <li><a href="#">Chính sách đổi trả</a></li>
-                    <li><a href="#">Điều khoản sử dụng</a></li>
+                    <li><a href="#">Giới thiệu</a></li>
+                    <li><a href="#">Tuyển dụng</a></li>
+                    <li><a href="#">Hệ thống cửa hàng</a></li>
                 </ul>
             </div>
             <div class="footer-col">
-                <h4>THANH TOÁN</h4>
+                <h4>Hỗ trợ khách hàng</h4>
+                <ul>
+                    <li><a href="#">Câu hỏi thường gặp (FAQ)</a></li>
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                    <li><a href="#">Chính sách đổi trả</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Liên hệ</h4>
+                <p id="footerContactAddress">Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM</p>
+                <p id="footerContactPhone">Điện thoại: 0987 654 321</p>
+                <p id="footerContactEmail">Email: info@beautydeal.vn</p>
+                <div class="social-links">
+                    <a href="#" id="footerSocialFacebook" class="social-icon" target="_blank">F</a>
+                    <a href="#" id="footerSocialInstagram" class="social-icon" target="_blank">I</a>
+                    <a href="#" id="footerSocialTiktok" class="social-icon" target="_blank">T</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Phương thức thanh toán</h4>
                 <div class="payment-logos">
-                    <span style="font-size:24px;">💳 💵 📲</span>
+                    <img src="https://via.placeholder.com/60x30/FFFFFF/333333?text=Visa" alt="Visa">
+                    <img src="https://via.placeholder.com/60x30/FFFFFF/333333?text=Momo" alt="Momo">
+                    <img src="https://via.placeholder.com/60x30/FFFFFF/333333?text=ZaloPay" alt="ZaloPay">
+                </div>
+                <h4>Đối tác vận chuyển</h4>
+                <div class="shipping-logos">
+                    <img src="https://via.placeholder.com/60x30/E0E0E0/333333?text=GHN" alt="Giao Hàng Nhanh">
+                    <img src="https://via.placeholder.com/60x30/E0E0E0/333333?text=VTP" alt="Viettel Post">
                 </div>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Beauty Deal. All rights reserved.</p>
+            <p>&copy; 2026 BEAUTY DEAL - HỆ THỐNG PHÂN PHỐI MỸ PHẨM CHÍNH HÃNG TOÀN QUỐC</p>
         </div>
     </footer>
 
     <script>
-        function toggleMenuDropdown(e) {
-            e.stopPropagation();
-            document.getElementById('dropdownMenu').classList.toggle('active');
+        console.log("--- SCRIPT VERSION: FRONTEND-2024-06-07 ---"); // Dấu hiệu nhận biết phiên bản code mới nhất
+        
+        let APP_PRODUCTS = [];
+        let APP_BRANDS = [];
+        let APP_BANNERS = [];
+        
+        const DEFAULT_PRODUCTS = [
+            { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: "ConHang", desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
+            { id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink Slay 5ml", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: "ConHang", desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn." },
+            { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: "ConHang", desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
+            { id: "1710004", name: "Dầu Gội L'Oréal Professionnel Serie Expert Absolut Repair 500ml", category: "DẦU GỘI & CHĂM SÓC TÓC", currPrice: 560000, origPrice: 680000, image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80", brand: "L'Oréal Professionnel", stock: "ConHang", desc: "Dầu gội cao cấp phục hồi hư tổn xơ rối nặng chuyên sâu nhờ dưỡng chất Protein hạt diêm mạch vàng (Gold Quinoa).", specs: "Dung tích: 500ml\nLoại tóc: Tóc hư tổn, chẻ ngọn\nThương hiệu: Pháp", ingredients: "Aqua / Water / Eau, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Dimethicone, Sodium Chloride, Citric Acid.", usage: "Thoa đều dầu gội lên tóc ướt, massage nhẹ nhàng da đầu và ngọn tóc, sau đó xả sạch lại với nước." }
+        ];
+        const DEFAULT_BRANDS = [
+            { id: "brand001", name: "Obagi", logoUrl: "assets/logos/obagi.png", link: "#" },
+            { id: "brand002", name: "SVR", logoUrl: "assets/logos/svr.png", link: "#" },
+            { id: "brand003", name: "Anessa", logoUrl: "assets/logos/anessa.png", link: "#" },
+            { id: "brand004", name: "Vacosi", logoUrl: "assets/logos/vacosi.png", link: "#" },
+            { id: "brand005", name: "3CE", logoUrl: "assets/logos/3ce.png", link: "#" },
+            { id: "brand006", name: "Cetaphil", logoUrl: "assets/logos/cetaphil.png", link: "#" },
+            { id: "brand007", name: "Cocon", logoUrl: "assets/logos/cocon.png", link: "#" },
+            { id: "brand008", name: "Garnier", logoUrl: "assets/logos/garnier.png", link: "#" }
+        ];
+        const DEFAULT_BANNERS = [
+            { id: "promo001", type: "flashsale", imageUrl: "https://via.placeholder.com/600x200/FFD700/FFFFFF?text=Flash+Sale", title: "Flash Sale Giới Hạn", description: "Giảm đến 50% các sản phẩm chọn lọc!", buttonText: "Mua ngay", buttonLink: "#" },
+            { id: "promo002", type: "newarrival", imageUrl: "https://via.placeholder.com/600x200/ADD8E6/FFFFFF?text=New+Arrivals", title: "Sản Phẩm Mới Về", description: "Khám phá bộ sưu tập mới nhất!", buttonText: "Xem ngay", buttonLink: "#" }
+        ];
+        const DEFAULT_SHOP_INFO = { // NEW: Re-added DEFAULT_SHOP_INFO for frontend
+            contact: {
+                address: "123 Đường ABC, Quận XYZ, TP.HCM",
+                phone: "0987 654 321",
+                email: "info@beautydeal.vn"
+            },
+            social: {
+                facebook: "#", instagram: "#", tiktok: "#"
+            }
+        };
+        let APP_SHOP_INFO = {}; // NEW: Declare APP_SHOP_INFO
+        
+        let currentUserRole = null;
+        let currentLoggedInUser = null;
+        let cart = [];
+        let currentFilterCategory = "TẤT CẢ";
+        let activeDetailProductId = null;
+
+        const HASAKI_REVIEWS_DB = {
+            "1710001": [
+                { user: "Trần Thị Trà My", stars: 5, date: "24/05/2026", content: "Tẩy trang bioderma nắp hồng thì quá đỉnh rồi ạ, sạch sâu, dịu nhẹ không hề gây rát hay lên mụn, giao hàng siêu nhanh." },
+                { user: "Hoàng Linh Chi", stars: 5, date: "18/05/2026", content: "Hàng chuẩn chính hãng quét mã ra đầy đủ thông tin nha mọi người. Đóng gói cẩn thận bọc chống sốc dầy dặn lắm." },
+                { user: "Nguyễn Vũ Long", stars: 4, date: "10/05/2026", content: "Tẩy trang sạch tốt, chai to xài cực kỳ tiết kiệm, tuy nhiên nắp bật hơi chặt tí." }
+            ],
+            "1710002": [
+                { user: "Lê Mỹ Duyên", stars: 5, date: "22/05/2026", content: "Màu son slay cực kỳ tôn da nha các bạn, chất son siêu lì ăn uống thoải mái không lo trôi son đâu ạ." },
+                { user: "Phạm Minh Thư", stars: 3, date: "15/05/2026", content: "Son giữ màu siêu lâu thật nhưng hơi khô môi nha, bạn nào môi khô nhớ lót một lớp son dưỡng trước." }
+            ]
+        };
+
+        // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ LOCALSTORAGE ---
+        function saveDataToLocalStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (e) {
+                console.error(`Lỗi khi lưu dữ liệu '${key}' vào localStorage:`, e);
+            }
         }
-        window.onclick = function() {
+
+        function loadDataFromLocalStorage(key, defaultValue) {
+            try {
+                const storedData = localStorage.getItem(key);
+                if (storedData) {
+                    return JSON.parse(storedData);
+                }
+                saveDataToLocalStorage(key, defaultValue); // Lưu giá trị mặc định nếu chưa có
+                return defaultValue;
+            } catch (e) {
+                console.error(`Lỗi khi tải dữ liệu '${key}' từ localStorage:`, e);
+                return defaultValue;
+            }
+        }
+
+        // --- KHỞI TẠO KHI TRANG TẢI ---
+        window.addEventListener('DOMContentLoaded', () => {
+            APP_PRODUCTS = loadDataFromLocalStorage('APP_PRODUCTS', DEFAULT_PRODUCTS);
+            APP_BRANDS = loadDataFromLocalStorage('APP_BRANDS', DEFAULT_BRANDS);
+            APP_BANNERS = loadDataFromLocalStorage('APP_BANNERS', DEFAULT_BANNERS);
+            APP_SHOP_INFO = loadDataFromLocalStorage('APP_SHOP_INFO', DEFAULT_SHOP_INFO); // NEW: Load APP_SHOP_INFO with default
+            renderProductsGrid();
+            renderBrandsGrid();
+            renderFooter(); // NEW
+            renderPromoBanners();
+        });
+        
+        // --- CÁC HÀM XỬ LÝ GIAO DIỆN NGƯỜI DÙNG ---
+        const popupDatHang = document.getElementById("popup-dat-hang");
+        const btnMuaNgay = document.getElementById("btn-mua-ngay");
+        const closePopupBtn = document.getElementById("closePopupBtn");
+        const popupForm = document.getElementById("popupForm");
+
+        if(btnMuaNgay) {
+            btnMuaNgay.addEventListener("click", (e) => { e.preventDefault(); popupDatHang.style.display = "flex"; });
+        }
+        closePopupBtn.addEventListener("click", () => { popupDatHang.style.display = "none"; });
+        window.addEventListener("click", (e) => { if (e.target === popupDatHang) popupDatHang.style.display = "none"; });
+        popupForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = document.getElementById("popupCustomerName").value;
+            const phone = document.getElementById("popupCustomerPhone").value;
+            alert(`🎉 Đăng ký nhận ưu đãi thành công!\nChào ${name}, Shop Beauty Deal sẽ gọi vào số điện thoại ${phone} để gửi mã giảm giá "Mỹ Phẩm Giá Sốc" cho bạn ngay nha!`);
+            popupForm.reset();
+            popupDatHang.style.display = "none";
+        });
+
+        function renderProductsGrid(productsToRender = APP_PRODUCTS) {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+            if (productsToRender.length === 0) {
+                container.innerHTML = `<p style="grid-column: span 4; text-align:center; padding: 40px; color:#999; font-weight:600;">Không có sản phẩm nào phù hợp!</p>`;
+                return;
+            }
+            productsToRender.forEach(prod => {
+                const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => openProductDetail(prod.id);
+                card.innerHTML = `
+                    <div class="product-image-wrapper"><img src="${prod.image}" class="product-image" alt="${prod.name}">${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}</div>
+                    <div class="product-info">
+                        <div class="product-name">${prod.name}</div>
+                        <div class="product-prices">
+                            <span class="current-price">${prod.currPrice.toLocaleString()}đ</span>
+                            ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', event)">Thêm giỏ hàng</button>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function renderBrandsGrid() {
+            const container = document.getElementById('brandsGridContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            APP_BRANDS.forEach(brand => {
+                const brandLink = document.createElement('a');
+                brandLink.href = brand.link;
+                brandLink.className = 'brand-logo-item';
+                brandLink.innerHTML = `<img src="${brand.logoUrl}" alt="${brand.name} Logo">`;
+                container.appendChild(brandLink);
+            });
+        }
+
+        // NEW: Hàm hiển thị thông tin ở Footer
+        function renderFooter() {
+            const info = APP_SHOP_INFO;
+            document.getElementById('footerContactAddress').innerText = 'Địa chỉ: ' + info.contact.address;
+            document.getElementById('footerContactPhone').innerText = 'Điện thoại: ' + info.contact.phone;
+            document.getElementById('footerContactEmail').innerText = 'Email: ' + info.contact.email;
+
+            document.getElementById('footerSocialFacebook').href = info.social.facebook;
+            document.getElementById('footerSocialInstagram').href = info.social.instagram;
+            document.getElementById('footerSocialTiktok').href = info.social.tiktok;
+        }
+
+        function handleSearch() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            let filtered = APP_PRODUCTS;
+            if (currentFilterCategory !== "TẤT CẢ") {
+                filtered = filtered.filter(p => p.category === currentFilterCategory);
+            }
+            if (keyword !== "") {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(keyword) || p.brand.toLowerCase().includes(keyword));
+            }
+            renderProductsGrid(filtered);
+        }
+
+        function filterCategory(catName, btnElement) {
+            currentFilterCategory = catName;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+            handleSearch();
+        }
+
+        function toggleMenuDropdown(e) { e.stopPropagation(); document.getElementById('dropdownMenu').classList.toggle('active'); }
+        function selectFromDropdown(catName) {
             document.getElementById('dropdownMenu').classList.remove('active');
+            const targetBtn = Array.from(document.querySelectorAll('.category-btn')).find(btn => btn.textContent.toUpperCase().includes(catName.substring(0, 4)));
+            filterCategory(catName, targetBtn);
         }
-        function openLoginModal() { alert('Chức năng quản trị hệ thống'); }
-        function toggleCart(show) { alert('Giỏ hàng hiện tại trống'); }
-        function backToHome(e) { e.preventDefault(); location.reload(); }
-        function handleSearch() { }
-        function selectFromDropdown(cat) { alert('Bạn đang xem danh mục: ' + cat); }
+        window.addEventListener('click', () => { document.getElementById('dropdownMenu').classList.remove('active'); });
+
+        function backToHome(e) {
+            if(e) e.preventDefault();
+            document.getElementById('productDetailSection').classList.remove('active');
+            document.getElementById('categoryNav').style.display = 'flex';
+            document.getElementById('mainBanner').style.display = 'flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openProductDetail(productId) {
+            const prod = APP_PRODUCTS.find(p => p.id === productId);
+            if (!prod) return;
+            activeDetailProductId = productId;
+            document.getElementById('categoryNav').style.display = 'none';
+            document.getElementById('mainBanner').style.display = 'none'; // Keep this to hide main banner on product detail
+            const detailSection = document.getElementById('productDetailSection');
+            detailSection.classList.add('active');
+            document.getElementById('detailProductTopBox').innerHTML = `
+                <div class="detail-top-left"><img src="${prod.image}" alt="${prod.name}"></div>
+                <div class="detail-top-right">
+                    <h1 class="detail-top-title">${prod.name}</h1>
+                    <div class="detail-top-brand-row">Thương hiệu: <span>${prod.brand}</span> | Mã hệ thống: <span>${prod.id}</span></div>
+                    <div class="detail-top-price-card">
+                        <span class="detail-top-curr-price">${prod.currPrice.toLocaleString()}đ</span>
+                        ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
+                    </div>
+                    <button class="detail-top-buy-btn" onclick="addToCart('${prod.id}', event)">Thêm vào giỏ hàng ngay</button>
+                </div>`;
+            document.getElementById('mota').innerHTML = `<h3>Mô tả sản phẩm</h3><div class="tab-content-text">${prod.desc || 'Đang cập nhật...'}</div>`;
+            document.getElementById('thongso').innerHTML = `<h3>Thông số kỹ thuật</h3><div class="tab-content-text">${prod.specs || 'Đang cập nhật...'}</div>`;
+            document.getElementById('thanhphan').innerHTML = `<h3>Thành phần chính</h3><div class="tab-content-text">${prod.ingredients || 'Đang cập nhật...'}</div>`;
+            document.getElementById('hdsd').innerHTML = `<h3>Hướng dẫn sử dụng</h3><div class="tab-content-text">${prod.usage || 'Đang cập nhật...'}</div>`;
+            document.getElementById('hoidap').innerHTML = `<h3>Hỏi đáp chuyên gia</h3><div class="tab-content-text">Chưa có câu hỏi nào.</div>`;
+            switchTab('mota', document.querySelector('.tab-btn'));
+            renderHasakiReviews();
+            renderRelatedSidebar(prod.category, prod.id);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchTab(tabId, btnElement) {
+            const card = btnElement.closest('.main-detail-card');
+            card.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            card.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function renderRelatedSidebar(categoryName, currentProdId) {
+            const container = document.getElementById('relatedProductsContainer');
+            container.innerHTML = '';
+            let related = APP_PRODUCTS.filter(p => p.category === categoryName && p.id !== currentProdId);
+            if(related.length === 0) related = APP_PRODUCTS.filter(p => p.id !== currentProdId).slice(0, 3);
+            related.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'related-item';
+                div.onclick = () => openProductDetail(item.id);
+                div.innerHTML = `
+                    <img src="${item.image}" class="related-item-img" alt="${item.name}">
+                    <div>
+                        <div class="related-item-name">${item.name.substring(0, 50)}...</div>
+                        <div class="related-item-price">${item.currPrice.toLocaleString()}đ</div>
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        // --- HÀM XỬ LÝ ĐÁNH GIÁ ---
+        let currentReviewStarFilter = 'all';
+        function renderHasakiReviews() {
+            const wrapper = document.getElementById('reviewsListWrapper');
+            wrapper.innerHTML = '';
+            let list = HASAKI_REVIEWS_DB[activeDetailProductId] || [];
+            const totalCount = list.length;
+            const avgRating = totalCount > 0 ? (list.reduce((sum, r) => sum + r.stars, 0) / totalCount).toFixed(1) : "5.0";
+            document.getElementById('avgRatingNum').innerText = avgRating;
+            document.getElementById('totalReviewText').innerText = `${totalCount} nhận xét`;
+            if (currentReviewStarFilter !== 'all') list = list.filter(r => r.stars === parseInt(currentReviewStarFilter));
+            if (list.length === 0) {
+                wrapper.innerHTML = `<p style="text-align:center; padding:20px; font-size:13px; color:#999;">Chưa có nhận xét nào.</p>`;
+                return;
+            }
+            list.forEach(rev => {
+                let starString = '★'.repeat(rev.stars) + '☆'.repeat(5 - rev.stars);
+                const item = document.createElement('div');
+                item.className = 'single-review-item';
+                item.innerHTML = `
+                    <div class="review-item-header">
+                        <div class="review-item-user">${rev.user}<span class="buyer-badge">✔ Đã mua hàng</span></div>
+                        <div class="review-item-date">${rev.date}</div>
+                    </div>
+                    <div class="review-item-stars">${starString}</div>
+                    <div class="review-item-content">${rev.content}</div>`;
+                wrapper.appendChild(item);
+            });
+        }
+        function filterReviewStars(starVal, btnElement) {
+            currentReviewStarFilter = starVal;
+            btnElement.closest('.summary-center-filters').querySelectorAll('.filter-stars-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderHasakiReviews();
+        }
+        function toggleReviewForm() { document.getElementById('writeReviewFormBlock').classList.toggle('active'); }
+        function setStarPickerValue(val) {
+            document.getElementById('selectedStarRating').value = val;
+            document.getElementById('starPicker').querySelectorAll('span').forEach((s, idx) => {
+                s.classList.toggle('selected', idx < val);
+            });
+        }
+        function submitNewUserReview(e) {
+            e.preventDefault();
+            const stars = parseInt(document.getElementById('selectedStarRating').value);
+            const author = document.getElementById('reviewAuthor').value.trim();
+            const content = document.getElementById('reviewTextContent').value.trim();
+            const today = new Date();
+            const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+            if(!HASAKI_REVIEWS_DB[activeDetailProductId]) HASAKI_REVIEWS_DB[activeDetailProductId] = [];
+            HASAKI_REVIEWS_DB[activeDetailProductId].unshift({ user: author, stars, date: dateStr, content });
+            document.getElementById('reviewAuthor').value = '';
+            document.getElementById('reviewTextContent').value = '';
+            setStarPickerValue(5);
+            toggleReviewForm();
+            renderHasakiReviews();
+        }
+
+        // --- HÀM XỬ LÝ GIỎ HÀNG ---
+        function toggleCart(status) {
+            document.getElementById('cartOverlay').classList.toggle('active', status);
+            document.getElementById('cartDrawer').classList.toggle('active', status);
+            if (status) renderCartContents();
+        }
+        function addToCart(productId, event) {
+            if(event) event.stopPropagation();
+            const prod = APP_PRODUCTS.find(p => p.id === productId);
+            if (!prod) return;
+            if (prod.stock === "HetHang") {
+                alert("🔴 Xin lỗi, sản phẩm này đã hết hàng!");
+                return;
+            }
+            const existing = cart.find(item => item.id === productId);
+            if (existing) existing.quantity++;
+            else cart.push({ id: prod.id, name: prod.name, price: prod.currPrice, image: prod.image, quantity: 1 });
+            updateCartBadge();
+            alert(`🛒 Đã thêm "${prod.name}" vào giỏ hàng!`);
+        }
+        function updateCartBadge() {
+            document.getElementById('cartCount').innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+        function renderCartContents() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+            if (cart.length === 0) {
+                container.innerHTML = `<p style="text-align:center; padding: 50px 20px; color:#aaa;">Giỏ hàng trống!</p>`;
+                document.getElementById('cartTotalValue').innerText = '0đ';
+                return;
+            }
+            let grandTotal = 0;
+            cart.forEach(item => {
+                grandTotal += item.price * item.quantity;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <img src="${item.image}" class="cart-item-image" alt="${item.name}">
+                    <div class="cart-item-details">
+                        <div style="font-size:13px; font-weight:600;">${item.name}</div>
+                        <div style="font-size:14px; color:#ff0000; font-weight:700;">${item.price.toLocaleString()}đ</div>
+                        <div style="display:flex; align-items:center; gap:5px; margin-top:5px;">
+                            <button class="quantity-btn" onclick="changeCartQty('${item.id}', -1)">-</button>
+                            <span style="font-size:14px; font-weight:bold; width:30px; text-align:center;">${item.quantity}</span>
+                            <button class="quantity-btn" onclick="changeCartQty('${item.id}', 1)">+</button>
+                        </div>
+                    </div>`;
+                container.appendChild(div);
+            });
+            document.getElementById('cartTotalValue').innerText = grandTotal.toLocaleString() + 'đ';
+        }
+        function changeCartQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (!item) return;
+            item.quantity += delta;
+            if (item.quantity <= 0) cart = cart.filter(c => c.id !== id);
+            updateCartBadge();
+            renderCartContents();
+        }
+        function processCheckout() {
+            if (cart.length === 0) return;
+            alert("🎉 Cảm ơn bạn đã đặt hàng!");
+            cart = [];
+            updateCartBadge();
+            toggleCart(false);
+        }
+
+        function deleteBrand(id) {
+            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
+                return alert("❌ Bạn không có quyền xóa thương hiệu!");
+            }
+            if (confirm("⚠️ Bạn chắc chắn muốn xóa thương hiệu này?")) {
+                APP_BRANDS = APP_BRANDS.filter(b => b.id !== id);
+                saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
+                renderAdminBrandsTable();
+                renderBrandsGrid();
+                alert("✅ Đã xóa thương hiệu.");
+            }
+        }
+
+        function renderPromoBanners() {
+            const container = document.getElementById('promoBannersContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            APP_BANNERS.forEach(banner => {
+                const bannerItem = document.createElement('div');
+                bannerItem.className = 'promo-banner-item';
+                bannerItem.innerHTML = `
+                    <img src="${banner.imageUrl}" alt="${banner.title}">
+                    <div class="promo-banner-content">
+                        <h4>${banner.title}</h4>
+                        <p>${banner.description}</p>
+                        <a href="${banner.buttonLink}" class="promo-btn">${banner.buttonText}</a>
+                    </div>`;
+                container.appendChild(bannerItem);
+            });
+        }
+
+        // --- HÀM XỬ LÝ QUẢN TRỊ (CHỈ CÒN LOGIN) ---
+        function openLoginModal() {
+            // Mở trang admin.html trong một tab mới
+            const adminWindow = window.open('admin.html', '_blank');
+            if (!adminWindow || adminWindow.closed || typeof adminWindow.focus !== 'function') {
+                // Fallback if pop-up blocker prevents opening new tab
+                alert("Trang quản trị có thể đã bị chặn bởi trình duyệt của bạn. Vui lòng kiểm tra cài đặt chặn pop-up hoặc truy cập trực tiếp admin.html.");
+            } else {
+                // Optionally focus the new tab
+                adminWindow.focus();
+            }
+        }
+
+        // Hàm handleAdminLogin sẽ được gọi từ admin.html, không còn ở đây
+        // Hàm activateAdminDashboard sẽ được gọi từ admin.html, không còn ở đây
+        // Hàm logoutAdmin sẽ được gọi từ admin.html, không còn ở đây
     </script>
+
 </body>
 </html>
