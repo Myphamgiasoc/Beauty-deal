@@ -105,6 +105,42 @@
         @media (max-width: 480px) {
             .admin-stats-grid { grid-template-columns: 1fr; }
         }
+
+        /* --- CSS DÀNH RIÊNG CHO VIỆC IN BILL --- */
+        @media print {
+            body > *:not(#print-area) {
+                display: none !important;
+            }
+            #print-area {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+            .receipt-container {
+                width: 280px; /* ~75mm, phù hợp cho máy in nhiệt */
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 10px;
+                color: #000;
+                padding: 5px;
+            }
+            .receipt-header { text-align: center; margin-bottom: 10px; }
+            .receipt-header h4 { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+            .receipt-header p { margin: 1px 0; }
+            .receipt-section { border-top: 1px dashed #000; padding-top: 8px; margin-top: 8px; }
+            .receipt-section p { margin: 3px 0; }
+            .receipt-table { width: 100%; border-collapse: collapse; }
+            .receipt-table th { text-align: left; border-bottom: 1px solid #000; padding-bottom: 4px; }
+            .receipt-table td { padding: 2px 0; vertical-align: top; }
+            .receipt-table .item-line td { padding-top: 0; padding-bottom: 4px; }
+            .col-name { width: 50%; }
+            .col-qty { width: 10%; text-align: center; }
+            .col-price { width: 20%; text-align: right; }
+            .col-total { width: 20%; text-align: right; }
+            .receipt-total { text-align: right; font-weight: bold; font-size: 14px; margin-top: 10px; }
+            .receipt-footer { text-align: center; margin-top: 15px; font-size: 9px; }
+        }
     </style>
 </head>
 <body>
@@ -279,6 +315,10 @@
                             <label>Liên kết nút (URL) *</label>
                             <input type="text" id="bannerButtonLink" required placeholder="#">
                         </div>
+                        <div class="form-group">
+                            <label>ID Sản phẩm liên kết (Tùy chọn)</label>
+                            <input type="text" id="bannerProductId" placeholder="Dán ID sản phẩm để nút trỏ tới trang chi tiết">
+                        </div>
                     </div>
                     <div class="form-actions-row">
                         <button type="button" class="form-btn cancel" onclick="cancelBannerEdit()">Hủy</button>
@@ -323,6 +363,14 @@
                 <div class="stat-card red" onclick="filterAndDisplayProducts('outOfStock')">
                     <h4>Sản phẩm hết hàng</h4>
                     <div class="stat-number" id="statOutOfStock">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #16a085, #1abc9c);" onclick="document.getElementById('orderManagementSection').scrollIntoView({behavior: 'smooth'});">
+                    <h4>Đơn hàng mới</h4>
+                    <div class="stat-number" id="statNewOrders">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #34495e, #2c3e50);" onclick="document.getElementById('subscriberManagementSection').scrollIntoView({behavior: 'smooth'});">
+                    <h4>Lượt đăng ký</h4>
+                    <div class="stat-number" id="statSubscribers">0</div>
                 </div>
             </div>
 
@@ -440,6 +488,44 @@
                 </div>
             </div>
 
+            <div class="admin-form-box hidden-by-js" id="orderManagementSection"> 
+                <h3>Quản Lý Đơn Hàng</h3>
+                <div class="table-responsive" style="margin-top: 20px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Đơn</th>
+                                <th>Khách Hàng</th>
+                                <th>Số điện thoại</th>
+                                <th>Tổng Tiền</th>
+                                <th>Ngày Đặt</th>
+                                <th>Trạng Thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-form-box hidden-by-js" id="subscriberManagementSection"> 
+                <h3>Quản Lý Email Đăng Ký Nhận Tin</h3>
+                <div class="table-responsive" style="margin-top: 20px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Ngày Đăng Ký</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subscribersTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <h2 style="color:#0056b3; margin-top: 40px; margin-bottom: 20px; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">Danh Sách Sản Phẩm</h2>
 
             <div class="table-responsive">
@@ -461,6 +547,9 @@
             </div>
         </section>
     </main>
+
+    <!-- Khu vực ẩn, dùng để chứa nội dung bill khi in -->
+    <div id="print-area" style="display: none;"></div>
 
     <div class="login-overlay" id="loginModal">
         <div class="login-card">
@@ -521,6 +610,8 @@
         let APP_BANNERS = [];
         let APP_SHOP_INFO = {};
         let USER_CREDENTIALS = {};
+        let APP_ORDERS = [];
+        let APP_SUBSCRIBERS = [];
         
         const DEFAULT_PRODUCTS = [
             { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: "ConHang", desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
@@ -570,7 +661,7 @@
         async function saveDatabase() {
             try {
                 // Gom tất cả dữ liệu vào một đối tượng trước khi lưu
-                DATABASE = { APP_PRODUCTS, APP_BRANDS, APP_BANNERS, APP_SHOP_INFO, USER_CREDENTIALS };
+                DATABASE = { APP_PRODUCTS, APP_BRANDS, APP_BANNERS, APP_SHOP_INFO, USER_CREDENTIALS, APP_ORDERS, APP_SUBSCRIBERS };
 
                 const response = await fetch(JSONBIN_URL, {
                     method: 'PUT',
@@ -605,6 +696,8 @@
                 APP_BANNERS = DATABASE.APP_BANNERS || DEFAULT_BANNERS;
                 APP_SHOP_INFO = DATABASE.APP_SHOP_INFO || DEFAULT_SHOP_INFO;
                 USER_CREDENTIALS = DATABASE.USER_CREDENTIALS || DEFAULT_USER_CREDENTIALS;
+                APP_ORDERS = DATABASE.APP_ORDERS || [];
+                APP_SUBSCRIBERS = DATABASE.APP_SUBSCRIBERS || [];
 
             } catch (e) {
                 console.error("Không thể tải dữ liệu từ server, sử dụng dữ liệu mặc định.", e);
@@ -615,6 +708,8 @@
                 APP_BANNERS = DEFAULT_BANNERS;
                 APP_SHOP_INFO = DEFAULT_SHOP_INFO;
                 USER_CREDENTIALS = DEFAULT_USER_CREDENTIALS;
+                APP_ORDERS = [];
+                APP_SUBSCRIBERS = [];
             }
         }
 
@@ -710,7 +805,8 @@
                 shopInfo: document.getElementById('shopInfoManagementSection'),
                 changePass: document.getElementById('changePassBtn'),
                 brand: document.getElementById('brandManagementSection'),
-                banner: document.getElementById('bannerManagementSection')
+                banner: document.getElementById('bannerManagementSection'),
+                order: document.getElementById('orderManagementSection')
             };
 
             Object.values(sections).forEach(sec => sec && sec.classList.add('hidden-by-js'));
@@ -728,6 +824,8 @@
             renderAdminBannersTable();
             renderAdminTable();
             renderEmployeeTable();
+            renderSubscribersTable();
+            renderOrdersTable();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -775,6 +873,8 @@
             document.getElementById('statTotalProducts').innerText = APP_PRODUCTS.length;
             document.getElementById('statInStock').innerText = APP_PRODUCTS.filter(p => p.stock === "ConHang").length;
             document.getElementById('statOutOfStock').innerText = APP_PRODUCTS.filter(p => p.stock === "HetHang").length;
+            document.getElementById('statNewOrders').innerText = APP_ORDERS.filter(o => o.status === 'Mới').length;
+            document.getElementById('statSubscribers').innerText = APP_SUBSCRIBERS.length;
         }
 
         // NEW: Function to filter and display products based on stat card click
@@ -1141,6 +1241,7 @@
             document.getElementById('bannerImagePreview').src = '';
             document.getElementById('bannerImageHidden').value = '';
             document.getElementById('bannerImageUrlInput').value = '';
+            document.getElementById('bannerProductId').value = '';
         }
         function startEditBanner(id) {
             const banner = APP_BANNERS.find(item => item.id === id);
@@ -1167,6 +1268,7 @@
             document.getElementById('bannerDescription').value = banner.description || '';
             document.getElementById('bannerButtonText').value = banner.buttonText;
             document.getElementById('bannerButtonLink').value = banner.buttonLink;
+            document.getElementById('bannerProductId').value = banner.productId || '';
             window.scrollTo({ top: document.getElementById('bannerManagementSection').offsetTop - 20, behavior: 'smooth' });
         }
         async function saveBanner(e) {
@@ -1202,7 +1304,8 @@
                 title: document.getElementById('bannerTitle').value.trim(),
                 description: document.getElementById('bannerDescription').value.trim(),
                 buttonText: document.getElementById('bannerButtonText').value.trim(),
-                buttonLink: document.getElementById('bannerButtonLink').value.trim()
+                buttonLink: document.getElementById('bannerButtonLink').value.trim(),
+                productId: document.getElementById('bannerProductId').value.trim() || null
             };
             if (id) {
                 const idx = APP_BANNERS.findIndex(b => b.id === id);
@@ -1225,6 +1328,138 @@
                 await saveDatabase();
                 renderAdminBannersTable();
                 alert("✅ Đã xóa banner.");
+            }
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ ĐƠN HÀNG ---
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (!APP_ORDERS || APP_ORDERS.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#999;">Chưa có đơn hàng nào.</td></tr>';
+                return;
+            }
+            APP_ORDERS.forEach(order => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:bold;">${order.orderId}</td>
+                    <td>${order.customerInfo.name}</td>
+                    <td>${order.customerInfo.phone}</td>
+                    <td style="color:#c0392b; font-weight:bold;">${order.totalAmount.toLocaleString('vi-VN')}đ</td>
+                    <td>${new Date(order.orderDate).toLocaleString('vi-VN')}</td>
+                    <td><span style="background:#16a085; color:white; padding: 3px 8px; border-radius:4px; font-size:11px; font-weight:bold;">${order.status}</span></td>
+                    <td>
+                        <button class="action-btn edit" onclick="viewOrderDetail('${order.orderId}')">Xem</button>
+                        <button class="action-btn" style="background-color:#3498db;" onclick="printOrderBill('${order.orderId}')">In Bill</button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function viewOrderDetail(orderId) {
+            const order = APP_ORDERS.find(o => o.orderId === orderId);
+            if (!order) return;
+
+            let itemsDetails = order.items.map(item => 
+                `- ${item.name} (SL: ${item.quantity}) - ${item.price.toLocaleString('vi-VN')}đ`
+            ).join('\n');
+
+            const message = `CHI TIẾT ĐƠN HÀNG: ${order.orderId}\n---------------------------------\nKhách hàng: ${order.customerInfo.name}\nSố điện thoại: ${order.customerInfo.phone}\nĐịa chỉ: ${order.customerInfo.address}\n---------------------------------\nSản phẩm:\n${itemsDetails}\n---------------------------------\nTổng tiền: ${order.totalAmount.toLocaleString('vi-VN')}đ\nTrạng thái: ${order.status}`;
+            alert(message);
+        }
+
+        function printOrderBill(orderId) {
+            const order = APP_ORDERS.find(o => o.orderId === orderId);
+            if (!order) return;
+
+            const shopInfo = APP_SHOP_INFO;
+
+            let itemsHtml = '';
+            order.items.forEach(item => {
+                itemsHtml += `
+                    <tr>
+                        <td colspan="4">${item.name}</td>
+                    </tr>
+                    <tr class="item-line">
+                        <td></td>
+                        <td class="col-qty">${item.quantity}</td>
+                        <td class="col-price">${item.price.toLocaleString('vi-VN')}</td>
+                        <td class="col-total">${(item.price * item.quantity).toLocaleString('vi-VN')}đ</td>
+                    </tr>
+                `;
+            });
+
+            const billHtml = `
+                <div class="receipt-container">
+                    <div class="receipt-header">
+                        <h4>BEAUTY DEAL</h4>
+                        <p>${shopInfo.contact.address}</p>
+                        <p>SĐT: ${shopInfo.contact.phone}</p>
+                    </div>
+                    <div class="receipt-section">
+                        <p><strong>Hóa đơn:</strong> ${order.orderId}</p>
+                        <p><strong>Ngày:</strong> ${new Date(order.orderDate).toLocaleString('vi-VN')}</p>
+                        <p><strong>Khách hàng:</strong> ${order.customerInfo.name}</p>
+                    </div>
+                    <div class="receipt-section">
+                        <table class="receipt-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-name">Sản phẩm</th>
+                                    <th class="col-qty">SL</th>
+                                    <th class="col-price">Đ.Giá</th>
+                                    <th class="col-total">T.Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="receipt-section">
+                        <p class="receipt-total">TỔNG CỘNG: ${order.totalAmount.toLocaleString('vi-VN')}đ</p>
+                    </div>
+                    <div class="receipt-footer">
+                        <p>Cảm ơn quý khách!</p>
+                    </div>
+                </div>
+            `;
+
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = billHtml;
+            window.print();
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ EMAIL ĐĂNG KÝ ---
+        function renderSubscribersTable() {
+            const tbody = document.getElementById('subscribersTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (!APP_SUBSCRIBERS || APP_SUBSCRIBERS.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#999;">Chưa có ai đăng ký nhận tin.</td></tr>';
+                return;
+            }
+            APP_SUBSCRIBERS.forEach(sub => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:bold;">${sub.email}</td>
+                    <td>${new Date(sub.date).toLocaleString('vi-VN')}</td>
+                    <td>
+                        <button class="action-btn delete" onclick="deleteSubscriber('${sub.email}')">Xóa</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function deleteSubscriber(email) {
+            if (confirm(`Bạn có chắc muốn xóa email đăng ký "${email}"?`)) {
+                APP_SUBSCRIBERS = APP_SUBSCRIBERS.filter(sub => sub.email !== email);
+                await saveDatabase();
+                renderSubscribersTable();
+                updateKPIStats();
+                alert('✅ Đã xóa email đăng ký.');
             }
         }
 
