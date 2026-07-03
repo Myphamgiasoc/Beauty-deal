@@ -560,36 +560,67 @@
         let currentUserRole = null;
         let currentLoggedInUser = null;
 
-        // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ LOCALSTORAGE ---
-        function saveDataToLocalStorage(key, data) {
+        // --- CẤU HÌNH KẾT NỐI DATABASE (JSONBIN.IO) ---
+        const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã thay thế Master Key
+        const JSONBIN_BIN_ID = '6a476dfada38895dfe27361e';   // ✅ Đã thay thế Bin ID
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
+
+        // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ SERVER ---
+        async function saveDatabase() {
             try {
-                localStorage.setItem(key, JSON.stringify(data));
+                // Gom tất cả dữ liệu vào một đối tượng trước khi lưu
+                DATABASE = { APP_PRODUCTS, APP_BRANDS, APP_BANNERS, APP_SHOP_INFO, USER_CREDENTIALS };
+
+                const response = await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify(DATABASE)
+                });
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+                console.log("✅ Dữ liệu đã được lưu lên server thành công!");
             } catch (e) {
-                console.error(`Lỗi khi lưu dữ liệu '${key}' vào localStorage:`, e);
+                console.error("Lỗi khi lưu dữ liệu lên server:", e);
+                alert("❌ Đã xảy ra lỗi nghiêm trọng khi lưu dữ liệu. Thay đổi của bạn có thể không được ghi nhận.");
             }
         }
 
-        function loadDataFromLocalStorage(key, defaultValue) {
+        async function loadDatabase() {
             try {
-                const storedData = localStorage.getItem(key);
-                if (storedData) {
-                    return JSON.parse(storedData);
-                }
-                saveDataToLocalStorage(key, defaultValue); // Lưu giá trị mặc định nếu chưa có
-                return defaultValue;
+                const response = await fetch(`${JSONBIN_URL}/latest`, {
+                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
+                });
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+                
+                const serverData = await response.json();
+                DATABASE = serverData.record; // Dữ liệu từ jsonbin nằm trong 'record'
+                console.log("✅ Tải dữ liệu từ server thành công!");
+
+                // Gán dữ liệu từ server vào các biến toàn cục
+                APP_PRODUCTS = DATABASE.APP_PRODUCTS || DEFAULT_PRODUCTS;
+                APP_BRANDS = DATABASE.APP_BRANDS || DEFAULT_BRANDS;
+                APP_BANNERS = DATABASE.APP_BANNERS || DEFAULT_BANNERS;
+                APP_SHOP_INFO = DATABASE.APP_SHOP_INFO || DEFAULT_SHOP_INFO;
+                USER_CREDENTIALS = DATABASE.USER_CREDENTIALS || DEFAULT_USER_CREDENTIALS;
+
             } catch (e) {
-                console.error(`Lỗi khi tải dữ liệu '${key}' từ localStorage:`, e);
-                return defaultValue;
+                console.error("Không thể tải dữ liệu từ server, sử dụng dữ liệu mặc định.", e);
+                alert("⚠️ Lỗi: Không thể kết nối đến máy chủ dữ liệu. Trang đang sử dụng dữ liệu tạm thời.");
+                // Nếu lỗi, dùng dữ liệu mặc định
+                APP_PRODUCTS = DEFAULT_PRODUCTS;
+                APP_BRANDS = DEFAULT_BRANDS;
+                APP_BANNERS = DEFAULT_BANNERS;
+                APP_SHOP_INFO = DEFAULT_SHOP_INFO;
+                USER_CREDENTIALS = DEFAULT_USER_CREDENTIALS;
             }
         }
 
         // --- KHỞI TẠO KHI TRANG TẢI ---
-        window.addEventListener('DOMContentLoaded', () => {
-            APP_PRODUCTS = loadDataFromLocalStorage('APP_PRODUCTS', DEFAULT_PRODUCTS);
-            APP_BRANDS = loadDataFromLocalStorage('APP_BRANDS', DEFAULT_BRANDS);
-            APP_BANNERS = loadDataFromLocalStorage('APP_BANNERS', DEFAULT_BANNERS);
-            APP_SHOP_INFO = loadDataFromLocalStorage('APP_SHOP_INFO', DEFAULT_SHOP_INFO);
-            USER_CREDENTIALS = loadDataFromLocalStorage('USER_CREDENTIALS', DEFAULT_USER_CREDENTIALS);
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadDatabase(); // Tải toàn bộ dữ liệu từ server
             
             // NEW: Always show login modal when admin.html is opened
             // Clear any previous login session to force re-login
@@ -717,7 +748,7 @@
             document.getElementById('passwordChangeBox').classList.toggle('active'); 
         }
 
-        function handleAdminChangePassword(e) {
+        async function handleAdminChangePassword(e) {
             e.preventDefault();
             if (currentUserRole !== 'admin') {
                 alert("❌ Bạn không có quyền thay đổi mật khẩu!");
@@ -732,7 +763,7 @@
             if (newP.length < 6) return alert("❌ Mật khẩu mới phải có ít nhất 6 ký tự!");
 
             USER_CREDENTIALS[currentLoggedInUser].password = newP;
-            saveDataToLocalStorage('USER_CREDENTIALS', USER_CREDENTIALS);
+            await saveDatabase();
             alert("🔑 Thay đổi mật khẩu thành công!");
             document.getElementById('oldAdminPass').value = '';
             document.getElementById('newAdminPass').value = '';
@@ -843,7 +874,7 @@
             window.scrollTo({ top: document.getElementById('adminFormBox').offsetTop - 20, behavior: 'smooth' });
         }
 
-        function saveProduct(e) {
+        async function saveProduct(e) {
             e.preventDefault();
             const editId = document.getElementById('editProductId').value;
 
@@ -891,24 +922,25 @@
                     alert("✅ Cập nhật sản phẩm thành công!");
                 }
             } else {
-                const newId = "171000" + (APP_PRODUCTS.length + 1); // Basic ID generation
+                const newId = "prod" + Date.now(); // ID generation using timestamp for uniqueness
                 APP_PRODUCTS.push({ id: newId, ...productData });
                 alert("✅ Thêm sản phẩm mới thành công!");
             }
-            saveDataToLocalStorage('APP_PRODUCTS', APP_PRODUCTS);
+            await saveDatabase();
             cancelAdminEdit();
             renderAdminTable();
         }
 
-        function deleteProduct(id) {
+        async function deleteProduct(id) {
             if (confirm("⚠️ Bạn chắc chắn muốn xóa sản phẩm này?")) {
                 APP_PRODUCTS = APP_PRODUCTS.filter(p => p.id !== id);
-                saveDataToLocalStorage('APP_PRODUCTS', APP_PRODUCTS);
+                await saveDatabase();
                 renderAdminTable();
             }
         }
 
         // --- HÀM XỬ LÝ QUẢN LÝ THƯƠNG HIỆU ---
+        // GHI CHÚ: Các hàm lưu/xóa/sửa bên dưới cũng cần được chuyển thành 'async' và dùng 'await saveData(...)' tương tự như hàm saveProduct và deleteProduct ở trên.
         function renderAdminBrandsTable(brandsToRender = APP_BRANDS) {
             const tbody = document.getElementById('adminBrandsTableBody');
             if (!tbody) return;
@@ -956,7 +988,7 @@
             document.getElementById('brandLogoUrlInput').value = '';
         }
 
-        function addNewBrand(e) {
+        async function addNewBrand(e) {
             e.preventDefault();
             if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
                 return alert("❌ Bạn không có quyền thêm thương hiệu!");
@@ -980,7 +1012,7 @@
 
             const newId = "brand" + String(Date.now()).slice(-5);
             APP_BRANDS.push({ id: newId, name, logoUrl: brandLogo, link });
-            saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
+            await saveDatabase();
             alert("✅ Thêm thương hiệu mới thành công!");
             cancelBrandEdit();
             renderAdminBrandsTable();
@@ -1014,7 +1046,7 @@
             }
         }
 
-        function saveEditedBrand(e) {
+        async function saveEditedBrand(e) {
             e.preventDefault();
             if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
                 return alert("❌ Bạn không có quyền sửa thương hiệu!");
@@ -1049,7 +1081,7 @@
             const idx = APP_BRANDS.findIndex(b => b.id === id);
             if (idx !== -1) {
                 APP_BRANDS[idx] = { ...APP_BRANDS[idx], name, logoUrl: brandLogo, link };
-                saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
+                await saveDatabase();
                 alert("✅ Cập nhật thương hiệu thành công!");
             }
             closeBrandEditModal();
@@ -1067,19 +1099,20 @@
             document.getElementById('modalBrandLogoUrlInput').value = '';
         }
 
-        function deleteBrand(id) {
+        async function deleteBrand(id) {
             if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
                 return alert("❌ Bạn không có quyền xóa thương hiệu!");
             }
             if (confirm("⚠️ Bạn chắc chắn muốn xóa thương hiệu này?")) {
                 APP_BRANDS = APP_BRANDS.filter(b => b.id !== id);
-                saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
+                await saveDatabase();
                 renderAdminBrandsTable();
                 alert("✅ Đã xóa thương hiệu.");
             }
         }
 
         // --- HÀM XỬ LÝ QUẢN LÝ BANNER ---
+        // GHI CHÚ: Các hàm lưu/xóa/sửa bên dưới cũng cần được chuyển thành 'async' và dùng 'await saveData(...)'
         function renderAdminBannersTable() {
             const tbody = document.getElementById('adminBannersTableBody');
             if (!tbody) return;
@@ -1136,7 +1169,7 @@
             document.getElementById('bannerButtonLink').value = banner.buttonLink;
             window.scrollTo({ top: document.getElementById('bannerManagementSection').offsetTop - 20, behavior: 'smooth' });
         }
-        function saveBanner(e) {
+        async function saveBanner(e) {
             e.preventDefault();
             const id = document.getElementById('editBannerId').value;
 
@@ -1177,20 +1210,21 @@
                 APP_BANNERS.push({ id: newId, ...bannerData });
                 alert("✅ Thêm banner mới thành công!");
             }
-            saveDataToLocalStorage('APP_BANNERS', APP_BANNERS);
+            await saveDatabase();
             cancelBannerEdit();
             renderAdminBannersTable();
         }
-        function deleteBanner(id) {
+        async function deleteBanner(id) {
             if (confirm("⚠️ Bạn chắc chắn muốn xóa banner này?")) {
                 APP_BANNERS = APP_BANNERS.filter(b => b.id !== id);
-                saveDataToLocalStorage('APP_BANNERS', APP_BANNERS);
+                await saveDatabase();
                 renderAdminBannersTable();
                 alert("✅ Đã xóa banner.");
             }
         }
 
         // --- HÀM XỬ LÝ QUẢN LÝ TÀI KHOẢN ---
+        // GHI CHÚ: Các hàm lưu/xóa/sửa bên dưới cũng cần được chuyển thành 'async' và dùng 'await saveData(...)'
         function renderEmployeeTable() {
             const tbody = document.getElementById('employeeTableBody');
             if (!tbody) return;
@@ -1210,7 +1244,7 @@
                 tbody.appendChild(tr);
             }
         }
-        function addEmployee(e) {
+        async function addEmployee(e) {
             e.preventDefault();
             if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền thêm người dùng!");
             const newUsername = document.getElementById('newEmployeeUsername').value.trim();
@@ -1220,12 +1254,12 @@
             if (USER_CREDENTIALS[newUsername]) return alert(`Tài khoản "${newUsername}" đã tồn tại.`);
             if (newPassword.length < 6) return alert("❌ Mật khẩu phải có ít nhất 6 ký tự!");
             USER_CREDENTIALS[newUsername] = { password: newPassword, role: newUserRole };
-            saveDataToLocalStorage('USER_CREDENTIALS', USER_CREDENTIALS);
+            await saveDatabase();
             renderEmployeeTable();
             document.getElementById('addEmployeeForm').reset();
             alert(`✅ Đã thêm tài khoản "${newUsername}" thành công!`);
         }
-        function deleteEmployee(username) {
+        async function deleteEmployee(username) {
             if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền xóa tài khoản!");
             if (username === currentLoggedInUser) return alert("❌ Bạn không thể xóa tài khoản của chính mình!");
             const userToDelete = USER_CREDENTIALS[username];
@@ -1235,7 +1269,7 @@
             }
             if (confirm(`⚠️ Bạn chắc chắn muốn xóa tài khoản "${username}"?`)) {
                 delete USER_CREDENTIALS[username];
-                saveDataToLocalStorage('USER_CREDENTIALS', USER_CREDENTIALS);
+                await saveDatabase();
                 renderEmployeeTable();
                 alert(`✅ Đã xóa tài khoản "${username}".`);
             }
@@ -1252,7 +1286,7 @@
             document.getElementById('shopInfoTiktok').value = info.social.tiktok;
         }
 
-        function saveShopInfo(e) {
+        async function saveShopInfo(e) {
             e.preventDefault();
             if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền thay đổi thông tin cửa hàng!");
 
@@ -1263,7 +1297,7 @@
             APP_SHOP_INFO.social.instagram = document.getElementById('shopInfoInstagram').value.trim();
             APP_SHOP_INFO.social.tiktok = document.getElementById('shopInfoTiktok').value.trim();
 
-            saveDataToLocalStorage('APP_SHOP_INFO', APP_SHOP_INFO);
+            await saveDatabase();
             alert("✅ Cập nhật thông tin cửa hàng thành công!");
         }
     </script>

@@ -595,6 +595,40 @@
         let currentFilterCategory = "TẤT CẢ";
         let activeDetailProductId = null;
 
+        // --- CẤU HÌNH KẾT NỐI DATABASE (JSONBIN.IO) ---
+        const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã thay thế Master Key
+        const JSONBIN_BIN_ID = '6a476dfada38895dfe27361e';   // ✅ Đã thay thế Bin ID
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
+
+        // --- HÀM TẢI DỮ LIỆU TỪ SERVER ---
+        async function loadDatabase() {
+            try {
+                const response = await fetch(`${JSONBIN_URL}/latest`, {
+                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
+                });
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+                
+                const serverData = await response.json();
+                DATABASE = serverData.record; // Dữ liệu từ jsonbin nằm trong 'record'
+                console.log("✅ Tải dữ liệu từ server thành công!");
+
+                // Gán dữ liệu từ server vào các biến toàn cục
+                APP_PRODUCTS = DATABASE.APP_PRODUCTS || DEFAULT_PRODUCTS;
+                APP_BRANDS = DATABASE.APP_BRANDS || DEFAULT_BRANDS;
+                APP_BANNERS = DATABASE.APP_BANNERS || DEFAULT_BANNERS;
+                APP_SHOP_INFO = DATABASE.APP_SHOP_INFO || DEFAULT_SHOP_INFO;
+
+            } catch (e) {
+                console.error("Không thể tải dữ liệu từ server, sử dụng dữ liệu mặc định.", e);
+                // Nếu lỗi, dùng dữ liệu mặc định
+                APP_PRODUCTS = DEFAULT_PRODUCTS;
+                APP_BRANDS = DEFAULT_BRANDS;
+                APP_BANNERS = DEFAULT_BANNERS;
+                APP_SHOP_INFO = DEFAULT_SHOP_INFO;
+            }
+        }
+
         const HASAKI_REVIEWS_DB = {
             "1710001": [
                 { user: "Trần Thị Trà My", stars: 5, date: "24/05/2026", content: "Tẩy trang bioderma nắp hồng thì quá đỉnh rồi ạ, sạch sâu, dịu nhẹ không hề gây rát hay lên mụn, giao hàng siêu nhanh." },
@@ -607,35 +641,10 @@
             ]
         };
 
-        // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ LOCALSTORAGE ---
-        function saveDataToLocalStorage(key, data) {
-            try {
-                localStorage.setItem(key, JSON.stringify(data));
-            } catch (e) {
-                console.error(`Lỗi khi lưu dữ liệu '${key}' vào localStorage:`, e);
-            }
-        }
-
-        function loadDataFromLocalStorage(key, defaultValue) {
-            try {
-                const storedData = localStorage.getItem(key);
-                if (storedData) {
-                    return JSON.parse(storedData);
-                }
-                saveDataToLocalStorage(key, defaultValue); // Lưu giá trị mặc định nếu chưa có
-                return defaultValue;
-            } catch (e) {
-                console.error(`Lỗi khi tải dữ liệu '${key}' từ localStorage:`, e);
-                return defaultValue;
-            }
-        }
-
         // --- KHỞI TẠO KHI TRANG TẢI ---
-        window.addEventListener('DOMContentLoaded', () => {
-            APP_PRODUCTS = loadDataFromLocalStorage('APP_PRODUCTS', DEFAULT_PRODUCTS);
-            APP_BRANDS = loadDataFromLocalStorage('APP_BRANDS', DEFAULT_BRANDS);
-            APP_BANNERS = loadDataFromLocalStorage('APP_BANNERS', DEFAULT_BANNERS);
-            APP_SHOP_INFO = loadDataFromLocalStorage('APP_SHOP_INFO', DEFAULT_SHOP_INFO); // NEW: Load APP_SHOP_INFO with default
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadDatabase(); // Tải toàn bộ dữ liệu từ server
+
             renderProductsGrid();
             renderBrandsGrid();
             renderFooter(); // NEW
@@ -928,19 +937,6 @@
             cart = [];
             updateCartBadge();
             toggleCart(false);
-        }
-
-        function deleteBrand(id) {
-            if (currentUserRole !== 'admin' && currentUserRole !== 'employee') {
-                return alert("❌ Bạn không có quyền xóa thương hiệu!");
-            }
-            if (confirm("⚠️ Bạn chắc chắn muốn xóa thương hiệu này?")) {
-                APP_BRANDS = APP_BRANDS.filter(b => b.id !== id);
-                saveDataToLocalStorage('APP_BRANDS', APP_BRANDS);
-                renderAdminBrandsTable();
-                renderBrandsGrid();
-                alert("✅ Đã xóa thương hiệu.");
-            }
         }
 
         function renderPromoBanners() {
