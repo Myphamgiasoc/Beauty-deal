@@ -261,7 +261,7 @@
                             <input type="file" id="bannerImageFile" accept="image/*" onchange="previewImage(event, 'bannerImagePreview', 'bannerImageHidden')">
                             <input type="hidden" id="bannerImageHidden">
                             <img id="bannerImagePreview" src="" alt="Xem trước banner" style="max-width: 150px; max-height: 50px; margin-top: 10px; border: 1px solid #eee; display: none;">
-                            <input type="text" id="bannerImageUrlInput" required placeholder="Hoặc dán link ảnh HTTPS từ Unsplash hoặc máy chủ của bạn..." oninput="clearFileInput('bannerImageFile', 'bannerImagePreview', 'bannerImageHidden')">
+                            <input type="text" id="bannerImageUrlInput" placeholder="Hoặc dán link ảnh HTTPS từ Unsplash hoặc máy chủ của bạn..." oninput="clearFileInput('bannerImageFile', 'bannerImagePreview', 'bannerImageHidden')">
                         </div>
                         <div class="form-group">
                             <label>Tiêu đề *</label>
@@ -359,7 +359,7 @@
                             <input type="file" id="prodImageFile" accept="image/*" onchange="previewImage(event, 'prodImagePreview', 'prodImageHidden')">
                             <input type="hidden" id="prodImageHidden">
                             <img id="prodImagePreview" src="" alt="Xem trước ảnh sản phẩm" style="max-width: 100px; max-height: 100px; margin-top: 10px; border: 1px solid #eee; display: none;">
-                            <input type="text" id="prodImageUrl" required placeholder="Hoặc dán link ảnh HTTPS từ Unsplash hoặc máy chủ của bạn..." oninput="clearFileInput('prodImageFile', 'prodImagePreview', 'prodImageHidden')">
+                            <input type="text" id="prodImageUrl" placeholder="Hoặc dán link ảnh HTTPS từ Unsplash hoặc máy chủ của bạn..." oninput="clearFileInput('prodImageFile', 'prodImagePreview', 'prodImageHidden')">
                         </div>
                         <div class="form-group">
                             <label>Thương hiệu *</label>
@@ -1189,6 +1189,11 @@
                 if (existingBanner) {
                     bannerImage = existingBanner.imageUrl;
                 }
+            }
+
+            if (!bannerImage) {
+                alert("Vui lòng cung cấp hình ảnh banner (tải lên hoặc dán URL).");
+                return;
             }
 
             const bannerData = {

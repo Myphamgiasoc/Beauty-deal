@@ -150,8 +150,7 @@
         .brand-logos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px; justify-items: center; align-items: center; }
         .brand-logo-item { display: flex; justify-content: center; align-items: center; padding: 10px; border: 1px solid #eee; border-radius: 6px; transition: all 0.2s; }
         .brand-logo-item:hover { border-color: #0056b3; box-shadow: 0 2px 8px rgba(0, 86, 179, 0.1); }
-        .brand-logo-item img { max-width: 100px; height: 50px; object-fit: contain; filter: grayscale(100%); transition: filter 0.2s; }
-        .brand-logo-item:hover img { filter: grayscale(0%); }
+        .brand-logo-item img { max-width: 100px; height: 50px; object-fit: contain; }
 
         .newsletter-section { background: linear-gradient(135deg, #0056b3, #007bff); color: white; padding: 50px 20px; text-align: center; border-radius: 8px; margin-bottom: 60px; box-shadow: 0 8px 20px rgba(0, 86, 179, 0.2); }
         .newsletter-content h3 { font-size: 28px; margin-bottom: 15px; }
@@ -288,7 +287,7 @@
                     <button class="dropdown-item" onclick="selectFromDropdown('DẦU GỘI & CHĂM SÓC TÓC')">Dầu gội & chăm sóc tóc</button>
                     <button class="dropdown-item" onclick="selectFromDropdown('KEM CHỐNG NẮNG')">Kem chống nắng</button>
                     <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC DA MẶT')">Chăm sóc da mặt</button>
-                    <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SOK CƠ THỂ')">Chăm sóc cơ thể</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC CƠ THỂ')">Chăm sóc cơ thể</button>
                 </div>
             </div>
 
@@ -314,62 +313,64 @@
     </section>
 
     <main class="container">
-        <h2 class="section-title">Tại Sao Chọn Beauty Deal?</h2>
-        <section class="value-props-section">
-            <div class="value-prop-item">
-                <span class="value-prop-icon">✅</span>
-                <h3>Cam kết chính hãng</h3>
-                <p>100% sản phẩm nhập khẩu trực tiếp</p>
-            </div>
-            <div class="value-prop-item">
-                <span class="value-prop-icon">💰</span>
-                <h3>Giá tốt mỗi ngày</h3>
-                <p>Ưu đãi độc quyền, tiết kiệm tối đa</p>
-            </div>
-            <div class="value-prop-item">
-                <span class="value-prop-icon">📞</span>
-                <h3>Tư vấn chuyên sâu</h3>
-                <p>Đội ngũ chuyên gia da liễu hỗ trợ 24/7</p>
-            </div>
-        </section>
+        <div id="homePageContent">
+            <h2 class="section-title">Tại Sao Chọn Beauty Deal?</h2>
+            <section class="value-props-section">
+                <div class="value-prop-item">
+                    <span class="value-prop-icon">✅</span>
+                    <h3>Cam kết chính hãng</h3>
+                    <p>100% sản phẩm nhập khẩu trực tiếp</p>
+                </div>
+                <div class="value-prop-item">
+                    <span class="value-prop-icon">💰</span>
+                    <h3>Giá tốt mỗi ngày</h3>
+                    <p>Ưu đãi độc quyền, tiết kiệm tối đa</p>
+                </div>
+                <div class="value-prop-item">
+                    <span class="value-prop-icon">📞</span>
+                    <h3>Tư vấn chuyên sâu</h3>
+                    <p>Đội ngũ chuyên gia da liễu hỗ trợ 24/7</p>
+                </div>
+            </section>
 
-        <section class="promo-banners-section" id="promoBannersContainer">
-        </section>
+            <section class="promo-banners-section" id="promoBannersContainer">
+            </section>
 
-        <h2 class="section-title">Khám Phá Danh Mục Sản Phẩm</h2>
-        <nav class="category-nav" id="categoryNav">
-            <button class="category-btn active" onclick="filterCategory('TẤT CẢ', this)">Tất cả</button>
-            <button class="category-btn" onclick="filterCategory('TRANG ĐIỂM', this)">Trang điểm</button>
-            <button class="category-btn" onclick="filterCategory('DẦU GỘI & CHĂM SÓC TÓC', this)">Dầu gội & chăm sóc tóc</button>
-            <button class="category-btn" onclick="filterCategory('KEM CHỐNG NẮNG', this)">Kem chống nắng</button>
-            <button class="category-btn" onclick="filterCategory('CHĂM SÓC DA MẶT', this)">Chăm sóc da mặt</button>
-            <button class="category-btn" onclick="filterCategory('CHĂM SÓC CƠ THỂ', this)">Chăm sóc cơ thể</button>
-        </nav>
+            <h2 class="section-title">Khám Phá Danh Mục Sản Phẩm</h2>
+            <nav class="category-nav" id="categoryNav">
+                <button class="category-btn active" data-category="TẤT CẢ" onclick="filterCategory('TẤT CẢ', this)">Tất cả</button>
+                <button class="category-btn" data-category="TRANG ĐIỂM" onclick="filterCategory('TRANG ĐIỂM', this)">Trang điểm</button>
+                <button class="category-btn" data-category="DẦU GỘI & CHĂM SÓC TÓC" onclick="filterCategory('DẦU GỘI & CHĂM SÓC TÓC', this)">Dầu gội & chăm sóc tóc</button>
+                <button class="category-btn" data-category="KEM CHỐNG NẮNG" onclick="filterCategory('KEM CHỐNG NẮNG', this)">Kem chống nắng</button>
+                <button class="category-btn" data-category="CHĂM SÓC DA MẶT" onclick="filterCategory('CHĂM SÓC DA MẶT', this)">Chăm sóc da mặt</button>
+                <button class="category-btn" data-category="CHĂM SÓC CƠ THỂ" onclick="filterCategory('CHĂM SÓC CƠ THỂ', this)">Chăm sóc cơ thể</button>
+            </nav>
 
-        <h2 class="section-title">Sản Phẩm Nổi Bật</h2>
-        <section class="products-container" id="productsContainer">
-        </section>
+            <h2 class="section-title">Sản Phẩm Nổi Bật</h2>
+            <section class="products-container" id="productsContainer">
+            </section>
 
-        <h2 class="section-title">Sản Phẩm Bán Chạy Nhất</h2>
-        <section class="products-container" id="bestSellerProductsContainer">
-        </section>
+            <h2 class="section-title">Sản Phẩm Bán Chạy Nhất</h2>
+            <section class="products-container" id="bestSellerProductsContainer">
+            </section>
 
-        <section class="brand-showcase-section">
-            <h2 class="section-title">Thương Hiệu Nổi Bật</h2>
-            <div class="brand-logos-grid" id="brandsGridContainer">
-            </div>
-        </section>
+            <section class="brand-showcase-section">
+                <h2 class="section-title">Thương Hiệu Nổi Bật</h2>
+                <div class="brand-logos-grid" id="brandsGridContainer">
+                </div>
+            </section>
 
-        <section class="newsletter-section">
-            <div class="newsletter-content">
-                <h3>Đăng Ký Nhận Ưu Đãi Độc Quyền</h3>
-                <p>Nhận thông tin về các chương trình khuyến mãi, sản phẩm mới và mẹo làm đẹp từ Beauty Deal!</p>
-                <form class="newsletter-form" onsubmit="alert('Đăng ký thành công!'); return false;">
-                    <input type="email" placeholder="Nhập địa chỉ email của bạn" required>
-                    <button type="submit">Đăng ký</button>
-                </form>
-            </div>
-        </section>
+            <section class="newsletter-section">
+                <div class="newsletter-content">
+                    <h3>Đăng Ký Nhận Ưu Đãi Độc Quyền</h3>
+                    <p>Nhận thông tin về các chương trình khuyến mãi, sản phẩm mới và mẹo làm đẹp từ Beauty Deal!</p>
+                    <form class="newsletter-form" onsubmit="alert('Đăng ký thành công!'); return false;">
+                        <input type="email" placeholder="Nhập địa chỉ email của bạn" required>
+                        <button type="submit">Đăng ký</button>
+                    </form>
+                </div>
+            </section>
+        </div>
 
         <section class="product-detail-section" id="productDetailSection">
             <button class="back-home-btn" onclick="backToHome(event)">← Quay lại Trang Chủ</button>
@@ -735,24 +736,31 @@
         }
 
         function filterCategory(catName, btnElement) {
+            // Nếu đang ở trang chi tiết sản phẩm, quay về trang chủ trước
+            if (document.getElementById('productDetailSection').classList.contains('active')) {
+                backToHome();
+            }
+
             currentFilterCategory = catName;
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             if (btnElement) btnElement.classList.add('active');
             handleSearch();
         }
 
-        function toggleMenuDropdown(e) { e.stopPropagation(); document.getElementById('dropdownMenu').classList.toggle('active'); }
         function selectFromDropdown(catName) {
             document.getElementById('dropdownMenu').classList.remove('active');
-            const targetBtn = Array.from(document.querySelectorAll('.category-btn')).find(btn => btn.textContent.toUpperCase().includes(catName.substring(0, 4)));
+            // Sử dụng data-attribute để tìm chính xác nút cần active
+            const targetBtn = document.querySelector(`.category-btn[data-category="${catName}"]`);
             filterCategory(catName, targetBtn);
         }
+
+        function toggleMenuDropdown(e) { e.stopPropagation(); document.getElementById('dropdownMenu').classList.toggle('active'); }
         window.addEventListener('click', () => { document.getElementById('dropdownMenu').classList.remove('active'); });
 
         function backToHome(e) {
             if(e) e.preventDefault();
             document.getElementById('productDetailSection').classList.remove('active');
-            document.getElementById('categoryNav').style.display = 'flex';
+            document.getElementById('homePageContent').style.display = 'block';
             document.getElementById('mainBanner').style.display = 'flex';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -761,8 +769,10 @@
             const prod = APP_PRODUCTS.find(p => p.id === productId);
             if (!prod) return;
             activeDetailProductId = productId;
-            document.getElementById('categoryNav').style.display = 'none';
-            document.getElementById('mainBanner').style.display = 'none'; // Keep this to hide main banner on product detail
+            
+            document.getElementById('homePageContent').style.display = 'none';
+            document.getElementById('mainBanner').style.display = 'none';
+            
             const detailSection = document.getElementById('productDetailSection');
             detailSection.classList.add('active');
             document.getElementById('detailProductTopBox').innerHTML = `
