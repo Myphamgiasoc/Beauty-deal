@@ -364,9 +364,9 @@
                 <div class="newsletter-content">
                     <h3>Đăng Ký Nhận Ưu Đãi Độc Quyền</h3>
                     <p>Nhận thông tin về các chương trình khuyến mãi, sản phẩm mới và mẹo làm đẹp từ Beauty Deal!</p>
-                    <form class="newsletter-form" onsubmit="alert('Đăng ký thành công!'); return false;">
-                        <input type="email" placeholder="Nhập địa chỉ email của bạn" required>
-                        <button type="submit">Đăng ký</button>
+                <form class="newsletter-form" onsubmit="handleNewsletterSubscription(event)">
+                    <input type="email" id="newsletterEmail" placeholder="Nhập địa chỉ email của bạn" required>
+                    <button type="submit" id="newsletterSubmitBtn">Đăng ký</button>
                     </form>
                 </div>
             </section>
@@ -476,6 +476,34 @@
         </div>
     </div>
 
+    <!-- CHECKOUT MODAL -->
+    <div id="checkout-modal" style="display: none; position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: popupFade 0.3s ease;">
+            <span id="closeCheckoutModalBtn" style="position: absolute; right: 20px; top: 12px; font-size: 32px; cursor: pointer; color: #aaa; transition: color 0.2s;">&times;</span>
+            <h3 style="color: #0056b3; margin-top: 5px; font-size: 22px; font-weight: bold; margin-bottom: 8px;">Thông Tin Giao Hàng</h3>
+            <p style="color: #555; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">Vui lòng điền đầy đủ thông tin để chúng tôi giao hàng cho bạn nhanh nhất!</p>
+            <form id="checkoutForm" onsubmit="handleConfirmOrder(event)">
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 12px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Họ và tên người nhận *</label>
+                    <input type="text" id="checkoutCustomerName" required placeholder="Ví dụ: Nguyễn Thúy Vi" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 12px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Số điện thoại nhận hàng *</label>
+                    <input type="tel" id="checkoutCustomerPhone" required placeholder="Ví dụ: 0912xxxxxx" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 18px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Địa chỉ giao hàng chi tiết *</label>
+                    <textarea id="checkoutCustomerAddress" required rows="3" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: right;">
+                    <span style="font-weight: bold; font-size: 16px;">Tổng thanh toán:</span>
+                    <span id="checkoutTotalValue" style="color:#ff0000; font-weight: bold; font-size: 20px; margin-left: 10px;">0đ</span>
+                </div>
+                <button type="submit" id="confirmOrderBtn" style="background-color: #e74c3c; color: white; padding: 13px; border: none; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(231,76,60,0.2);">Xác Nhận Đặt Hàng</button>
+            </form>
+        </div>
+    </div>
+
     <div id="popup-dat-hang" style="display: none; position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;">
         <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: popupFade 0.3s ease;">
             <span id="closePopupBtn" style="position: absolute; right: 20px; top: 12px; font-size: 32px; cursor: pointer; color: #aaa; transition: color 0.2s;">&times;</span>
@@ -557,6 +585,8 @@
         let APP_PRODUCTS = [];
         let APP_BRANDS = [];
         let APP_BANNERS = [];
+        let APP_ORDERS = [];
+        let APP_SUBSCRIBERS = [];
         
         const DEFAULT_PRODUCTS = [
             { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: "ConHang", desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
@@ -602,6 +632,30 @@
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
 
+        // --- HÀM LƯU DỮ LIỆU LÊN SERVER ---
+        async function saveDatabase() {
+            try {
+                // Gom tất cả dữ liệu vào một đối tượng trước khi lưu
+                // Lấy USER_CREDENTIALS từ DATABASE đã load để không ghi đè mất
+                DATABASE = { APP_PRODUCTS, APP_BRANDS, APP_BANNERS, APP_SHOP_INFO, USER_CREDENTIALS: DATABASE.USER_CREDENTIALS || {}, APP_ORDERS, APP_SUBSCRIBERS };
+
+                const response = await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify(DATABASE)
+                });
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+                console.log("✅ Dữ liệu đã được lưu lên server thành công!");
+                return true; // Trả về true nếu thành công
+            } catch (e) {
+                console.error("Lỗi khi lưu dữ liệu lên server:", e);
+                return false; // Trả về false nếu thất bại
+            }
+        }
+
         // --- HÀM TẢI DỮ LIỆU TỪ SERVER ---
         async function loadDatabase() {
             try {
@@ -619,6 +673,8 @@
                 APP_BRANDS = DATABASE.APP_BRANDS || DEFAULT_BRANDS;
                 APP_BANNERS = DATABASE.APP_BANNERS || DEFAULT_BANNERS;
                 APP_SHOP_INFO = DATABASE.APP_SHOP_INFO || DEFAULT_SHOP_INFO;
+                APP_ORDERS = DATABASE.APP_ORDERS || [];
+                APP_SUBSCRIBERS = DATABASE.APP_SUBSCRIBERS || [];
 
             } catch (e) {
                 console.error("Không thể tải dữ liệu từ server, sử dụng dữ liệu mặc định.", e);
@@ -627,6 +683,8 @@
                 APP_BRANDS = DEFAULT_BRANDS;
                 APP_BANNERS = DEFAULT_BANNERS;
                 APP_SHOP_INFO = DEFAULT_SHOP_INFO;
+                APP_ORDERS = [];
+                APP_SUBSCRIBERS = [];
             }
         }
 
@@ -647,9 +705,13 @@
             await loadDatabase(); // Tải toàn bộ dữ liệu từ server
 
             renderProductsGrid();
+            renderBestSellers();
             renderBrandsGrid();
             renderFooter(); // NEW
             renderPromoBanners();
+
+            // Gắn sự kiện cho nút đóng modal thanh toán
+            document.getElementById('closeCheckoutModalBtn').addEventListener('click', closeCheckoutModal);
         });
         
         // --- CÁC HÀM XỬ LÝ GIAO DIỆN NGƯỜI DÙNG ---
@@ -672,14 +734,55 @@
             popupDatHang.style.display = "none";
         });
 
-        function renderProductsGrid(productsToRender = APP_PRODUCTS) {
+        function renderProductsGrid(productsToRender) {
             const container = document.getElementById('productsContainer');
             container.innerHTML = '';
-            if (productsToRender.length === 0) {
+
+            // Nếu không có danh sách sản phẩm cụ thể, mặc định hiển thị 4 sản phẩm nổi bật đầu tiên.
+            // Khi tìm kiếm hoặc lọc, `productsToRender` sẽ là danh sách đã được lọc.
+            const products = productsToRender !== undefined ? productsToRender : APP_PRODUCTS.slice(0, 4);
+
+            if (products.length === 0) {
                 container.innerHTML = `<p style="grid-column: span 4; text-align:center; padding: 40px; color:#999; font-weight:600;">Không có sản phẩm nào phù hợp!</p>`;
                 return;
             }
-            productsToRender.forEach(prod => {
+            products.forEach(prod => {
+                const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => openProductDetail(prod.id);
+                card.innerHTML = `
+                    <div class="product-image-wrapper"><img src="${prod.image}" class="product-image" alt="${prod.name}">${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}</div>
+                    <div class="product-info">
+                        <div class="product-name">${prod.name}</div>
+                        <div class="product-prices">
+                            <span class="current-price">${prod.currPrice.toLocaleString()}đ</span>
+                            ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', event)">Thêm giỏ hàng</button>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function renderBestSellers() {
+            const container = document.getElementById('bestSellerProductsContainer');
+            const title = container.previousElementSibling;
+            container.innerHTML = '';
+            
+            // Demo: Lấy 4 sản phẩm tiếp theo làm sản phẩm bán chạy
+            const bestSellers = APP_PRODUCTS.slice(4, 8); 
+
+            if (bestSellers.length === 0) {
+                if(container) container.style.display = 'none';
+                if(title) title.style.display = 'none';
+                return;
+            }
+            
+            if(container) container.style.display = 'grid';
+            if(title) title.style.display = 'block';
+
+            bestSellers.forEach(prod => {
                 const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
                 const card = document.createElement('div');
                 card.className = 'product-card';
@@ -723,16 +826,40 @@
             document.getElementById('footerSocialTiktok').href = info.social.tiktok;
         }
 
+        let searchTimeout; // Biến để quản lý debounce
         function handleSearch() {
-            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
-            let filtered = APP_PRODUCTS;
-            if (currentFilterCategory !== "TẤT CẢ") {
-                filtered = filtered.filter(p => p.category === currentFilterCategory);
-            }
-            if (keyword !== "") {
-                filtered = filtered.filter(p => p.name.toLowerCase().includes(keyword) || p.brand.toLowerCase().includes(keyword));
-            }
-            renderProductsGrid(filtered);
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+                
+                const mainProductTitle = document.getElementById('productsContainer').previousElementSibling;
+                const bestSellerSection = document.getElementById('bestSellerProductsContainer');
+                const bestSellerTitle = bestSellerSection.previousElementSibling;
+
+                const isSearching = keyword !== '' || currentFilterCategory !== 'TẤT CẢ';
+
+                if (isSearching) {
+                    let filtered = APP_PRODUCTS;
+                    if (currentFilterCategory !== "TẤT CẢ") {
+                        filtered = filtered.filter(p => p.category === currentFilterCategory);
+                    }
+                    if (keyword !== "") {
+                        filtered = filtered.filter(p => p.name.toLowerCase().includes(keyword) || p.brand.toLowerCase().includes(keyword));
+                    }
+                    
+                    mainProductTitle.innerText = 'Kết quả tìm kiếm';
+                    bestSellerSection.style.display = 'none';
+                    bestSellerTitle.style.display = 'none';
+                    renderProductsGrid(filtered);
+                } else {
+                    // Không có tìm kiếm hoặc bộ lọc, khôi phục giao diện mặc định
+                    mainProductTitle.innerText = 'Sản Phẩm Nổi Bật';
+                    bestSellerSection.style.display = 'grid';
+                    bestSellerTitle.style.display = 'block';
+                    renderProductsGrid(); // Hiển thị sản phẩm nổi bật mặc định
+                    renderBestSellers(); // Hiển thị lại sản phẩm bán chạy
+                }
+            }, 300); // Thêm độ trễ 300ms để tránh gọi liên tục khi gõ
         }
 
         function filterCategory(catName, btnElement) {
@@ -942,11 +1069,95 @@
             renderCartContents();
         }
         function processCheckout() {
-            if (cart.length === 0) return;
-            alert("🎉 Cảm ơn bạn đã đặt hàng!");
-            cart = [];
-            updateCartBadge();
-            toggleCart(false);
+            if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
+            const grandTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            
+            document.getElementById('checkoutTotalValue').innerText = grandTotal.toLocaleString() + 'đ';
+            document.getElementById('checkout-modal').style.display = 'flex';
+            toggleCart(false); // Đóng giỏ hàng
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').style.display = 'none';
+        }
+
+        async function handleConfirmOrder(event) {
+            event.preventDefault();
+            const confirmBtn = document.getElementById('confirmOrderBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerText = 'ĐANG XỬ LÝ...';
+
+            const customerInfo = {
+                name: document.getElementById('checkoutCustomerName').value.trim(),
+                phone: document.getElementById('checkoutCustomerPhone').value.trim(),
+                address: document.getElementById('checkoutCustomerAddress').value.trim()
+            };
+            const grandTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const newOrder = {
+                orderId: 'BD-' + Date.now(),
+                customerInfo: customerInfo,
+                items: [...cart],
+                totalAmount: grandTotal,
+                orderDate: new Date().toISOString(),
+                status: 'Mới'
+            };
+
+            await loadDatabase(); // Tải dữ liệu mới nhất để tránh ghi đè
+            if (!APP_ORDERS) APP_ORDERS = [];
+            APP_ORDERS.unshift(newOrder); // Thêm đơn hàng mới vào đầu danh sách
+
+            const success = await saveDatabase();
+            if (success) {
+                alert("🎉 Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại Beauty Deal. Chúng tôi sẽ liên hệ để xác nhận đơn hàng sớm nhất.");
+                cart = [];
+                updateCartBadge();
+                closeCheckoutModal();
+                document.getElementById('checkoutForm').reset();
+            } else {
+                APP_ORDERS.shift(); // Xóa đơn hàng vừa thêm nếu lưu thất bại
+                alert("Rất tiếc, đã có lỗi xảy ra khi gửi đơn hàng. Vui lòng thử lại sau.");
+            }
+            confirmBtn.disabled = false;
+            confirmBtn.innerText = 'Xác Nhận Đặt Hàng';
+        }
+
+        async function handleNewsletterSubscription(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('newsletterEmail');
+            const submitBtn = document.getElementById('newsletterSubmitBtn');
+            const email = emailInput.value.trim();
+
+            if (!email) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'ĐANG GỬI...';
+
+            await loadDatabase(); // Tải dữ liệu mới nhất để tránh ghi đè
+
+            if (!APP_SUBSCRIBERS) APP_SUBSCRIBERS = [];
+
+            // Kiểm tra email đã tồn tại chưa
+            if (APP_SUBSCRIBERS.some(sub => sub.email === email)) {
+                alert('Email này đã được đăng ký trước đó. Cảm ơn bạn!');
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Đăng ký';
+                emailInput.value = '';
+                return;
+            }
+
+            APP_SUBSCRIBERS.unshift({ email: email, date: new Date().toISOString() });
+
+            const success = await saveDatabase();
+            if (success) {
+                alert('🎉 Đăng ký nhận tin thành công! Cảm ơn bạn đã quan tâm đến Beauty Deal.');
+                emailInput.value = '';
+            } else {
+                APP_SUBSCRIBERS.shift(); // Hoàn tác nếu lưu thất bại
+                alert('Rất tiếc, đã có lỗi xảy ra. Vui lòng thử lại sau.');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Đăng ký';
         }
 
         function renderPromoBanners() {
@@ -954,6 +1165,15 @@
             if (!container) return;
             container.innerHTML = '';
             APP_BANNERS.forEach(banner => {
+                let buttonHtml = '';
+                // If a valid product ID is linked, the button opens the product detail page
+                if (banner.productId && APP_PRODUCTS.find(p => p.id === banner.productId)) {
+                    buttonHtml = `<button onclick="openProductDetail('${banner.productId}')" class="promo-btn">${banner.buttonText}</button>`;
+                } else {
+                    // Fallback to the original link behavior
+                    buttonHtml = `<a href="${banner.buttonLink}" class="promo-btn">${banner.buttonText}</a>`;
+                }
+
                 const bannerItem = document.createElement('div');
                 bannerItem.className = 'promo-banner-item';
                 bannerItem.innerHTML = `
@@ -961,7 +1181,7 @@
                     <div class="promo-banner-content">
                         <h4>${banner.title}</h4>
                         <p>${banner.description}</p>
-                        <a href="${banner.buttonLink}" class="promo-btn">${banner.buttonText}</a>
+                        ${buttonHtml}
                     </div>`;
                 container.appendChild(bannerItem);
             });
