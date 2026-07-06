@@ -94,6 +94,14 @@
             75% { transform: translateX(6px); }
         }
 
+        /* Variant Management Styles */
+        .variant-item { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid #eee; border-radius: 4px; margin-bottom: 5px; background: #fff; }
+        .variant-swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #ccc; }
+        .variant-name { flex-grow: 1; font-size: 13px; font-weight: 500; }
+        .variant-delete-btn { background: #e74c3c; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-weight: bold; line-height: 24px; text-align: center; }
+        #variantManagementSection { display: none; } /* Hide by default */
+        #variantManagementSection.active { display: block; }
+
         /* --- Notification Bell Styles --- */
         .notification-wrapper { position: relative; margin-right: 15px; }
         .notification-bell { background: none; border: none; color: white; cursor: pointer; position: relative; padding: 8px; border-radius: 50%; transition: background-color 0.2s; }
@@ -227,7 +235,10 @@
                         <button class="change-pass-toggle-btn" onclick="toggleChangePasswordBox()" id="changePassBtn">🔒 Đổi mật khẩu</button>
                     </div>
                 </div>
-                <button class="logout-btn" onclick="logoutAdmin()">Đăng xuất hệ thống</button>
+                <div>
+                    <button class="logout-btn" onclick="logoutAdmin()">Đăng xuất hệ thống</button>
+                    <button class="logout-btn" style="background-color: #c0392b; margin-left: 10px;" onclick="hardResetDatabase()">HARD RESET</button>
+                </div>
             </div>
 
             <div class="password-change-box" id="passwordChangeBox">
@@ -354,6 +365,29 @@
                         </div>
                     </div>
 
+                    <!-- Variant Management Section -->
+                    <div id="variantManagementSection" style="margin-top: 25px; padding-top: 25px; border-top: 2px dashed #e0e0e0;">
+                        <h4>Quản lý màu sắc / phiên bản</h4>
+                        <p style="font-size: 12px; color: #777; margin-bottom: 15px;">Thêm các phiên bản màu sắc cho sản phẩm (ví dụ: son môi). Nếu sản phẩm không có nhiều màu, hãy để trống mục này.</p>
+                        <div id="variantListContainer" style="margin-bottom: 15px;">
+                            <!-- Variants will be rendered here by JS -->
+                        </div>
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 6px;">
+                            <h5 style="margin-bottom: 10px;">Thêm màu mới</h5>
+                            <div class="form-grid" style="grid-template-columns: 1fr 1fr 100px; align-items: flex-end;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label>Tên màu</label>
+                                    <input type="text" id="newVariantColorName" placeholder="Ví dụ: Đỏ cam">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label>Mã màu (Hex)</label>
+                                    <input type="text" id="newVariantColorCode" placeholder="#FF5733">
+                                </div>
+                                <button type="button" onclick="addVariantToProduct()" class="form-btn submit" style="padding: 10px 15px; height: 40px;">Thêm</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions-row">
                         <button type="button" class="form-btn cancel" onclick="cancelAdminEdit()">Hủy lệnh</button>
                         <button type="submit" class="form-btn submit">Lưu dữ liệu sản phẩm</button>
@@ -449,7 +483,12 @@
             </div>
 
             <div class="admin-form-box hidden-by-js" id="bannerManagementSection">
-                <h3 id="bannerFormTitle">Thêm Banner Mới</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #ecf0f1; padding-bottom: 12px;">
+                    <h3 id="bannerFormTitle" style="margin: 0; padding: 0; border: none; color: #34495e; font-size: 18px;">Thêm / Sửa Banner</h3>
+                    <button onclick="resetBannersToNewDefaults()" style="background-color: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+                        ✨ Cập nhật 2 banner mẫu
+                    </button>
+                </div>
                 <form id="bannerForm" onsubmit="saveBanner(event)">
                     <input type="hidden" id="editBannerId" value="">
                     <div class="form-grid">
@@ -563,6 +602,81 @@
                 </form>
             </div>
 
+            <!-- Admin Panel for Value Props -->
+            <div class="admin-form-box hidden-by-js" id="valuePropsManagementSection">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #ecf0f1; padding-bottom: 12px;">
+                    <h3 style="margin: 0; padding: 0; border: none; color: #34495e; font-size: 18px;">Quản Lý "Tại Sao Chọn Beauty Deal"</h3>
+                    <button type="button" onclick="resetValuePropsToDefaults()" style="background-color: #1abc9c; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+                        ✨ Cập nhật 3 mục mẫu
+                    </button>
+                </div>
+                <form id="valuePropsForm" onsubmit="saveValueProps(event)">
+                    <!-- Prop 1 -->
+                    <h4 style="margin-top:15px; margin-bottom:5px; color:#555;">Mục 1</h4>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group">
+                            <label>Tiêu đề</label>
+                            <input type="text" id="propTitle1" placeholder="Cam kết chính hãng">
+                        </div>
+                        <div class="form-group">
+                            <label>Icon (Emoji)</label>
+                            <input type="text" id="propIcon1" placeholder="✅">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Mô tả</label>
+                            <input type="text" id="propDesc1" placeholder="100% sản phẩm nhập khẩu trực tiếp">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>URL Hình ảnh (sẽ thay thế Icon)</label>
+                            <input type="text" id="propImageUrl1" placeholder="Dán link ảnh vào đây...">
+                        </div>
+                    </div>
+                    <!-- Prop 2 -->
+                    <h4 style="margin-top:15px; margin-bottom:5px; color:#555; border-top:1px dashed #eee; padding-top:15px;">Mục 2</h4>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group">
+                            <label>Tiêu đề</label>
+                            <input type="text" id="propTitle2" placeholder="Giá tốt mỗi ngày">
+                        </div>
+                        <div class="form-group">
+                            <label>Icon (Emoji)</label>
+                            <input type="text" id="propIcon2" placeholder="💰">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Mô tả</label>
+                            <input type="text" id="propDesc2" placeholder="Ưu đãi độc quyền, tiết kiệm tối đa">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>URL Hình ảnh (sẽ thay thế Icon)</label>
+                            <input type="text" id="propImageUrl2" placeholder="Dán link ảnh vào đây...">
+                        </div>
+                    </div>
+                    <!-- Prop 3 -->
+                    <h4 style="margin-top:15px; margin-bottom:5px; color:#555; border-top:1px dashed #eee; padding-top:15px;">Mục 3</h4>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group">
+                            <label>Tiêu đề</label>
+                            <input type="text" id="propTitle3" placeholder="Tư vấn chuyên sâu">
+                        </div>
+                        <div class="form-group">
+                            <label>Icon (Emoji)</label>
+                            <input type="text" id="propIcon3" placeholder="📞">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Mô tả</label>
+                            <input type="text" id="propDesc3" placeholder="Đội ngũ chuyên gia da liễu hỗ trợ 24/7">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>URL Hình ảnh (sẽ thay thế Icon)</label>
+                            <input type="text" id="propImageUrl3" placeholder="Dán link ảnh vào đây...">
+                        </div>
+                    </div>
+                    <div class="form-actions-row">
+                        <button type="submit" class="form-btn submit">Lưu Thay Đổi</button>
+                    </div>
+                </form>
+            </div>
+
             <div class="admin-form-box hidden-by-js" id="employeeManagementSection"> 
                 <h3>Quản Lý Tài Khoản Người Dùng</h3>
                 <form id="addEmployeeForm" onsubmit="addEmployee(event)">
@@ -661,7 +775,7 @@
     </div>
 
     <script>
-        console.log("--- SCRIPT VERSION: ADMIN-PANEL-2024-06-07 ---"); // Dấu hiệu nhận biết phiên bản code mới nhất
+        console.log("--- SCRIPT VERSION: ADMIN-PANEL-2024-06-08-FINAL ---"); // Dấu hiệu nhận biết phiên bản code mới nhất
         
         let APP_PRODUCTS = [];
         let APP_BRANDS = [];
@@ -671,26 +785,30 @@
         let APP_ORDERS = [];
         let APP_SUBSCRIBERS = [];
         let APP_NOTIFICATIONS = [];
+        let APP_VALUE_PROPS = [];
         
+        let currentEditingVariants = []; // NEW: Temp array for variants during product edit
+
         const DEFAULT_PRODUCTS = [
             { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: "ConHang", desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
-            { id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink Slay 5ml", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: "ConHang", desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn." },
+            {
+                id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: "ConHang", desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn.",
+                variants: [
+                    { id: "1710002-slay", colorName: "Slay (Đỏ cam)", colorCode: "#E56D54", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80" },
+                    { id: "1710002-pioneer", colorName: "Pioneer (Đỏ thuần)", colorCode: "#BF1D29", image: "https://images.unsplash.com/photo-1599948125323-74185a3990a7?auto=format&fit=crop&w=500&q=80" },
+                    { id: "1710002-lover", colorName: "Lover (Hồng đất)", colorCode: "#A56A76", image: "https://images.unsplash.com/photo-1620921298831-8383b693a443?auto=format&fit=crop&w=500&q=80" }
+                ]
+            },
             { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: "ConHang", desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
             { id: "1710004", name: "Dầu Gội L'Oréal Professionnel Serie Expert Absolut Repair 500ml", category: "DẦU GỘI & CHĂM SÓC TÓC", currPrice: 560000, origPrice: 680000, image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80", brand: "L'Oréal Professionnel", stock: "ConHang", desc: "Dầu gội cao cấp phục hồi hư tổn xơ rối nặng chuyên sâu nhờ dưỡng chất Protein hạt diêm mạch vàng (Gold Quinoa).", specs: "Dung tích: 500ml\nLoại tóc: Tóc hư tổn, chẻ ngọn\nThương hiệu: Pháp", ingredients: "Aqua / Water / Eau, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Dimethicone, Sodium Chloride, Citric Acid.", usage: "Thoa đều dầu gội lên tóc ướt, massage nhẹ nhàng da đầu và ngọn tóc, sau đó xả sạch lại với nước." }
         ];
         const DEFAULT_BRANDS = [
-            { id: "brand001", name: "Obagi", logoUrl: "assets/logos/obagi.png", link: "#" },
-            { id: "brand002", name: "SVR", logoUrl: "assets/logos/svr.png", link: "#" },
-            { id: "brand003", name: "Anessa", logoUrl: "assets/logos/anessa.png", link: "#" },
-            { id: "brand004", name: "Vacosi", logoUrl: "assets/logos/vacosi.png", link: "#" },
-            { id: "brand005", name: "3CE", logoUrl: "assets/logos/3ce.png", link: "#" },
-            { id: "brand006", name: "Cetaphil", logoUrl: "assets/logos/cetaphil.png", link: "#" },
-            { id: "brand007", name: "Cocon", logoUrl: "assets/logos/cocon.png", link: "#" },
-            { id: "brand008", name: "Garnier", logoUrl: "assets/logos/garnier.png", link: "#" }
+            // Ghi chú: Dữ liệu thương hiệu mặc định đã được dọn dẹp.
+            // Bạn nên thêm thương hiệu mới từ trang quản trị với URL logo thực tế.
         ];
         const DEFAULT_BANNERS = [
-            { id: "promo001", type: "flashsale", imageUrl: "https://via.placeholder.com/600x200/FFD700/FFFFFF?text=Flash+Sale", title: "Flash Sale Giới Hạn", description: "Giảm đến 50% các sản phẩm chọn lọc!", buttonText: "Mua ngay", buttonLink: "#" },
-            { id: "promo002", type: "newarrival", imageUrl: "https://via.placeholder.com/600x200/ADD8E6/FFFFFF?text=New+Arrivals", title: "Sản Phẩm Mới Về", description: "Khám phá bộ sưu tập mới nhất!", buttonText: "Xem ngay", buttonLink: "#" }
+            { id: "promo001", type: "flashsale", imageUrl: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80", title: "SALE ĐẬM NGÀY 10 HÀNG THÁNG", description: "Săn sale không giới hạn, hàng ngàn deal sốc!", buttonText: "Săn Sale Ngay", buttonLink: "#" },
+            { id: "promo002", type: "promotion", imageUrl: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80", title: "MUA NHIỀU, ƯU ĐÃI LỚN", description: "Mua càng nhiều, ưu đãi càng lớn kèm nhiều quà tặng hấp dẫn!", buttonText: "Xem Quà Tặng", buttonLink: "#" }
         ];
         const DEFAULT_SHOP_INFO = {
             contact: {
@@ -706,6 +824,11 @@
             "admin": { password: "Admin@123", role: "admin" },
             "employee": { password: "Employee@123", role: "employee" }
         };
+        const DEFAULT_VALUE_PROPS = [
+            { icon: '✅', imageUrl: 'https://images.unsplash.com/photo-1588695954914-3452d55e246c?auto=format&fit=crop&w=150&q=80', title: 'Cam kết chính hãng', description: '100% sản phẩm nhập khẩu trực tiếp' },
+            { icon: '💰', imageUrl: 'https://images.unsplash.com/photo-1561515030-2d0c5d023b6e?auto=format&fit=crop&w=150&q=80', title: 'Giá tốt mỗi ngày', description: 'Ưu đãi độc quyền, tiết kiệm tối đa' },
+            { icon: '📞', imageUrl: 'https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=150&q=80', title: 'Tư vấn chuyên sâu', description: 'Đội ngũ chuyên gia da liễu hỗ trợ 24/7' }
+        ];
         
         let currentUserRole = null;
         let currentLoggedInUser = null;
@@ -717,30 +840,52 @@
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
 
         // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ SERVER ---
-        async function saveDatabase() {
+        async function safeUpdateDatabase(updateCallback, { reloadOnSuccess = false } = {}) {
             try {
-                // Gom tất cả dữ liệu vào một đối tượng trước khi lưu
-                DATABASE = { APP_PRODUCTS, APP_BRANDS, APP_BANNERS, APP_SHOP_INFO, USER_CREDENTIALS, APP_ORDERS, APP_SUBSCRIBERS, APP_NOTIFICATIONS };
+                // 1. Tải bản sao mới nhất của dữ liệu từ server.
+                console.log("SafeUpdate: Fetching latest data from server...");
+                const cacheBuster = `?_=${new Date().getTime()}`;
+                const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
+                if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
+                const serverData = await response.json();
+                const payload = serverData.record;
 
-                const response = await fetch(JSONBIN_URL, {
+                // 2. Áp dụng các thay đổi cụ thể lên bản sao này.
+                const callbackResult = updateCallback(payload);
+                
+                // Handle special abort case from callback (used in index.html for existing email)
+                if (callbackResult && callbackResult.abort) {
+                    if(callbackResult.message) alert(callbackResult.message);
+                    return { success: false, reason: callbackResult.reason };
+                }
+
+                // 3. Lưu bản sao đã được chỉnh sửa trở lại server.
+                console.log("SafeUpdate: Sending synchronized data...");
+                const putResponse = await fetch(JSONBIN_URL, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY
-                    },
-                    body: JSON.stringify(DATABASE)
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+                    body: JSON.stringify(payload)
                 });
-                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
-                console.log("✅ Dữ liệu đã được lưu lên server thành công!");
+                if (!putResponse.ok) throw new Error(`Save failed: ${putResponse.status}`);
+
+                console.log("✅ Data synchronized and saved successfully!");
+                
+                if (reloadOnSuccess) {
+                    setTimeout(() => window.location.reload(), 500);
+                }
+
+                return { success: true, data: payload }; // Trả về payload đã lưu thành công
             } catch (e) {
-                console.error("Lỗi khi lưu dữ liệu lên server:", e);
-                alert("❌ Đã xảy ra lỗi nghiêm trọng khi lưu dữ liệu. Thay đổi của bạn có thể không được ghi nhận.");
+                console.error("Critical error during safeUpdateDatabase:", e);
+                alert("❌ A critical error occurred while saving data. Your changes may not be saved.");
+                return { success: false };
             }
         }
-
         async function loadDatabase() {
             try {
-                const response = await fetch(`${JSONBIN_URL}/latest`, {
+                // Thêm tham số cache-busting để đảm bảo luôn tải dữ liệu mới nhất
+                const cacheBuster = `?_=${new Date().getTime()}`;
+                const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, {
                     headers: { 'X-Master-Key': JSONBIN_API_KEY }
                 });
                 if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
@@ -758,6 +903,13 @@
                 APP_ORDERS = DATABASE.APP_ORDERS || [];
                 APP_SUBSCRIBERS = DATABASE.APP_SUBSCRIBERS || [];
                 APP_NOTIFICATIONS = DATABASE.APP_NOTIFICATIONS || [];
+                // Lớp bảo vệ khi tải dữ liệu: Đảm bảo APP_VALUE_PROPS luôn hợp lệ.
+                const loadedProps = DATABASE.APP_VALUE_PROPS;
+                if (Array.isArray(loadedProps) && loadedProps.length === 3 && loadedProps[0] && loadedProps[0].title) {
+                    APP_VALUE_PROPS = loadedProps;
+                } else {
+                    APP_VALUE_PROPS = DEFAULT_VALUE_PROPS;
+                }
 
             } catch (e) {
                 console.error("Không thể tải dữ liệu từ server, sử dụng dữ liệu mặc định.", e);
@@ -771,6 +923,7 @@
                 APP_ORDERS = [];
                 APP_SUBSCRIBERS = [];
                 APP_NOTIFICATIONS = [];
+                APP_VALUE_PROPS = DEFAULT_VALUE_PROPS;
             }
         }
 
@@ -869,8 +1022,8 @@
             document.getElementById('adminSection').style.display = 'block'; // Show admin section
             document.getElementById('loginModal').classList.remove('active'); // Hide login modal
             
-            document.getElementById('loggedInUsername').innerText = currentLoggedInUser;
-            document.getElementById('loggedInUserRole').innerText = currentUserRole === 'admin' ? 'Quản trị viên' : 'Nhân viên';
+            document.querySelectorAll('#loggedInUsername').forEach(el => el.innerText = currentLoggedInUser);
+            document.querySelectorAll('#loggedInUserRole').forEach(el => el.innerText = currentUserRole === 'admin' ? 'Quản trị viên' : 'Nhân viên');
 
             const sections = {
                 employee: document.getElementById('employeeManagementSection'),
@@ -879,7 +1032,9 @@
                 changePass: document.getElementById('changePassBtn'),
                 brand: document.getElementById('brandManagementSection'),
                 banner: document.getElementById('bannerManagementSection'),
-                order: document.getElementById('orderManagementSection')
+                order: document.getElementById('orderManagementSection'),
+                subscriber: document.getElementById('subscriberManagementSection'),
+                valueProps: document.getElementById('valuePropsManagementSection')
             };
 
             Object.values(sections).forEach(sec => sec && sec.classList.add('hidden-by-js'));
@@ -890,9 +1045,11 @@
                 if (sections.productForm) sections.productForm.classList.remove('hidden-by-js');
                 if (sections.brand) sections.brand.classList.remove('hidden-by-js');
                 if (sections.banner) sections.banner.classList.remove('hidden-by-js');
+                if (sections.order) sections.order.classList.remove('hidden-by-js');
             }
             
             populateShopInfoForm();
+            populateValuePropsForm();
             renderAdminBrandsTable();
             renderAdminBannersTable();
             renderAdminTable();
@@ -939,7 +1096,7 @@
             if (newP.length < 6) return alert("❌ Mật khẩu mới phải có ít nhất 6 ký tự!");
 
             USER_CREDENTIALS[currentLoggedInUser].password = newP;
-            await saveDatabase();
+            await safeUpdateDatabase(db => { db.USER_CREDENTIALS = USER_CREDENTIALS; });
             alert("🔑 Thay đổi mật khẩu thành công!");
             document.getElementById('oldAdminPass').value = '';
             document.getElementById('newAdminPass').value = '';
@@ -1016,6 +1173,10 @@
             document.getElementById('prodImagePreview').src = '';
             document.getElementById('prodImageHidden').value = '';
             document.getElementById('prodImageUrl').value = '';
+            // NEW: Reset variant section
+            currentEditingVariants = [];
+            renderVariantsForEditing();
+            document.getElementById('variantManagementSection').classList.remove('active');
         }
 
         function startEditProduct(id) {
@@ -1049,6 +1210,12 @@
             document.getElementById('prodSpecs').value = p.specs || '';
             document.getElementById('prodIngredients').value = p.ingredients || '';
             document.getElementById('prodUsage').value = p.usage || '';
+
+            // NEW: Handle variants
+            currentEditingVariants = p.variants ? JSON.parse(JSON.stringify(p.variants)) : [];
+            renderVariantsForEditing();
+            document.getElementById('variantManagementSection').classList.add('active');
+
             window.scrollTo({ top: document.getElementById('adminFormBox').offsetTop - 20, behavior: 'smooth' });
         }
 
@@ -1090,7 +1257,8 @@
                 desc: document.getElementById('prodDesc').value.trim(),
                 specs: document.getElementById('prodSpecs').value.trim(),
                 ingredients: document.getElementById('prodIngredients').value.trim(),
-                usage: document.getElementById('prodUsage').value.trim()
+                usage: document.getElementById('prodUsage').value.trim(),
+                variants: currentEditingVariants.length > 0 ? currentEditingVariants : null // NEW: Save variants
             };
 
             if (editId) {
@@ -1104,16 +1272,56 @@
                 APP_PRODUCTS.push({ id: newId, ...productData });
                 alert("✅ Thêm sản phẩm mới thành công!");
             }
-            await saveDatabase();
+            await safeUpdateDatabase(db => { db.APP_PRODUCTS = APP_PRODUCTS; });
             cancelAdminEdit();
             renderAdminTable();
         }
 
         async function deleteProduct(id) {
             if (confirm("⚠️ Bạn chắc chắn muốn xóa sản phẩm này?")) {
-                APP_PRODUCTS = APP_PRODUCTS.filter(p => p.id !== id);
-                await saveDatabase();
+                APP_PRODUCTS = APP_PRODUCTS.filter(p => p.id !== id); // Update local state first for UI
+                await safeUpdateDatabase(db => { db.APP_PRODUCTS = APP_PRODUCTS; });
                 renderAdminTable();
+            }
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ PHIÊN BẢN MÀU ---
+        function renderVariantsForEditing() {
+            const container = document.getElementById('variantListContainer');
+            container.innerHTML = '';
+            currentEditingVariants.forEach((variant, index) => {
+                const item = document.createElement('div');
+                item.className = 'variant-item';
+                item.innerHTML = `
+                    <div class="variant-swatch" style="background-color: ${variant.colorCode};"></div>
+                    <div class="variant-name">${variant.colorName} (${variant.colorCode})</div>
+                    <button type="button" class="variant-delete-btn" onclick="deleteVariant(${index})">&times;</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function addVariantToProduct() {
+            const nameInput = document.getElementById('newVariantColorName');
+            const codeInput = document.getElementById('newVariantColorCode');
+            const colorName = nameInput.value.trim();
+            const colorCode = codeInput.value.trim();
+
+            if (!colorName || !colorCode) {
+                alert("Vui lòng nhập Tên màu và Mã màu.");
+                return;
+            }
+            const newVariantId = document.getElementById('editProductId').value + '-' + colorName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            currentEditingVariants.push({ id: newVariantId, colorName, colorCode, image: '' }); // Image can be added later
+            renderVariantsForEditing();
+            nameInput.value = '';
+            codeInput.value = '';
+        }
+
+        function deleteVariant(index) {
+            if (confirm("Bạn có chắc muốn xóa màu này?")) {
+                currentEditingVariants.splice(index, 1);
+                renderVariantsForEditing();
             }
         }
 
@@ -1190,7 +1398,7 @@
 
             const newId = "brand" + String(Date.now()).slice(-5);
             APP_BRANDS.push({ id: newId, name, logoUrl: brandLogo, link });
-            await saveDatabase();
+            await safeUpdateDatabase(db => { db.APP_BRANDS = APP_BRANDS; });
             alert("✅ Thêm thương hiệu mới thành công!");
             cancelBrandEdit();
             renderAdminBrandsTable();
@@ -1259,7 +1467,7 @@
             const idx = APP_BRANDS.findIndex(b => b.id === id);
             if (idx !== -1) {
                 APP_BRANDS[idx] = { ...APP_BRANDS[idx], name, logoUrl: brandLogo, link };
-                await saveDatabase();
+                await safeUpdateDatabase(db => { db.APP_BRANDS = APP_BRANDS; });
                 alert("✅ Cập nhật thương hiệu thành công!");
             }
             closeBrandEditModal();
@@ -1282,8 +1490,8 @@
                 return alert("❌ Bạn không có quyền xóa thương hiệu!");
             }
             if (confirm("⚠️ Bạn chắc chắn muốn xóa thương hiệu này?")) {
-                APP_BRANDS = APP_BRANDS.filter(b => b.id !== id);
-                await saveDatabase();
+                APP_BRANDS = APP_BRANDS.filter(b => b.id !== id); // Update local state
+                await safeUpdateDatabase(db => { db.APP_BRANDS = APP_BRANDS; });
                 renderAdminBrandsTable();
                 alert("✅ Đã xóa thương hiệu.");
             }
@@ -1312,7 +1520,7 @@
         function cancelBannerEdit() {
             document.getElementById('bannerForm').reset();
             document.getElementById('editBannerId').value = '';
-            document.getElementById('bannerFormTitle').innerText = "Thêm Banner Mới";
+            document.getElementById('bannerFormTitle').innerText = "Thêm / Sửa Banner";
             // Clear image preview and hidden input
             document.getElementById('bannerImageFile').value = '';
             document.getElementById('bannerImagePreview').style.display = 'none';
@@ -1396,16 +1604,30 @@
                 APP_BANNERS.push({ id: newId, ...bannerData });
                 alert("✅ Thêm banner mới thành công!");
             }
-            await saveDatabase();
+            await safeUpdateDatabase(db => { db.APP_BANNERS = APP_BANNERS; });
             cancelBannerEdit();
             renderAdminBannersTable();
         }
         async function deleteBanner(id) {
             if (confirm("⚠️ Bạn chắc chắn muốn xóa banner này?")) {
-                APP_BANNERS = APP_BANNERS.filter(b => b.id !== id);
-                await saveDatabase();
+                APP_BANNERS = APP_BANNERS.filter(b => b.id !== id); // Update local state
+                await safeUpdateDatabase(db => { db.APP_BANNERS = APP_BANNERS; });
                 renderAdminBannersTable();
                 alert("✅ Đã xóa banner.");
+            }
+        }
+
+        // NEW: Function to reset banners to the new template
+        async function resetBannersToNewDefaults() {
+            if (confirm("⚠️ Hành động này sẽ XÓA TẤT CẢ banner hiện tại và thay thế bằng 2 banner khuyến mãi mới nhất. Bạn có chắc chắn muốn tiếp tục?")) {
+                const result = await safeUpdateDatabase(payload => {
+                    payload.APP_BANNERS = [...DEFAULT_BANNERS];
+                });
+                if (result.success) {
+                    APP_BANNERS = result.data.APP_BANNERS;
+                    renderAdminBannersTable();
+                    alert("✅ Đã cập nhật lại danh sách banner theo mẫu mới nhất thành công!");
+                }
             }
         }
 
@@ -1433,7 +1655,7 @@
 
             if (newNotificationAdded) {
                 APP_NOTIFICATIONS.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                saveDatabase();
+                safeUpdateDatabase(db => { db.APP_NOTIFICATIONS = APP_NOTIFICATIONS; });
             }
         }
 
@@ -1500,7 +1722,7 @@
                     if (!n.isRead) { n.isRead = true; changed = true; }
                 });
                 if (changed) {
-                    saveDatabase();
+                    safeUpdateDatabase(db => { db.APP_NOTIFICATIONS = APP_NOTIFICATIONS; });
                     renderNotifications();
                     updateNotificationCount();
                 }
@@ -1509,8 +1731,11 @@
 
         async function clearAllNotifications() {
             if (confirm('Bạn có chắc muốn xóa tất cả thông báo?')) {
-                APP_NOTIFICATIONS = [];
-                await saveDatabase();
+                const result = await safeUpdateDatabase(payload => {
+                    payload.APP_NOTIFICATIONS = [];
+                });
+                if(result.success) APP_NOTIFICATIONS = [];
+
                 renderNotifications();
                 updateNotificationCount();
             }
@@ -1666,7 +1891,7 @@
             const orderIndex = APP_ORDERS.findIndex(o => o.orderId === orderId);
             if (orderIndex > -1) {
                 APP_ORDERS[orderIndex].status = newStatus;
-                await saveDatabase();
+                await safeUpdateDatabase(db => { db.APP_ORDERS = APP_ORDERS; });
                 renderOrdersTable(); 
                 updateKPIStats();
                 alert(`Đã cập nhật trạng thái đơn hàng ${orderId} thành "${newStatus}".`);
@@ -1697,8 +1922,8 @@
 
         async function deleteSubscriber(email) {
             if (confirm(`Bạn có chắc muốn xóa email đăng ký "${email}"?`)) {
-                APP_SUBSCRIBERS = APP_SUBSCRIBERS.filter(sub => sub.email !== email);
-                await saveDatabase();
+                APP_SUBSCRIBERS = APP_SUBSCRIBERS.filter(sub => sub.email !== email); // Update local state
+                await safeUpdateDatabase(db => { db.APP_SUBSCRIBERS = APP_SUBSCRIBERS; });
                 renderSubscribersTable();
                 updateKPIStats();
                 alert('✅ Đã xóa email đăng ký.');
@@ -1736,7 +1961,7 @@
             if (USER_CREDENTIALS[newUsername]) return alert(`Tài khoản "${newUsername}" đã tồn tại.`);
             if (newPassword.length < 6) return alert("❌ Mật khẩu phải có ít nhất 6 ký tự!");
             USER_CREDENTIALS[newUsername] = { password: newPassword, role: newUserRole };
-            await saveDatabase();
+            await safeUpdateDatabase(db => { db.USER_CREDENTIALS = USER_CREDENTIALS; });
             renderEmployeeTable();
             document.getElementById('addEmployeeForm').reset();
             alert(`✅ Đã thêm tài khoản "${newUsername}" thành công!`);
@@ -1751,7 +1976,7 @@
             }
             if (confirm(`⚠️ Bạn chắc chắn muốn xóa tài khoản "${username}"?`)) {
                 delete USER_CREDENTIALS[username];
-                await saveDatabase();
+                await safeUpdateDatabase(db => { db.USER_CREDENTIALS = USER_CREDENTIALS; });
                 renderEmployeeTable();
                 alert(`✅ Đã xóa tài khoản "${username}".`);
             }
@@ -1779,8 +2004,94 @@
             APP_SHOP_INFO.social.instagram = document.getElementById('shopInfoInstagram').value.trim();
             APP_SHOP_INFO.social.tiktok = document.getElementById('shopInfoTiktok').value.trim();
 
-            await saveDatabase();
+            await safeUpdateDatabase(db => { db.APP_SHOP_INFO = APP_SHOP_INFO; });
             alert("✅ Cập nhật thông tin cửa hàng thành công!");
+        }
+
+        // --- HÀM XỬ LÝ QUẢN LÝ "TẠI SAO CHỌN BEAUTY DEAL" ---
+        function populateValuePropsForm() {
+            if (!APP_VALUE_PROPS || APP_VALUE_PROPS.length < 3) {
+                APP_VALUE_PROPS = [...DEFAULT_VALUE_PROPS]; // Nếu dữ liệu lỗi, dùng mặc định
+            }
+            for (let i = 0; i < 3; i++) { // Lặp 3 lần cho 3 mục
+                document.getElementById(`propIcon${i+1}`).value = APP_VALUE_PROPS[i].icon || '';
+                document.getElementById(`propTitle${i+1}`).value = APP_VALUE_PROPS[i].title || '';
+                document.getElementById(`propDesc${i+1}`).value = APP_VALUE_PROPS[i].description || '';
+                document.getElementById(`propImageUrl${i+1}`).value = APP_VALUE_PROPS[i].imageUrl || '';
+            }
+        }
+
+        async function saveValueProps(e) {
+            e.preventDefault();
+            if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền thay đổi mục này!");
+
+            const newProps = [];
+            for (let i = 0; i < 3; i++) { // Lặp 3 lần
+                newProps.push({
+                    icon: document.getElementById(`propIcon${i+1}`).value.trim(),
+                    title: document.getElementById(`propTitle${i+1}`).value.trim(),
+                    description: document.getElementById(`propDesc${i+1}`).value.trim(),
+                    imageUrl: document.getElementById(`propImageUrl${i+1}`).value.trim()
+                });
+            }
+            const result = await safeUpdateDatabase(payload => {
+                payload.APP_VALUE_PROPS = newProps;
+            });
+            if(result.success) APP_VALUE_PROPS = result.data.APP_VALUE_PROPS;
+            alert("✅ Cập nhật mục 'Tại Sao Chọn Beauty Deal' thành công!");
+        }
+
+        async function resetValuePropsToDefaults() {
+            if (confirm("⚠️ Hành động này sẽ đặt lại nội dung của 3 mục 'Tại Sao Chọn Beauty Deal' về mẫu mặc định. Bạn có chắc chắn?")) {
+                const result = await safeUpdateDatabase(payload => {
+                    payload.APP_VALUE_PROPS = [...DEFAULT_VALUE_PROPS];
+                });
+                if (result.success) {
+                    APP_VALUE_PROPS = result.data.APP_VALUE_PROPS;
+                    populateValuePropsForm();
+                    alert("✅ Đã cập nhật lại 3 mục về nội dung mẫu thành công!");
+                }
+            }
+        }
+
+        async function hardResetDatabase() {
+            const confirmation = prompt("⚠️ CẢNH BÁO CỰC KỲ NGUY HIỂM ⚠️\n\nHành động này sẽ XÓA SẠCH TOÀN BỘ dữ liệu hiện tại (sản phẩm, đơn hàng, tài khoản...) và khôi phục lại dữ liệu gốc của trang web.\n\nChỉ thực hiện khi bạn chắc chắn muốn làm mới hoàn toàn hệ thống. Để xác nhận, gõ 'RESET' vào ô bên dưới:");
+
+            if (confirmation !== 'RESET') {
+                alert("Hành động đã được hủy.");
+                return;
+            }
+
+            try {
+                alert("Đang tiến hành Hard Reset... Vui lòng không đóng trang.");
+                
+                const freshDatabase = {
+                    APP_PRODUCTS: DEFAULT_PRODUCTS,
+                    APP_BRANDS: DEFAULT_BRANDS,
+                    APP_BANNERS: DEFAULT_BANNERS,
+                    APP_SHOP_INFO: DEFAULT_SHOP_INFO,
+                    USER_CREDENTIALS: DEFAULT_USER_CREDENTIALS,
+                    APP_VALUE_PROPS: DEFAULT_VALUE_PROPS,
+                    APP_ORDERS: [],
+                    APP_SUBSCRIBERS: [],
+                    APP_NOTIFICATIONS: []
+                };
+
+                const response = await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+                    body: JSON.stringify(freshDatabase)
+                });
+
+                if (!response.ok) throw new Error(`Lỗi khi reset: ${response.status}`);
+
+                alert("✅ HARD RESET THÀNH CÔNG! Toàn bộ dữ liệu đã được khôi phục về trạng thái ban đầu. Trang sẽ được tải lại.");
+                window.location.reload();
+
+            } catch (e) {
+                console.error("Lỗi khi thực hiện Hard Reset:", e);
+                alert("❌ Đã xảy ra lỗi nghiêm trọng trong quá trình Hard Reset. Dữ liệu có thể không được thay đổi.");
+            }
         }
     </script>
 
