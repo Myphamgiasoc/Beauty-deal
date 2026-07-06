@@ -94,6 +94,12 @@
             75% { transform: translateX(6px); }
         }
 
+        /* NEW: Validation Error Style */
+        .input-error {
+            border-color: #c0392b !important;
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+        }
+
         /* Variant Management Styles */
         .variant-item { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid #eee; border-radius: 4px; margin-bottom: 5px; background: #fff; }
         .variant-swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #ccc; }
@@ -1178,6 +1184,8 @@
             renderVariantsForEditing();
             document.getElementById('variantManagementSection').classList.remove('active');
         }
+            // NEW: Clear validation errors
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
 
         function startEditProduct(id) {
             const p = APP_PRODUCTS.find(item => item.id === id);
@@ -1221,29 +1229,55 @@
 
         async function saveProduct(e) {
             e.preventDefault();
-            const editId = document.getElementById('editProductId').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerText;
 
-            // Determine product image source
-            let productImage = '';
-            const prodImageFile = document.getElementById('prodImageFile');
-            const prodImageUrl = document.getElementById('prodImageUrl').value.trim();
-            const prodImageHidden = document.getElementById('prodImageHidden').value.trim();
+            // --- VALIDATION LOGIC ---
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
 
-            if (prodImageFile.files.length > 0 && prodImageHidden) {
-                productImage = prodImageHidden; // Use Data URL from file upload
-            } else if (prodImageUrl) {
-                productImage = prodImageUrl; // Use URL from text input
-            } else if (editId) {
-                // If editing and no new file/URL, retain existing image
-                const existingProduct = APP_PRODUCTS.find(p => p.id === editId);
-                if (existingProduct) {
-                    productImage = existingProduct.image;
+            const requiredFields = {
+                prodName: 'Tên sản phẩm',
+                prodCurrPrice: 'Giá bán hiện tại',
+                prodBrand: 'Thương hiệu'
+            };
+
+            const missingFields = [];
+            for (const id in requiredFields) {
+                const input = document.getElementById(id);
+                if (!input.value.trim()) {
+                    missingFields.push(requiredFields[id]);
+                    input.classList.add('input-error');
                 }
             }
 
-            if (!productImage) {
-                alert("Vui lòng cung cấp hình ảnh sản phẩm (tải lên hoặc dán URL).");
-                return; // Prevent saving without an image
+            const prodImageFile = document.getElementById('prodImageFile');
+            const prodImageUrl = document.getElementById('prodImageUrl').value.trim();
+            const editId = document.getElementById('editProductId').value;
+            if (!prodImageFile.files.length && !prodImageUrl && !editId) {
+                 missingFields.push('Hình ảnh sản phẩm');
+                 prodImageFile.classList.add('input-error');
+                 document.getElementById('prodImageUrl').classList.add('input-error');
+            }
+
+            if (missingFields.length > 0) {
+                alert(`❌ Vui lòng điền đầy đủ các trường bắt buộc:\n\n- ${missingFields.join('\n- ')}`);
+                return;
+            }
+            // --- END VALIDATION ---
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'ĐANG LƯU...';
+
+            let productImage = '';
+            const prodImageHidden = document.getElementById('prodImageHidden').value.trim();
+
+            if (prodImageFile.files.length > 0 && prodImageHidden) {
+                productImage = prodImageHidden;
+            } else if (prodImageUrl) {
+                productImage = prodImageUrl;
+            } else if (editId) {
+                const existingProduct = APP_PRODUCTS.find(p => p.id === editId);
+                if (existingProduct) productImage = existingProduct.image;
             }
 
             const productData = {
@@ -1251,30 +1285,33 @@
                 category: document.getElementById('prodCategory').value,
                 currPrice: parseInt(document.getElementById('prodCurrPrice').value),
                 origPrice: document.getElementById('prodOrigPrice').value ? parseInt(document.getElementById('prodOrigPrice').value) : null,
-                image: productImage, // Use the determined image source
+                image: productImage,
                 brand: document.getElementById('prodBrand').value.trim(),
                 stock: document.getElementById('prodStock').value,
                 desc: document.getElementById('prodDesc').value.trim(),
                 specs: document.getElementById('prodSpecs').value.trim(),
                 ingredients: document.getElementById('prodIngredients').value.trim(),
                 usage: document.getElementById('prodUsage').value.trim(),
-                variants: currentEditingVariants.length > 0 ? currentEditingVariants : null // NEW: Save variants
+                variants: currentEditingVariants.length > 0 ? currentEditingVariants : null
             };
 
-            if (editId) {
-                const idx = APP_PRODUCTS.findIndex(p => p.id === editId);
-                if (idx !== -1) {
-                    APP_PRODUCTS[idx] = { ...APP_PRODUCTS[idx], ...productData };
-                    alert("✅ Cập nhật sản phẩm thành công!");
+            const result = await safeUpdateDatabase(payload => {
+                if (!payload.APP_PRODUCTS) payload.APP_PRODUCTS = [];
+                if (editId) {
+                    const idx = payload.APP_PRODUCTS.findIndex(p => p.id === editId);
+                    if (idx !== -1) payload.APP_PRODUCTS[idx] = { ...payload.APP_PRODUCTS[idx], ...productData };
+                } else {
+                    const newId = "prod" + Date.now();
+                    payload.APP_PRODUCTS.push({ id: newId, ...productData });
                 }
+            }, { reloadOnSuccess: true });
+
+            if (result.success) {
+                alert(editId ? "✅ Cập nhật sản phẩm thành công! Trang sẽ được tải lại." : "✅ Thêm sản phẩm mới thành công! Trang sẽ được tải lại.");
             } else {
-                const newId = "prod" + Date.now(); // ID generation using timestamp for uniqueness
-                APP_PRODUCTS.push({ id: newId, ...productData });
-                alert("✅ Thêm sản phẩm mới thành công!");
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
             }
-            await safeUpdateDatabase(db => { db.APP_PRODUCTS = APP_PRODUCTS; });
-            cancelAdminEdit();
-            renderAdminTable();
         }
 
         async function deleteProduct(id) {
