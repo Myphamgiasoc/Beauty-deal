@@ -5,309 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beauty Deal - Mỹ Phẩm Chính Hãng Giá Tốt</title>
     <style>
-        /* CSS GIAO DIỆN CHÍNH */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; line-height: 1.6; }
-        
-        /* Header & Menu Dropdown */
-        header { background-color: #0056b3; color: #ffffff; padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0, 86, 179, 0.15); }
-        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
-        
-        .logo-container { display: flex; flex-direction: column; text-decoration: none; }
-        .logo { font-size: 26px; font-weight: bold; letter-spacing: 1.5px; color: #ffffff; text-decoration: none; line-height: 1.2; }
-        .logo-slogan { font-size: 12px; color: #e0e0e0; font-weight: normal; margin-top: 2px; letter-spacing: 0.5px; }
-        
-        .menu-dropdown-wrapper { position: relative; }
-        .menu-toggle-btn { background: none; border: none; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 4px; transition: background 0.2s; text-transform: uppercase; }
-        .menu-toggle-btn:hover { background-color: rgba(255, 255, 255, 0.15); }
-        .dropdown-menu { display: none; position: absolute; top: 120%; left: 0; background: #fff; min-width: 240px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 200; overflow: hidden; border: 1px solid #e8e8e8; }
-        .dropdown-menu.active { display: block; }
-        .dropdown-item { width: 100%; text-align: left; padding: 12px 20px; background: none; border: none; font-size: 14px; font-weight: 500; color: #333; cursor: pointer; border-bottom: 1px solid #f5f5f5; transition: all 0.2s; }
-        .dropdown-item:hover { background-color: #f0f7ff; color: #0056b3; padding-left: 25px; }
-
-        .search-container { flex: 1; min-width: 250px; max-width: 450px; }
-        .search-container input { width: 100%; padding: 11px 16px; border: 2px solid #ffffff; background-color: #ffffff; color: #000000; border-radius: 6px; font-size: 14px; }
-        .search-container input:focus { outline: none; box-shadow: 0 0 12px rgba(255, 255, 255, 0.6); }
-        .header-right { display: flex; gap: 15px; align-items: center; }
-        .settings-icon, .cart-icon { cursor: pointer; transition: all 0.3s ease; background: none; border: none; color: white; }
-        .settings-icon { font-size: 24px; padding: 8px; border-radius: 50%; }
-        .settings-icon:hover { transform: rotate(20deg) scale(1.15); background-color: rgba(255, 255, 255, 0.2); }
-        .cart-icon { position: relative; font-size: 28px; }
-        .cart-count { position: absolute; top: -10px; right: -10px; background-color: #ff0000; color: #ffffff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid #ffffff; }
-
-        .banner-slider { position: relative; width: 100%; min-height: 380px; background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; }
-        .slide-content { color: #ffffff; text-align: center; padding: 40px; }
-        .slide-title { font-size: 42px; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
-        .slide-subtitle { font-size: 18px; margin-bottom: 25px; opacity: 0.95; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); }
-        .slide-btn { padding: 12px 32px; background-color: #ffffff; color: #0056b3; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; }
-        .slide-btn:hover { background-color: #f0f4f8; transform: scale(1.06); box-shadow: 0 4px 15px rgba(255,255,255,0.2); }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        
-        .category-nav { display: flex; gap: 12px; margin-bottom: 40px; justify-content: center; flex-wrap: wrap; }
-        .category-btn { padding: 11px 26px; background-color: #ffffff; color: #0056b3; border: 2px solid #0056b3; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; text-transform: uppercase; }
-        .category-btn.active, .category-btn:hover { background-color: #0056b3; color: #ffffff; }
-
-        .products-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 28px; margin-bottom: 60px; }
-        .product-card { background-color: #ffffff; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; transition: all 0.3s ease; cursor: pointer; display: flex; flex-direction: column; }
-        .product-card:hover { transform: translateY(-5px); border-color: #0056b3; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-        .product-image-wrapper { position: relative; width: 100%; padding-bottom: 100%; background: #fff; }
-        .product-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .discount-badge { position: absolute; top: 12px; left: 12px; background-color: #ff0000; color: #ffffff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .product-info { padding: 18px; display: flex; flex-direction: column; flex-grow: 1; }
-        .product-name { font-size: 15px; font-weight: 600; margin-bottom: 10px; min-height: 42px; color: #333; }
-        .product-prices { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; margin-top: auto; }
-        .current-price { font-size: 18px; font-weight: bold; color: #0056b3; }
-        .original-price { font-size: 13px; color: #999; text-decoration: line-through; }
-        .add-to-cart-btn { width: 100%; padding: 12px; background-color: #0056b3; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; text-transform: uppercase; }
-
-        .product-detail-section { display: none; margin-top: 20px; margin-bottom: 60px; }
-        .product-detail-section.active { display: block; }
-        .detail-layout { display: grid; grid-template-columns: 2.8fr 1.2fr; gap: 25px; }
-        .main-detail-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 25px; }
-        .back-home-btn { background-color: #f0f4f8; color: #0056b3; border: 1px solid #d0e0f0; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-bottom: 25px; }
-        
-        .detail-product-top-box { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; margin-bottom: 35px; padding-bottom: 30px; border-bottom: 1px dashed #e8e8e8; }
-        .detail-top-left img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 8px; border: 1px solid #eee; }
-        .detail-top-title { font-size: 24px; font-weight: bold; color: #222; margin-bottom: 12px; }
-        .detail-top-brand-row { font-size: 14px; color: #666; margin-bottom: 20px; }
-        .detail-top-brand-row span { color: #0056b3; font-weight: 600; }
-        .detail-top-price-card { background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
-        .detail-top-curr-price { font-size: 28px; font-weight: 800; color: #ff0000; margin-right: 15px; }
-        .detail-top-orig-price { font-size: 15px; color: #999; text-decoration: line-through; }
-        .detail-top-buy-btn { background: #0056b3; color: white; border: none; padding: 15px 30px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
-
-        /* Variant Styles */
-        .detail-variants-container { margin-bottom: 20px; }
-        .variant-label { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .color-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
-        .swatch-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e0e0e0; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        .swatch-btn:hover { transform: scale(1.1); }
-        .swatch-btn.active { border-color: #0056b3; box-shadow: 0 0 0 2px white, 0 0 0 4px #0056b3; transform: scale(1.1); }
-
-        .detail-tabs { display: flex; border-bottom: 2px solid #f0f0f0; gap: 5px; margin-bottom: 20px; overflow-x: auto; }
-        .tab-btn { padding: 12px 20px; border: none; background: none; font-weight: 600; font-size: 14px; color: #555; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
-        .tab-btn.active { color: #0056b3; border-bottom-color: #0056b3; font-weight: bold; }
-        .tab-content { display: none; font-size: 15px; color: #444; line-height: 1.8; padding: 10px 5px; }
-        .tab-content.active { display: block; }
-        .tab-content h3 { font-size: 18px; color: #333; margin-bottom: 12px; border-left: 4px solid #0056b3; padding-left: 10px; }
-        .tab-content-text { white-space: pre-line; margin-top: 10px; color: #555; }
-
-        .hasaki-review-container { border: 1px solid #eef2f5; border-radius: 8px; padding: 20px; background-color: #fafbfc; margin-top: 15px; }
-        .review-summary-box { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding-bottom: 20px; border-bottom: 1px dashed #e2e8f0; }
-        .summary-left { text-align: center; min-width: 120px; }
-        .summary-rating-num { font-size: 40px; font-weight: 800; color: #f39c12; line-height: 1; }
-        .summary-stars { color: #f1c40f; font-size: 18px; margin: 5px 0; }
-        .summary-total-text { font-size: 13px; color: #666; }
-        .summary-center-filters { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; max-width: 600px; }
-        .filter-stars-btn { padding: 6px 14px; border: 1px solid #e2e8f0; background: white; border-radius: 20px; font-size: 13px; font-weight: 500; color: #555; cursor: pointer; transition: all 0.2s; }
-        .filter-stars-btn.active, .filter-stars-btn:hover { background-color: #ff7c00; color: white; border-color: #ff7c00; }
-        .summary-right-action { min-width: 150px; }
-        .open-review-form-btn { background: none; border: 2px solid #ff7c00; color: #ff7c00; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s; }
-        .open-review-form-btn:hover { background: #ff7c00; color: white; }
-
-        .write-review-form-block { display: none; background: white; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .write-review-form-block.active { display: block; }
-        .form-stars-picker { display: flex; gap: 5px; font-size: 24px; color: #ccc; margin-bottom: 15px; cursor: pointer; }
-        .form-stars-picker span:hover, .form-stars-picker span.selected { color: #f1c40f; }
-
-        .reviews-list-wrapper { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .single-review-item { padding: 15px; background: white; border-radius: 6px; border-bottom: 1px solid #f1f5f9; }
-        .review-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-        .review-item-user { font-weight: bold; font-size: 14px; color: #2c3e50; display: flex; align-items: center; gap: 8px; }
-        .buyer-badge { background-color: #e6f7ed; color: #2ecc71; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; }
-        .review-item-date { font-size: 12px; color: #95a5a6; }
-        .review-item-stars { color: #f1c40f; font-size: 13px; margin-bottom: 6px; }
-        .review-item-content { font-size: 14px; color: #444; line-height: 1.6; }
-
-        .related-sidebar { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px; height: fit-content; }
-        .sidebar-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 18px; border-left: 4px solid #0056b3; padding-left: 10px; text-transform: uppercase; }
-        .related-item { display: flex; gap: 12px; padding: 15px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
-        .related-item-img { width: 75px; height: 75px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; }
-        .related-item-name { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
-        .related-item-price { font-size: 14px; font-weight: bold; color: #ff0000; }
-
-        .cart-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.5); }
-        .cart-overlay.active { display: block; }
-        .cart-drawer { position: fixed; top: 0; right: -420px; width: 100%; max-width: 420px; height: 100vh; background-color: #ffffff; z-index: 1000; transition: right 0.4s ease; display: flex; flex-direction: column; }
-        .cart-drawer.active { right: 0; }
-        .cart-header { background-color: #0056b3; color: #ffffff; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .cart-items { flex: 1; overflow-y: auto; padding: 20px 0; }
-
-        .section-title { font-size: 24px; font-weight: bold; color: #0056b3; text-align: center; margin-bottom: 30px; margin-top: 50px; position: relative; }
-        .section-title::after { content: ''; display: block; width: 60px; height: 3px; background-color: #f39c12; margin: 10px auto 0; border-radius: 2px; }
-
-        .value-props-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 40px; margin-bottom: 40px; padding: 30px 20px; border-radius: 8px; }
-        .value-prop-item { text-align: center; padding: 25px 15px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .value-prop-item:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        .value-prop-icon { font-size: 42px; margin-bottom: 12px; display: block; color: #0056b3; }
-        .value-prop-item h3 { font-size: 18px; color: #0056b3; margin-bottom: 8px; }
-        .value-prop-icon-img {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            margin: 0 auto 12px auto;
-            display: block;
-        }
-        .value-prop-item p { font-size: 14px; color: #666; }
-
-        .promo-banners-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .promo-banner-item { position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .promo-banner-item img { width: 100%; height: 200px; object-fit: cover; display: block; }
-        .promo-banner-content { position: absolute; inset: 0; background: rgba(0,0,0,0.4); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
-        .promo-banner-content h4 { font-size: 22px; margin-bottom: 8px; }
-        .promo-banner-content p { font-size: 14px; margin-bottom: 15px; }
-        .promo-btn { display: inline-block; background-color: #f39c12; color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 13px; transition: background-color 0.2s; }
-        .promo-btn:hover { background-color: #e67e22; }
-
-        .brand-showcase-section { margin-bottom: 60px; background-color: #fff; padding: 30px 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .brand-logos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px; justify-items: center; align-items: center; }
-        .brand-logo-item { display: flex; justify-content: center; align-items: center; padding: 10px; border: 1px solid #eee; border-radius: 6px; transition: all 0.2s; }
-        .brand-logo-item:hover { border-color: #0056b3; box-shadow: 0 2px 8px rgba(0, 86, 179, 0.1); }
-        .brand-logo-item img { max-width: 100px; height: 50px; object-fit: contain; }
-
-        .newsletter-section { background: linear-gradient(135deg, #0056b3, #007bff); color: white; padding: 50px 20px; text-align: center; border-radius: 8px; margin-bottom: 60px; box-shadow: 0 8px 20px rgba(0, 86, 179, 0.2); }
-        .newsletter-content h3 { font-size: 28px; margin-bottom: 15px; }
-        .newsletter-content p { font-size: 16px; margin-bottom: 25px; opacity: 0.9; }
-        .newsletter-form { display: flex; justify-content: center; max-width: 500px; margin: 0 auto; gap: 10px; }
-        .newsletter-form input { flex: 1; padding: 12px 18px; border: none; border-radius: 6px; font-size: 15px; color: #333; }
-        .newsletter-form button { background-color: #f39c12; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
-        .newsletter-form button:hover { background-color: #e67e22; }
-
-        footer { background-color: #0056b3; color: #ffffff; padding: 40px 20px 20px; margin-top: 80px; font-weight: 500; }
-        .footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .footer-col h4 { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #f39c12; }
-        .footer-col ul { list-style: none; padding: 0; }
-        .footer-col ul li { margin-bottom: 8px; }
-        .footer-col ul li a { color: #e0e0e0; text-decoration: none; font-size: 14px; transition: color 0.2s; }
-        .footer-col ul li a:hover { color: #ffffff; }
-        .footer-col p { font-size: 14px; margin-bottom: 8px; color: #e0e0e0; }
-        .social-links { display: flex; gap: 10px; margin-top: 15px; }
-        .social-icon { display: flex; justify-content: center; align-items: center; width: 36px; height: 36px; background-color: rgba(255,255,255,0.15); color: white; border-radius: 50%; font-size: 18px; text-decoration: none; transition: background-color 0.2s; }
-        .social-icon:hover { background-color: #f39c12; }
-        .payment-logos, .shipping-logos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .payment-logos img, .shipping-logos img { max-height: 30px; filter: grayscale(100%) brightness(180%); opacity: 0.8; }
-        .footer-bottom { text-align: center; padding-top: 20px; font-size: 13px; color: #e0e0e0; }
-
-        .cart-item { display: flex; gap: 14px; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
-        .cart-item-image { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; }
-        .cart-item-details { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .quantity-btn { background-color: #f0f0f0; border: 1px solid #e0e0e0; width: 28px; height: 28px; cursor: pointer; }
-        .cart-footer { border-top: 2px solid #f0f0f0; padding: 20px; background-color: #f9f9f9; }
-        .checkout-btn { width: 100%; padding: 14px; background-color: #0056b3; color: #ffffff; border: none; font-weight: bold; cursor: pointer; }
-
-        /* --- MEDIA QUERIES --- */
-        @media (max-width: 768px) {
-            /* Tối ưu Header cho Mobile */
-            .header-container {
-                flex-wrap: wrap;
-                justify-content: space-between;
-                row-gap: 15px;
-            }
-            .search-container {
-                order: 1;
-                width: 100%;
-            }
-            .settings-icon { font-size: 20px; padding: 4px; }
-            .cart-icon { font-size: 24px; }
-            .cart-count { width: 20px; height: 20px; font-size: 10px; top: -6px; right: -8px; }
-
-            /* Tối ưu "Tại sao chọn Beauty Deal" cho mobile */
-            .value-props-section {
-                display: flex; /* Chuyển sang flexbox */
-                overflow-x: auto; /* Cho phép cuộn ngang */
-                padding: 10px 0 20px 0; /* Thêm padding cho thanh cuộn */
-                gap: 15px;
-                -ms-overflow-style: none;  /* IE and Edge */
-                scrollbar-width: none;  /* Firefox */
-            }
-            .value-props-section::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
-            .value-prop-item {
-                flex: 0 0 240px; /* Không co lại, chiều rộng cơ bản 240px */
-            }
-
-    /* Tối ưu Category Nav cho mobile */
-    .category-nav {
-        justify-content: flex-start; /* Căn các mục về bên trái */
-        flex-wrap: nowrap; /* Không cho phép xuống dòng */
-        overflow-x: auto; /* Bật cuộn ngang */
-        -ms-overflow-style: none;  /* Ẩn thanh cuộn trên IE và Edge */
-        scrollbar-width: none;  /* Ẩn thanh cuộn trên Firefox */
-        padding-bottom: 10px; /* Thêm khoảng trống dưới để không bị che */
-    }
-    .category-nav::-webkit-scrollbar {
-        display: none; /* Ẩn thanh cuộn trên Chrome, Safari, Opera */
-    }
-    .category-btn {
-        flex-shrink: 0; /* Ngăn các nút bị co lại */
-        padding: 8px 18px; /* Giảm padding cho nút nhỏ hơn */
-    }
-
-            /* Các layout chung */
-            .products-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-            .detail-layout { grid-template-columns: 1fr; }
-            .detail-product-top-box { grid-template-columns: 1fr; }
-
-            /* Banner & Newsletter */
-            .promo-banner-content h4 { font-size: 18px; }
-            .promo-banner-content p { font-size: 12px; }
-            .newsletter-content h3 { font-size: 22px; }
-            .newsletter-content p { font-size: 14px; }
-            .newsletter-form { flex-direction: column; align-items: center; }
-            .newsletter-form input, .newsletter-form button { width: 100%; max-width: 300px; }
-
-            /* Tối ưu Footer */
-            .footer-container { grid-template-columns: 1fr; text-align: center; }
-            .footer-col ul { padding-left: 0; }
-            .footer-col ul li { display: block; margin-bottom: 10px; }
-            .social-links, .payment-logos, .shipping-logos { justify-content: center; }
-        }
-
-        @media (max-width: 480px) {
-            .slide-title { font-size: 32px; }
-            .slide-subtitle { font-size: 16px; }
-            .slide-btn { padding: 10px 24px; }
-            .admin-stats-grid { grid-template-columns: 1fr; }
-            .summary-left { min-width: unset; width: 100%; margin-bottom: 15px; }
-            .summary-center-filters { width: 100%; justify-content: center; }
-            .summary-right-action { width: 100%; }
-            .review-summary-box { flex-direction: column; align-items: center; }
-            .value-props-section { padding: 20px 10px; }
-            .promo-banner-item img { height: 150px; }
-            .promo-banner-content h4 { font-size: 16px; }
-            .promo-banner-content p { font-size: 11px; }
-            .promo-btn { padding: 6px 15px; font-size: 12px; }
-            .brand-logos-grid { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
-            .brand-logo-item img { max-width: 80px; height: 40px; }
-            .newsletter-content h3 { font-size: 20px; }
-            .newsletter-content p { font-size: 13px; }
-        }
-
-        @media (max-width: 576px) {
-            .header-container { padding: 0 15px; }
-            .menu-toggle-btn { width: 100%; justify-content: center; }
-            .dropdown-menu { width: 100%; left: 0; right: 0; min-width: unset; }
-        }
-
-        /* Admin specific styles (removed from index.html) */
-        /* .admin-section, .admin-top-header, .admin-user-info, .change-pass-toggle-btn, .logout-btn, .admin-stats-grid, .stat-card, .password-change-box, .brand-edit-modal-overlay, .brand-edit-modal-content, .hidden-by-js, .admin-form-box, .form-grid, .form-group, .form-actions-row, .form-btn, .table-responsive, .admin-table, .action-btn, .login-overlay, .login-card, .login-error-alert, @keyframes shake */
-        /* All admin-related CSS rules are now in admin.html */
-
-        /* Media queries for admin sections (removed from index.html) */
-        /* @media (max-width: 768px) for admin-top-header, admin-user-info */
-        /* @media (max-width: 576px) for admin-top-header, admin-top-header h2, form-grid, form-actions-row, form-btn, login-card, login-card h3 */
-        /* @media (max-width: 480px) for admin-stats-grid */
+            /* Ghi chú: Toàn bộ khối CSS này đã được thay thế bằng phiên bản đầy đủ và chính xác để khắc phục lỗi giao diện. */
+            *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:#f4f6f9;color:#333;line-height:1.6}header{background-color:#0056b3;color:#fff;padding:15px 0;position:sticky;top:0;z-index:100;box-shadow:0 4px 12px rgba(0,86,179,.15)}.header-container{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}.logo-container{display:flex;flex-direction:column;text-decoration:none}.logo{font-size:26px;font-weight:700;letter-spacing:1.5px;color:#fff;text-decoration:none;line-height:1.2}.logo-slogan{font-size:12px;color:#e0e0e0;font-weight:400;margin-top:2px;letter-spacing:.5px}.logo-container img#mainWebsiteLogo{height:40px;object-fit:contain;margin-bottom:2px}.menu-dropdown-wrapper{position:relative}.menu-toggle-btn{background:none;border:none;color:#fff;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:4px;transition:background .2s;text-transform:uppercase}.menu-toggle-btn:hover{background-color:rgba(255,255,255,.15)}.dropdown-menu{display:none;position:absolute;top:120%;left:0;background:#fff;min-width:240px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:200;overflow:hidden;border:1px solid #e8e8e8}.dropdown-menu.active{display:block}.dropdown-item{width:100%;text-align:left;padding:12px 20px;background:none;border:none;font-size:14px;font-weight:500;color:#333;cursor:pointer;border-bottom:1px solid #f5f5f5;transition:all .2s}.dropdown-item:hover{background-color:#f0f7ff;color:#0056b3;padding-left:25px}.search-container{flex:1;min-width:250px;max-width:450px}.search-container input{width:100%;padding:11px 16px;border:2px solid #fff;background-color:#fff;color:#000;border-radius:6px;font-size:14px}.search-container input:focus{outline:none;box-shadow:0 0 12px rgba(255,255,255,.6)}.header-right{display:flex;gap:15px;align-items:center}.settings-icon,.cart-icon{cursor:pointer;transition:all .3s ease;background:none;border:none;color:#fff}.settings-icon{font-size:24px;padding:8px;border-radius:50%}.settings-icon:hover{transform:rotate(20deg) scale(1.15);background-color:rgba(255,255,255,.2)}.cart-icon{position:relative;font-size:28px}.cart-count{position:absolute;top:-10px;right:-10px;background-color:red;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid #fff}.banner-slider{position:relative;width:100%;min-height:380px;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3)),url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1920&q=80');background-size:cover;background-position:center;margin-bottom:30px;display:flex;align-items:center;justify-content:center}.slide-content{color:#fff;text-align:center;padding:40px}.slide-title{font-size:42px;font-weight:700;margin-bottom:15px;text-shadow:2px 2px 4px rgba(0,0,0,.5)}.slide-subtitle{font-size:18px;margin-bottom:25px;opacity:.95;text-shadow:1px 1px 3px rgba(0,0,0,.5)}.slide-btn{padding:12px 32px;background-color:#fff;color:#0056b3;border:none;border-radius:6px;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s ease;text-decoration:none;display:inline-block}.slide-btn:hover{background-color:#f0f4f8;transform:scale(1.06);box-shadow:0 4px 15px rgba(255,255,255,.2)}.container{max-width:1200px;margin:0 auto;padding:0 20px}.category-nav{display:flex;gap:12px;margin-bottom:40px;justify-content:center;flex-wrap:wrap}.category-btn{padding:11px 26px;background-color:#fff;color:#0056b3;border:2px solid #0056b3;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;text-transform:uppercase}.category-btn.active,.category-btn:hover{background-color:#0056b3;color:#fff}.products-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px;margin-bottom:60px}.product-card{background-color:#fff;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;transition:all .3s ease;cursor:pointer;display:flex;flex-direction:column}.product-card:hover{transform:translateY(-5px);border-color:#0056b3;box-shadow:0 8px 24px rgba(0,0,0,.1)}.product-image-wrapper{position:relative;width:100%;padding-bottom:100%;background:#fff}.product-image{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}.discount-badge{position:absolute;top:12px;left:12px;background-color:red;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:700}.product-info{padding:18px;display:flex;flex-direction:column;flex-grow:1}.product-name{font-size:15px;font-weight:600;margin-bottom:10px;min-height:42px;color:#333}.product-prices{display:flex;align-items:center;gap:10px;margin-bottom:14px;margin-top:auto}.current-price{font-size:18px;font-weight:700;color:#0056b3}.original-price{font-size:13px;color:#999;text-decoration:line-through}.add-to-cart-btn{width:100%;padding:12px;background-color:#0056b3;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;text-transform:uppercase}.product-detail-section{display:none;margin-top:20px;margin-bottom:60px}.product-detail-section.active{display:block}.detail-layout{display:grid;grid-template-columns:2.8fr 1.2fr;gap:25px}.main-detail-card{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:25px}.back-home-btn{background-color:#f0f4f8;color:#0056b3;border:1px solid #d0e0f0;padding:10px 18px;border-radius:6px;font-weight:600;cursor:pointer;margin-bottom:25px}.detail-product-top-box{display:grid;grid-template-columns:1fr 1.5fr;gap:30px;margin-bottom:35px;padding-bottom:30px;border-bottom:1px dashed #e8e8e8}.detail-top-left img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid #eee}.detail-top-title{font-size:24px;font-weight:700;color:#222;margin-bottom:12px}.detail-top-brand-row{font-size:14px;color:#666;margin-bottom:20px}.detail-top-brand-row span{color:#0056b3;font-weight:600}.detail-top-price-card{background:#f8fafc;padding:20px;border-radius:8px;margin-bottom:25px}.detail-top-curr-price{font-size:28px;font-weight:800;color:red;margin-right:15px}.detail-top-orig-price{font-size:15px;color:#999;text-decoration:line-through}.detail-top-buy-btn{background:#0056b3;color:#fff;border:none;padding:15px 30px;font-size:16px;font-weight:700;border-radius:6px;cursor:pointer;text-transform:uppercase}.detail-variants-container{margin-bottom:20px}.variant-label{font-size:14px;font-weight:600;color:#333;margin-bottom:8px}.color-swatches{display:flex;flex-wrap:wrap;gap:8px}.swatch-btn{width:32px;height:32px;border-radius:50%;border:2px solid #e0e0e0;cursor:pointer;transition:transform .2s,box-shadow .2s}.swatch-btn:hover{transform:scale(1.1)}.swatch-btn.active{border-color:#0056b3;box-shadow:0 0 0 2px #fff,0 0 0 4px #0056b3;transform:scale(1.1)}.detail-tabs{display:flex;border-bottom:2px solid #f0f0f0;gap:5px;margin-bottom:20px;overflow-x:auto}.tab-btn{padding:12px 20px;border:none;background:none;font-weight:600;font-size:14px;color:#555;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}.tab-btn.active{color:#0056b3;border-bottom-color:#0056b3;font-weight:700}.tab-content{display:none;font-size:15px;color:#444;line-height:1.8;padding:10px 5px}.tab-content.active{display:block}.tab-content h3{font-size:18px;color:#333;margin-bottom:12px;border-left:4px solid #0056b3;padding-left:10px}.tab-content-text{white-space:pre-line;margin-top:10px;color:#555}.hasaki-review-container{border:1px solid #eef2f5;border-radius:8px;padding:20px;background-color:#fafbfc;margin-top:15px}.review-summary-box{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;padding-bottom:20px;border-bottom:1px dashed #e2e8f0}.summary-left{text-align:center;min-width:120px}.summary-rating-num{font-size:40px;font-weight:800;color:#f39c12;line-height:1}.summary-stars{color:#f1c40f;font-size:18px;margin:5px 0}.summary-total-text{font-size:13px;color:#666}.summary-center-filters{display:flex;flex-wrap:wrap;gap:8px;flex:1;max-width:600px}.filter-stars-btn{padding:6px 14px;border:1px solid #e2e8f0;background:#fff;border-radius:20px;font-size:13px;font-weight:500;color:#555;cursor:pointer;transition:all .2s}.filter-stars-btn.active,.filter-stars-btn:hover{background-color:#ff7c00;color:#fff;border-color:#ff7c00}.summary-right-action{min-width:150px}.open-review-form-btn{background:none;border:2px solid #ff7c00;color:#ff7c00;padding:10px 20px;border-radius:25px;font-weight:700;font-size:14px;cursor:pointer;width:100%;text-align:center;transition:all .2s}.open-review-form-btn:hover{background:#ff7c00;color:#fff}.write-review-form-block{display:none;background:#fff;border:1px solid #e2e8f0;padding:20px;border-radius:8px;margin-top:15px;box-shadow:0 4px 12px rgba(0,0,0,.05)}.write-review-form-block.active{display:block}.form-stars-picker{display:flex;gap:5px;font-size:24px;color:#ccc;margin-bottom:15px;cursor:pointer}.form-stars-picker span:hover,.form-stars-picker span.selected{color:#f1c40f}.reviews-list-wrapper{margin-top:20px;display:flex;flex-direction:column;gap:15px}.single-review-item{padding:15px;background:#fff;border-radius:6px;border-bottom:1px solid #f1f5f9}.review-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.review-item-user{font-weight:700;font-size:14px;color:#2c3e50;display:flex;align-items:center;gap:8px}.buyer-badge{background-color:#e6f7ed;color:#2ecc71;font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:3px}.review-item-date{font-size:12px;color:#95a5a6}.review-item-stars{color:#f1c40f;font-size:13px;margin-bottom:6px}.review-item-content{font-size:14px;color:#444;line-height:1.6}.related-sidebar{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:20px;height:fit-content}.sidebar-title{font-size:16px;font-weight:700;color:#333;margin-bottom:18px;border-left:4px solid #0056b3;padding-left:10px;text-transform:uppercase}.related-item{display:flex;gap:12px;padding:15px 0;border-bottom:1px solid #f5f5f5;cursor:pointer}.related-item-img{width:75px;height:75px;object-fit:cover;border-radius:6px;border:1px solid #eee}.related-item-name{font-size:13px;font-weight:600;color:#444;margin-bottom:6px}.related-item-price{font-size:14px;font-weight:700;color:red}.cart-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.5)}.cart-overlay.active{display:block}.cart-drawer{position:fixed;top:0;right:-420px;width:100%;max-width:420px;height:100vh;background-color:#fff;z-index:1000;transition:right .4s ease;display:flex;flex-direction:column}.cart-drawer.active{right:0}.cart-header{background-color:#0056b3;color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center}.cart-items{flex:1;overflow-y:auto;padding:20px 0}.section-title{font-size:24px;font-weight:700;color:#0056b3;text-align:center;margin-bottom:30px;margin-top:50px;position:relative}.section-title::after{content:'';display:block;width:60px;height:3px;background-color:#f39c12;margin:10px auto 0;border-radius:2px}.value-props-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:40px;margin-bottom:40px;padding:30px 20px;border-radius:8px}.value-prop-item{text-align:center;padding:25px 15px;background-color:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease}.value-prop-item:hover{transform:translateY(-5px);box-shadow:0 8px 20px rgba(0,0,0,.1)}.value-prop-icon{font-size:42px;margin-bottom:12px;display:block;color:#0056b3}.value-prop-item h3{font-size:18px;color:#0056b3;margin-bottom:8px}.value-prop-icon-img{width:150px;height:150px;object-fit:contain;margin:0 auto 12px auto;display:block}.value-prop-item p{font-size:14px;color:#666}.promo-banners-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:40px}.promo-banner-item{position:relative;border-radius:8px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.08)}.promo-banner-item img{width:100%;height:200px;object-fit:cover;display:block}.promo-banner-content{position:absolute;inset:0;background:rgba(0,0,0,.4);color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}.promo-banner-content h4{font-size:22px;margin-bottom:8px}.promo-banner-content p{font-size:14px;margin-bottom:15px}.promo-btn{display:inline-block;background-color:#f39c12;color:#fff;padding:8px 20px;border-radius:20px;text-decoration:none;font-weight:700;font-size:13px;transition:background-color .2s}.promo-btn:hover{background-color:#e67e22}.brand-showcase-section{margin-bottom:60px;background-color:#fff;padding:30px 20px;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,.05)}.brand-logos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:20px;justify-items:center;align-items:center}.brand-logo-item{display:flex;justify-content:center;align-items:center;padding:10px;border:1px solid #eee;border-radius:6px;transition:all .2s}.brand-logo-item:hover{border-color:#0056b3;box-shadow:0 2px 8px rgba(0,86,179,.1)}.brand-logo-item img{max-width:100px;height:50px;object-fit:contain}.newsletter-section{background:linear-gradient(135deg,#0056b3,#007bff);color:#fff;padding:50px 20px;text-align:center;border-radius:8px;margin-bottom:60px;box-shadow:0 8px 20px rgba(0,86,179,.2)}.newsletter-content h3{font-size:28px;margin-bottom:15px}.newsletter-content p{font-size:16px;margin-bottom:25px;opacity:.9}.newsletter-form{display:flex;justify-content:center;max-width:500px;margin:0 auto;gap:10px}.newsletter-form input{flex:1;padding:12px 18px;border:none;border-radius:6px;font-size:15px;color:#333}.newsletter-form button{background-color:#f39c12;color:#fff;padding:12px 25px;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;transition:background-color .2s}.newsletter-form button:hover{background-color:#e67e22}footer{background-color:#0056b3;color:#fff;padding:40px 20px 20px;margin-top:80px;font-weight:500}.footer-container{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:30px;padding-bottom:30px;border-bottom:1px solid rgba(255,255,255,.2)}.footer-col h4{font-size:16px;font-weight:700;margin-bottom:15px;color:#f39c12}.footer-col ul{list-style:none;padding:0}.footer-col ul li{margin-bottom:8px}.footer-col ul li a{color:#e0e0e0;text-decoration:none;font-size:14px;transition:color .2s}.footer-col ul li a:hover{color:#fff}.footer-col p{font-size:14px;margin-bottom:8px;color:#e0e0e0}.social-links{display:flex;gap:10px;margin-top:15px}.social-icon{display:flex;justify-content:center;align-items:center;width:36px;height:36px;background-color:rgba(255,255,255,.15);color:#fff;border-radius:50%;font-size:18px;text-decoration:none;transition:background-color .2s}.social-icon:hover{background-color:#f39c12}.payment-logos,.shipping-logos{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.payment-logos img,.shipping-logos img{max-height:30px;filter:grayscale(100%) brightness(180%);opacity:.8}.footer-bottom{text-align:center;padding-top:20px;font-size:13px;color:#e0e0e0}.cart-item{display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid #f0f0f0}.cart-item-image{width:80px;height:80px;object-fit:cover;border-radius:6px}.cart-item-details{flex:1;display:flex;flex-direction:column;justify-content:space-between}.quantity-btn{background-color:#f0f0f0;border:1px solid #e0e0e0;width:28px;height:28px;cursor:pointer}.cart-footer{border-top:2px solid #f0f0f0;padding:20px;background-color:#f9f9f9}.checkout-btn{width:100%;padding:14px;background-color:#0056b3;color:#fff;border:none;font-weight:700;cursor:pointer}@media (max-width:768px){.header-container{flex-wrap:wrap;justify-content:space-between;row-gap:15px}.search-container{order:1;width:100%}.settings-icon{font-size:20px;padding:4px}.cart-icon{font-size:24px}.cart-count{width:20px;height:20px;font-size:10px;top:-6px;right:-8px}.value-props-section{display:flex;overflow-x:auto;padding:10px 0 20px;gap:15px;-ms-overflow-style:none;scrollbar-width:none}.value-props-section::-webkit-scrollbar{display:none}.value-prop-item{flex:0 0 240px}.category-nav{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;padding-bottom:10px}.category-nav::-webkit-scrollbar{display:none}.category-btn{flex-shrink:0;padding:8px 18px}.products-container{grid-template-columns:repeat(2,1fr);gap:15px}.detail-layout{grid-template-columns:1fr}.detail-product-top-box{grid-template-columns:1fr}.promo-banner-content h4{font-size:18px}.promo-banner-content p{font-size:12px}.newsletter-content h3{font-size:22px}.newsletter-content p{font-size:14px}.newsletter-form{flex-direction:column;align-items:center}.newsletter-form input,.newsletter-form button{width:100%;max-width:300px}.footer-container{grid-template-columns:1fr;text-align:center}.footer-col ul{padding-left:0}.footer-col ul li{display:block;margin-bottom:10px}.social-links,.payment-logos,.shipping-logos{justify-content:center}}@media (max-width:480px){.slide-title{font-size:32px}.slide-subtitle{font-size:16px}.slide-btn{padding:10px 24px}.admin-stats-grid{grid-template-columns:1fr}.summary-left{min-width:unset;width:100%;margin-bottom:15px}.summary-center-filters{width:100%;justify-content:center}.summary-right-action{width:100%}.review-summary-box{flex-direction:column;align-items:center}.value-props-section{padding:20px 10px}.promo-banner-item img{height:150px}.promo-banner-content h4{font-size:16px}.promo-banner-content p{font-size:11px}.promo-btn{padding:6px 15px;font-size:12px}.brand-logos-grid{grid-template-columns:repeat(auto-fit,minmax(80px,1fr))}.brand-logo-item img{max-width:80px;height:40px}.newsletter-content h3{font-size:20px}.newsletter-content p{font-size:13px}}@media (max-width:576px){.header-container{padding:0 15px}.menu-toggle-btn{width:100%;justify-content:center}.dropdown-menu{width:100%;left:0;right:0;min-width:unset}}
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-container">
-            <a href="#" class="logo-container" onclick="backToHome(event)">
-                <span class="logo">BEAUTY DEAL</span>
-                <span class="logo-slogan">Mỹ Phẩm Giá Sốc</span>
+            <a href="#" class="logo-container" id="headerLogoContainer" onclick="backToHome(event)">
+                <!-- Ghi chú: Quay lại phương pháp nhúng trực tiếp và đơn giản hóa SVG để đảm bảo hiển thị. -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" style="display:block; max-height:70px; width:auto; background:transparent;">
+                  <g transform="translate(300, 110)">
+                    <rect x="-50" y="-50" width="100" height="100" rx="15" transform="rotate(45)" fill="none" stroke="#ffffff" stroke-width="4"/>
+                    <rect x="-40" y="-40" width="80" height="80" rx="10" transform="rotate(45)" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>
+                    <g transform="rotate(-45)">
+                      <path d="M -5,45 L 5,45 L 5,5 L -5,5 Z" fill="#ffffff" />
+                      <rect x="-7" y="-5" width="14" height="10" fill="#ffffff" />
+                      <path d="M -7,-5 C -20,-35 20,-35 7,-5 Z" fill="none" stroke="#ffffff" stroke-width="2" />
+                      <path d="M -2,-5 C -8,-28 8,-28 2,-5 Z" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.7" />
+                    </g>
+                  </g>
+                  <g transform="translate(300, 240)" text-anchor="middle">
+                    <text font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#ffffff" letter-spacing="3">BEAUTY DEAL</text>
+                    <text y="38" font-family="Arial, sans-serif" font-size="15" font-weight="600" fill="#e0e0e0" letter-spacing="4">- MỸ PHẨM CHÍNH HÃNG GIÁ SỐC -</text>
+                  </g>
+                </svg>
             </a>
-            
             <div class="menu-dropdown-wrapper">
                 <button class="menu-toggle-btn" onclick="toggleMenuDropdown(event)">
                     ☰ Danh mục
@@ -321,7 +45,6 @@
                     <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC CƠ THỂ')">Chăm sóc cơ thể</button>
                 </div>
             </div>
-
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm mỹ phẩm chính hãng..." oninput="handleSearch()">
             </div>
@@ -334,7 +57,6 @@
             </div>
         </div>
     </header>
-
     <section class="banner-slider" id="mainBanner">
         <div class="slide-content">
             <h1 class="slide-title">Bùng Nổ Siêu Deal Mỹ Phẩm</h1>
@@ -342,17 +64,14 @@
             <button id="btn-mua-ngay" class="slide-btn">Mua Ngay</button>
         </div>
     </section>
-
     <main class="container">
         <div id="homePageContent">
             <h2 class="section-title">Tại Sao Chọn Beauty Deal?</h2>
             <section class="value-props-section" id="valuePropsContainer">
                 <!-- Nội dung sẽ được tạo bởi JavaScript -->
             </section>
-
             <section class="promo-banners-section" id="promoBannersContainer">
             </section>
-
             <h2 class="section-title">Khám Phá Danh Mục Sản Phẩm</h2>
             <nav class="category-nav" id="categoryNav">
                 <button class="category-btn active" data-category="TẤT CẢ" onclick="filterCategory('TẤT CẢ', this)">Tất cả</button>
@@ -362,21 +81,17 @@
                 <button class="category-btn" data-category="CHĂM SÓC DA MẶT" onclick="filterCategory('CHĂM SÓC DA MẶT', this)">Chăm sóc da mặt</button>
                 <button class="category-btn" data-category="CHĂM SÓC CƠ THỂ" onclick="filterCategory('CHĂM SÓC CƠ THỂ', this)">Chăm sóc cơ thể</button>
             </nav>
-
-            <h2 class="section-title">Sản Phẩm Nổi Bật</h2>
+            <h2 class="section-title" id="featuredProductsTitle">Sản Phẩm Nổi Bật</h2>
             <section class="products-container" id="productsContainer">
             </section>
-
-            <h2 class="section-title">Sản Phẩm Bán Chạy Nhất</h2>
+            <h2 class="section-title" id="bestSellerProductsTitle">Sản Phẩm Bán Chạy Nhất</h2>
             <section class="products-container" id="bestSellerProductsContainer">
             </section>
-
             <section class="brand-showcase-section">
                 <h2 class="section-title">Thương Hiệu Nổi Bật</h2>
                 <div class="brand-logos-grid" id="brandsGridContainer">
                 </div>
             </section>
-
             <section class="newsletter-section">
                 <div class="newsletter-content">
                     <h3>Đăng Ký Nhận Ưu Đãi Độc Quyền</h3>
@@ -388,14 +103,11 @@
                 </div>
             </section>
         </div>
-
         <section class="product-detail-section" id="productDetailSection">
             <button class="back-home-btn" onclick="backToHome(event)">← Quay lại Trang Chủ</button>
-            
             <div class="detail-layout">
                 <div class="main-detail-card">
                     <div class="detail-product-top-box" id="detailProductTopBox"></div>
-                    
                     <div class="detail-tabs">
                         <button class="tab-btn active" onclick="switchTab('mota', this)">Mô tả</button>
                         <button class="tab-btn" onclick="switchTab('thongso', this)">Thông số</button>
@@ -404,7 +116,6 @@
                         <button class="tab-btn" onclick="switchTab('danhgia', this)">Đánh giá</button>
                         <button class="tab-btn" onclick="switchTab('hoidap', this)">Hỏi đáp</button>
                     </div>
-
                     <div id="mota" class="tab-content active"></div>
                     <div id="thongso" class="tab-content"></div>
                     <div id="thanhphan" class="tab-content"></div>
@@ -464,19 +175,15 @@
                             <div class="reviews-list-wrapper" id="reviewsListWrapper"></div>
                         </div>
                     </div>
-                    
                     <div id="hoidap" class="tab-content"></div>
                 </div>
-
                 <div class="related-sidebar">
                     <div class="sidebar-title">Sản phẩm xem cùng</div>
                     <div id="relatedProductsContainer"></div>
                 </div>
             </div>
         </section>
-
     </main>
-
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart(false)"></div> 
     <div class="cart-drawer" id="cartDrawer">
         <div class="cart-header">
@@ -492,7 +199,6 @@
             <button class="checkout-btn" onclick="processCheckout()">TIẾN HÀNH THANH TOÁN</button>
         </div>
     </div>
-
     <!-- CHECKOUT MODAL -->
     <div id="checkout-modal" style="display: none; position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;">
         <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: popupFade 0.3s ease;">
@@ -520,7 +226,6 @@
             </form>
         </div>
     </div>
-
     <div id="popup-dat-hang" style="display: none; position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;">
         <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: popupFade 0.3s ease;">
             <span id="closePopupBtn" style="position: absolute; right: 20px; top: 12px; font-size: 32px; cursor: pointer; color: #aaa; transition: color 0.2s;">&times;</span>
@@ -539,14 +244,7 @@
             </form>
         </div>
     </div>
-    <style>
-        @keyframes popupFade {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        #closePopupBtn:hover { color: #333 !important; }
-    </style>
-
+    <style>@keyframes popupFade{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}#closePopupBtn:hover{color:#333!important}</style>
     <footer>
         <div class="footer-container">
             <div class="footer-col">
@@ -595,26 +293,13 @@
             <p>&copy; 2026 BEAUTY DEAL - HỆ THỐNG PHÂN PHỐI MỸ PHẨM CHÍNH HÃNG TOÀN QUỐC</p>
         </div>
     </footer>
-
     <script>
-        console.log("--- SCRIPT VERSION: FRONTEND-2024-06-08-FINAL ---"); // Dấu hiệu nhận biết phiên bản code mới nhất
-        
-        let APP_PRODUCTS = [];
-        let APP_BRANDS = [];
-        let APP_BANNERS = [];
-        let APP_ORDERS = [];
-        let APP_SUBSCRIBERS = [];
-        let APP_NOTIFICATIONS = []; // NEW: Make this global for consistency
-        let USER_CREDENTIALS = {}; // NEW: Make this global for consistency
-        
-        let currentEditingVariants = []; // NEW: Temp array for variants during product edit
-
+        let APP_PRODUCTS = []; let APP_BRANDS = []; let APP_BANNERS = []; let APP_ORDERS = []; let APP_SUBSCRIBERS = []; let APP_NOTIFICATIONS = []; let USER_CREDENTIALS = {}; let currentEditingVariants = [];
         const DEFAULT_VALUE_PROPS = [
             { icon: '✅', imageUrl: 'https://images.unsplash.com/photo-1588695954914-3452d55e246c?auto=format&fit=crop&w=150&q=80', title: 'Cam kết chính hãng', description: '100% sản phẩm nhập khẩu trực tiếp' },
             { icon: '💰', imageUrl: 'https://images.unsplash.com/photo-1561515030-2d0c5d023b6e?auto=format&fit=crop&w=150&q=80', title: 'Giá tốt mỗi ngày', description: 'Ưu đãi độc quyền, tiết kiệm tối đa' },
             { icon: '📞', imageUrl: 'https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=150&q=80', title: 'Tư vấn chuyên sâu', description: 'Đội ngũ chuyên gia da liễu hỗ trợ 24/7' }
         ];
-
         const DEFAULT_PRODUCTS = [
             { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: "ConHang", desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
             {
@@ -636,7 +321,7 @@
             { id: "promo001", type: "flashsale", imageUrl: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80", title: "SALE ĐẬM NGÀY 10 HÀNG THÁNG", description: "Săn sale không giới hạn, hàng ngàn deal sốc!", buttonText: "Săn Sale Ngay", buttonLink: "#" },
             { id: "promo002", type: "promotion", imageUrl: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80", title: "MUA NHIỀU, ƯU ĐÃI LỚN", description: "Mua càng nhiều, ưu đãi càng lớn kèm nhiều quà tặng hấp dẫn!", buttonText: "Xem Quà Tặng", buttonLink: "#" }
         ];
-        const DEFAULT_SHOP_INFO = { // NEW: Re-added DEFAULT_SHOP_INFO for frontend
+        const DEFAULT_SHOP_INFO = {
             contact: {
                 address: "123 Đường ABC, Quận XYZ, TP.HCM",
                 phone: "0987 654 321",
@@ -645,101 +330,79 @@
             social: {
                 facebook: "#", instagram: "#", tiktok: "#"
             }
+            ,mainLogoUrl: ""
         };
-        let APP_SHOP_INFO = {}; // NEW: Declare APP_SHOP_INFO
-        let APP_VALUE_PROPS = [];
-        
-        let currentUserRole = null;
-        let currentLoggedInUser = null;
-        let cart = [];
-        let currentFilterCategory = "TẤT CẢ";
-        let activeDetailProductId = null;
-
+        let APP_SHOP_INFO = {}; let APP_VALUE_PROPS = []; let currentUserRole = null; let currentLoggedInUser = null; let cart = []; let currentFilterCategory = "TẤT CẢ"; let activeDetailProductId = null;
         // --- CẤU HÌNH KẾT NỐI DATABASE (JSONBIN.IO) ---
-        const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã thay thế Master Key
-        const JSONBIN_BIN_ID = '6a476dfada38895dfe27361e';   // ✅ Đã thay thế Bin ID
+        const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã cập nhật API Key mới
+        const JSONBIN_BIN_ID = '6a4dacbfda38895dfe3ddc36';   // ✅ Đã cập nhật Bin ID mới
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
-
-        // --- HÀM LƯU DỮ LIỆU LÊN SERVER (AN TOÀN) ---
+        // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ SERVER (ĐỒNG BỘ VỚI ADMIN.HTML) ---
         async function safeUpdateDatabase(updateCallback, { reloadOnSuccess = false } = {}) {
             try {
                 // 1. Tải bản sao mới nhất của dữ liệu từ server.
-                console.log("SafeUpdate: Fetching latest data from server...");
-                const cacheBuster = `?_=${new Date().getTime()}`;
-                const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, {
-                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
-                });
-                if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
-                const serverData = await response.json();
-                const payload = serverData.record;
-
+                const cacheBuster = `?_=${new Date().getTime()}`; const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
+                if (!response.ok) throw new Error(`Fetch failed: ${response.status}`); const serverData = await response.json();
+                // ROBUSTNESS FIX: Handle empty or invalid record from server
+                let payload = serverData.record;
+                if (!payload || typeof payload !== 'object') {
+                    // console.warn("Server data is invalid or empty. Initializing with an empty object."); // Removed debug log
+                    payload = {};
+                }
                 // 2. Áp dụng các thay đổi cụ thể lên bản sao này.
                 const callbackResult = updateCallback(payload);
-                
                 // Handle special abort case from callback (used in index.html for existing email)
                 if (callbackResult && callbackResult.abort) {
                     if(callbackResult.message) alert(callbackResult.message);
                     return { success: false, reason: callbackResult.reason };
                 }
-
                 // 3. Lưu bản sao đã được chỉnh sửa trở lại server.
-                console.log("SafeUpdate: Sending synchronized data...");
-                const putResponse = await fetch(JSONBIN_URL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-                    body: JSON.stringify(payload)
-                });
-                if (!putResponse.ok) throw new Error(`Save failed: ${putResponse.status}`);
-                
-                console.log("✅ Data synchronized and saved successfully!");
-                
-                if (reloadOnSuccess) {
-                    setTimeout(() => window.location.reload(), 500);
-                }
-
-                return { success: true, data: payload };
+                const putResponse = await fetch(JSONBIN_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY }, body: JSON.stringify(payload) });
+                if (!putResponse.ok) throw new Error(`Save failed: ${putResponse.status}`); return { success: true, data: payload };
             } catch (e) {
                 console.error("Critical error during safeUpdateDatabase:", e);
-                alert("❌ A critical error occurred while saving data. Your changes may not be saved.");
+                alert(`❌ Đã xảy ra lỗi nghiêm trọng khi lưu dữ liệu.\n\nChi tiết lỗi:\n${e.message}`);
                 return { success: false };
             }
         }
-
         // --- HÀM TẢI DỮ LIỆU TỪ SERVER ---
         async function loadDatabase() {
             try {
                 // Thêm tham số cache-busting để đảm bảo luôn tải dữ liệu mới nhất
-                const cacheBuster = `?_=${new Date().getTime()}`;
-                const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, {
-                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
-                });
-                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
-                
-                const serverData = await response.json();
-                DATABASE = serverData.record; // Dữ liệu từ jsonbin nằm trong 'record'
-                console.log("✅ Tải dữ liệu từ server thành công!");
-
+                const cacheBuster = `?_=${new Date().getTime()}`; const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status} - ${response.statusText}`); const serverData = await response.json();
+                // FIX: Xử lý trường hợp server trả về dữ liệu rỗng hoặc không hợp lệ
+                DATABASE = serverData.record || {};
+                if (typeof DATABASE !== 'object' || DATABASE === null) {
+                    // console.warn("Dữ liệu từ server không hợp lệ hoặc rỗng. Khởi tạo với object rỗng."); // Removed debug log
+                    DATABASE = {};
+                }
                 // Gán dữ liệu từ server vào các biến toàn cục
                 APP_PRODUCTS = DATABASE.APP_PRODUCTS || DEFAULT_PRODUCTS;
                 APP_BRANDS = DATABASE.APP_BRANDS || DEFAULT_BRANDS;
                 APP_BANNERS = DATABASE.APP_BANNERS || DEFAULT_BANNERS;
-                APP_SHOP_INFO = DATABASE.APP_SHOP_INFO || DEFAULT_SHOP_INFO;
+                
+                // NEW: Robustly merge shop info to prevent errors if parts are missing from the database
+                const loadedShopInfo = DATABASE.APP_SHOP_INFO || {};
+                APP_SHOP_INFO = {
+                    ...DEFAULT_SHOP_INFO,
+                    ...loadedShopInfo,
+                    contact: { ...DEFAULT_SHOP_INFO.contact, ...(loadedShopInfo.contact || {}) },
+                    social: { ...DEFAULT_SHOP_INFO.social, ...(loadedShopInfo.social || {}) },
+                };
+
                 APP_ORDERS = DATABASE.APP_ORDERS || [];
                 APP_SUBSCRIBERS = DATABASE.APP_SUBSCRIBERS || [];
-                APP_NOTIFICATIONS = DATABASE.APP_NOTIFICATIONS || []; // NEW: Populate global APP_NOTIFICATIONS
-                USER_CREDENTIALS = DATABASE.USER_CREDENTIALS || {}; // NEW: Populate global USER_CREDENTIALS
+                APP_NOTIFICATIONS = DATABASE.APP_NOTIFICATIONS || [];
+                USER_CREDENTIALS = DATABASE.USER_CREDENTIALS || {};
                 // Lớp bảo vệ khi tải dữ liệu: Đảm bảo APP_VALUE_PROPS luôn hợp lệ.
                 const loadedProps = DATABASE.APP_VALUE_PROPS;
-                if (Array.isArray(loadedProps) && loadedProps.length === 3 && loadedProps[0] && loadedProps[0].title) {
-                    APP_VALUE_PROPS = loadedProps;
-                } else {
-                    APP_VALUE_PROPS = DEFAULT_VALUE_PROPS;
-                }
-
+                if (Array.isArray(loadedProps) && loadedProps.length === 3 && loadedProps[0] && loadedProps[0].title) APP_VALUE_PROPS = loadedProps;
+                else APP_VALUE_PROPS = DEFAULT_VALUE_PROPS;
             } catch (e) {
                 console.error("Không thể tải dữ liệu từ server, sử dụng dữ liệu mặc định.", e);
-                alert("⚠️ Lỗi: Không thể kết nối đến máy chủ dữ liệu.\n\nTrang có thể đang hiển thị dữ liệu cũ. Vui lòng thử 'Tải lại trang' (F5) hoặc 'Tải lại mạnh' (Ctrl + F5).");
+                alert(`⚠️ Lỗi: Không thể kết nối đến máy chủ dữ liệu.\n\nChi tiết lỗi: ${e.message}\n\nTrang có thể đang hiển thị dữ liệu cũ. Vui lòng thử 'Tải lại trang' (F5) hoặc 'Tải lại mạnh' (Ctrl + F5).`);
                 // Nếu lỗi, dùng dữ liệu mặc định
                 APP_PRODUCTS = DEFAULT_PRODUCTS;
                 APP_BRANDS = DEFAULT_BRANDS;
@@ -751,7 +414,6 @@
                 APP_NOTIFICATIONS = [];
             }
         }
-
         const HASAKI_REVIEWS_DB = {
             "1710001": [
                 { user: "Trần Thị Trà My", stars: 5, date: "24/05/2026", content: "Tẩy trang bioderma nắp hồng thì quá đỉnh rồi ạ, sạch sâu, dịu nhẹ không hề gây rát hay lên mụn, giao hàng siêu nhanh." },
@@ -763,47 +425,59 @@
                 { user: "Phạm Minh Thư", stars: 3, date: "15/05/2026", content: "Son giữ màu siêu lâu thật nhưng hơi khô môi nha, bạn nào môi khô nhớ lót một lớp son dưỡng trước." }
             ]
         };
+        function renderHeaderLogo() {
+            const logoContainer = document.getElementById('headerLogoContainer');
+            if (!logoContainer) return;
 
+            // Use optional chaining and nullish coalescing for a concise and safe check.
+            const logoUrl = (APP_SHOP_INFO?.mainLogoUrl ?? '').trim();
+
+            if (logoUrl) {
+                logoContainer.innerHTML = ''; // Xóa SVG mặc định
+                const logoImg = document.createElement('img');
+                logoImg.id = 'mainWebsiteLogo';
+                logoImg.src = logoUrl;
+                logoImg.alt = 'Beauty Deal Logo';
+                // Thêm style trực tiếp để đảm bảo hiển thị ổn định, giống trang admin
+                logoImg.style.height = '70px'; // Sử dụng 'height' để ghi đè CSS, cân đối hơn
+                logoImg.style.width = 'auto';
+                logoImg.style.objectFit = 'contain'; // Thêm object-fit để không bị méo ảnh
+                logoContainer.appendChild(logoImg);
+            }
+            // If logoUrl is empty, do nothing, preserving the default SVG.
+        }
         // --- KHỞI TẠO KHI TRANG TẢI ---
         window.addEventListener('DOMContentLoaded', async () => {
-            await loadDatabase(); // Tải toàn bộ dữ liệu từ server
-            
-            renderProductsGrid();
-            renderBestSellers();
-            renderBrandsGrid();
-            renderFooter(); // NEW
-            renderPromoBanners();
-
-            // Gắn sự kiện cho nút đóng modal thanh toán
-            document.getElementById('closeCheckoutModalBtn').addEventListener('click', closeCheckoutModal);
-
-            // --- DEBUG TRỰC TIẾP TẠI ĐÂY ---
-            console.log("--- DEBUG TRỰC TIẾP: Bắt đầu render 'Tại Sao Chọn...' ---");
-            const debugContainer = document.getElementById('valuePropsContainer');
-            console.log("DEBUG TRỰC TIẾP: Tìm thấy container:", debugContainer);
-            console.log("DEBUG TRỰC TIẾP: Dữ liệu APP_VALUE_PROPS:", JSON.parse(JSON.stringify(APP_VALUE_PROPS)));
-            if (debugContainer && Array.isArray(APP_VALUE_PROPS) && APP_VALUE_PROPS.length > 0) {
-                const debugHtmlContent = APP_VALUE_PROPS.map(prop => {
-                    const iconHtml = prop.imageUrl ? `<img src="${prop.imageUrl}" class="value-prop-icon-img" alt="${prop.title}">` : `<span class="value-prop-icon">${prop.icon}</span>`;
-                    return `<div class="value-prop-item">${iconHtml}<h3>${prop.title || ''}</h3><p>${prop.description || ''}</p></div>`;
-                }).join('');
-                console.log("DEBUG TRỰC TIẾP: Nội dung HTML sẽ được chèn:", debugHtmlContent);
-                debugContainer.innerHTML = debugHtmlContent;
-                console.log("DEBUG TRỰC TIẾP: Đã chèn HTML vào container.");
-            } else {
-                console.error("DEBUG TRỰC TIẾP: Không thể render do container hoặc dữ liệu không hợp lệ.");
+            try {
+                await loadDatabase(); // Tải toàn bộ dữ liệu từ server
+                renderHeaderLogo(); // NEW: Render the logo from DB
+                renderProductsGrid();
+                renderBestSellers();
+                renderBrandsGrid();
+                renderFooter();
+                renderPromoBanners();
+                renderValueProps(); // Gọi hàm render chính thức
+                // Gắn sự kiện cho nút đóng modal thanh toán
+                document.getElementById('closeCheckoutModalBtn').addEventListener('click', closeCheckoutModal);
+            } catch (error) {
+                console.error("Lỗi trong quá trình khởi tạo trang:", error);
+                alert(`⚠️ Lỗi nghiêm trọng khi khởi tạo trang.\n\nChi tiết lỗi: ${error.message}\n\nVui lòng kiểm tra console (F12) để biết thêm chi tiết.`);
             }
-            // --- KẾT THÚC DEBUG ---
         });
-        
         // --- CÁC HÀM XỬ LÝ GIAO DIỆN NGƯỜI DÙNG ---
         const popupDatHang = document.getElementById("popup-dat-hang");
         const btnMuaNgay = document.getElementById("btn-mua-ngay");
         const closePopupBtn = document.getElementById("closePopupBtn");
         const popupForm = document.getElementById("popupForm");
-
         if(btnMuaNgay) {
-            btnMuaNgay.addEventListener("click", (e) => { e.preventDefault(); popupDatHang.style.display = "flex"; });
+            // THAY ĐỔI: Nút "Mua Ngay" sẽ cuộn đến khu vực sản phẩm thay vì mở pop-up.
+            btnMuaNgay.addEventListener("click", (e) => { 
+                e.preventDefault(); 
+                const productsSection = document.getElementById('productsContainer');
+                if (productsSection && productsSection.previousElementSibling) {
+                    productsSection.previousElementSibling.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
         }
         closePopupBtn.addEventListener("click", () => { popupDatHang.style.display = "none"; });
         window.addEventListener("click", (e) => { if (e.target === popupDatHang) popupDatHang.style.display = "none"; });
@@ -815,15 +489,11 @@
             popupForm.reset();
             popupDatHang.style.display = "none";
         });
-
         function renderProductsGrid(productsToRender) {
-            const container = document.getElementById('productsContainer');
-            container.innerHTML = '';
-
+            const container = document.getElementById('productsContainer'); container.innerHTML = '';
             // Nếu không có danh sách sản phẩm cụ thể, mặc định hiển thị 4 sản phẩm nổi bật đầu tiên.
             // Khi tìm kiếm hoặc lọc, `productsToRender` sẽ là danh sách đã được lọc.
             const products = productsToRender !== undefined ? productsToRender : APP_PRODUCTS.slice(0, 4);
-
             if (products.length === 0) {
                 container.innerHTML = `<p style="grid-column: span 4; text-align:center; padding: 40px; color:#999; font-weight:600;">Không có sản phẩm nào phù hợp!</p>`;
                 return;
@@ -846,24 +516,19 @@
                 container.appendChild(card);
             });
         }
-
         function renderBestSellers() {
             const container = document.getElementById('bestSellerProductsContainer');
-            const title = container.previousElementSibling;
+            const title = document.getElementById('bestSellerProductsTitle'); // Sửa để ổn định hơn
             container.innerHTML = '';
-            
             // Demo: Lấy 4 sản phẩm tiếp theo làm sản phẩm bán chạy
             const bestSellers = APP_PRODUCTS.slice(4, 8); 
-
             if (bestSellers.length === 0) {
                 if(container) container.style.display = 'none';
                 if(title) title.style.display = 'none';
                 return;
             }
-            
             if(container) container.style.display = 'grid';
             if(title) title.style.display = 'block';
-
             bestSellers.forEach(prod => {
                 const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
                 const card = document.createElement('div');
@@ -882,7 +547,6 @@
                 container.appendChild(card);
             });
         }
-
         function renderBrandsGrid() {
             const container = document.getElementById('brandsGridContainer');
             if (!container) return;
@@ -895,37 +559,39 @@
                 container.appendChild(brandLink);
             });
         }
-
-        // Tạm thời vô hiệu hóa hàm cũ để sử dụng logic debug trực tiếp
+        // Hàm hiển thị mục "Tại Sao Chọn Beauty Deal"
         function renderValueProps() {
-            // This function is temporarily disabled for debugging.
-            // The rendering logic is now directly inside DOMContentLoaded.
+            const container = document.getElementById('valuePropsContainer');
+            if (!container) return;
+            if (Array.isArray(APP_VALUE_PROPS) && APP_VALUE_PROPS.length > 0) {
+                const htmlContent = APP_VALUE_PROPS.map(prop => {
+                    const iconHtml = prop.imageUrl ? `<img src="${prop.imageUrl}" class="value-prop-icon-img" alt="${prop.title}">` : `<span class="value-prop-icon">${prop.icon}</span>`;
+                    return `<div class="value-prop-item">${iconHtml}<h3>${prop.title || ''}</h3><p>${prop.description || ''}</p></div>`;
+                }).join('');
+                container.innerHTML = htmlContent;
+            } else {
+                container.innerHTML = ''; // Xóa nội dung nếu không có dữ liệu
+            }
         }
-
         // NEW: Hàm hiển thị thông tin ở Footer
         function renderFooter() {
             const info = APP_SHOP_INFO;
             document.getElementById('footerContactAddress').innerText = 'Địa chỉ: ' + info.contact.address;
             document.getElementById('footerContactPhone').innerText = 'Điện thoại: ' + info.contact.phone;
             document.getElementById('footerContactEmail').innerText = 'Email: ' + info.contact.email;
-
             document.getElementById('footerSocialFacebook').href = info.social.facebook;
             document.getElementById('footerSocialInstagram').href = info.social.instagram;
             document.getElementById('footerSocialTiktok').href = info.social.tiktok;
         }
-
         let searchTimeout; // Biến để quản lý debounce
         function handleSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
-                
-                const mainProductTitle = document.getElementById('productsContainer').previousElementSibling;
+                const mainProductTitle = document.getElementById('featuredProductsTitle'); // Sửa để ổn định hơn
                 const bestSellerSection = document.getElementById('bestSellerProductsContainer');
-                const bestSellerTitle = bestSellerSection.previousElementSibling;
-
+                const bestSellerTitle = document.getElementById('bestSellerProductsTitle'); // Sửa để ổn định hơn
                 const isSearching = keyword !== '' || currentFilterCategory !== 'TẤT CẢ';
-
                 if (isSearching) {
                     let filtered = APP_PRODUCTS;
                     if (currentFilterCategory !== "TẤT CẢ") {
@@ -934,7 +600,6 @@
                     if (keyword !== "") {
                         filtered = filtered.filter(p => p.name.toLowerCase().includes(keyword) || p.brand.toLowerCase().includes(keyword));
                     }
-                    
                     mainProductTitle.innerText = 'Kết quả tìm kiếm';
                     bestSellerSection.style.display = 'none';
                     bestSellerTitle.style.display = 'none';
@@ -949,29 +614,24 @@
                 }
             }, 300); // Thêm độ trễ 300ms để tránh gọi liên tục khi gõ
         }
-
         function filterCategory(catName, btnElement) {
             // Nếu đang ở trang chi tiết sản phẩm, quay về trang chủ trước
             if (document.getElementById('productDetailSection').classList.contains('active')) {
                 backToHome();
             }
-
             currentFilterCategory = catName;
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             if (btnElement) btnElement.classList.add('active');
             handleSearch();
         }
-
         function selectFromDropdown(catName) {
             document.getElementById('dropdownMenu').classList.remove('active');
             // Sử dụng data-attribute để tìm chính xác nút cần active
             const targetBtn = document.querySelector(`.category-btn[data-category="${catName}"]`);
             filterCategory(catName, targetBtn);
         }
-
         function toggleMenuDropdown(e) { e.stopPropagation(); document.getElementById('dropdownMenu').classList.toggle('active'); }
         window.addEventListener('click', () => { document.getElementById('dropdownMenu').classList.remove('active'); });
-
         function backToHome(e) {
             if(e) e.preventDefault();
             document.getElementById('productDetailSection').classList.remove('active');
@@ -980,18 +640,14 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
             activeDetailProductId = null; // Reset active product
         }
-
         function openProductDetail(productId) {
             const prod = APP_PRODUCTS.find(p => p.id === productId);
             if (!prod) return;
             activeDetailProductId = productId;
-
             document.getElementById('homePageContent').style.display = 'none';
             document.getElementById('mainBanner').style.display = 'none';
-            
             const detailSection = document.getElementById('productDetailSection');
             detailSection.classList.add('active');
-
             // NEW: Logic for variants
             let variantHtml = '';
             if (prod.variants && prod.variants.length > 0) {
@@ -1003,7 +659,6 @@
                         onclick="selectVariant('${productId}', ${index})">
                     </button>`
                 ).join('');
-
                 variantHtml = `
                     <div class="detail-variants-container">
                         <div class="variant-label">Chọn màu: <strong id="selectedColorName">${prod.variants[0].colorName}</strong></div>
@@ -1013,9 +668,7 @@
                     </div>
                 `;
             }
-
             const buyButtonId = (prod.variants && prod.variants.length > 0) ? prod.variants[0].id : prod.id;
-
             document.getElementById('detailProductTopBox').innerHTML = `
                 <div class="detail-top-left"><img src="${prod.image}" alt="${prod.name}"></div>
                 <div class="detail-top-right">
@@ -1038,27 +691,22 @@
             renderRelatedSidebar(prod.category, prod.id);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
         function selectVariant(productId, variantIndex) {
             const product = APP_PRODUCTS.find(p => p.id === productId);
             if (!product || !product.variants) return;
-
             const variant = product.variants[variantIndex];
             if (!variant) return;
-
             // Update image
             document.querySelector('.detail-top-left img').src = variant.image || product.image;
             // Update color name
             document.getElementById('selectedColorName').innerText = variant.colorName;
             // Update buy button
             document.getElementById('detailBuyButton').setAttribute('onclick', `addToCart('${productId}', '${variant.id}', event)`);
-
             // Update active swatch
             const swatchesContainer = document.getElementById('colorSwatchesContainer');
             swatchesContainer.querySelectorAll('.swatch-btn').forEach(btn => btn.classList.remove('active'));
             swatchesContainer.querySelectorAll('.swatch-btn')[variantIndex].classList.add('active');
         }
-
         function switchTab(tabId, btnElement) {
             const card = btnElement.closest('.main-detail-card');
             card.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1066,7 +714,6 @@
             btnElement.classList.add('active');
             document.getElementById(tabId).classList.add('active');
         }
-
         function renderRelatedSidebar(categoryName, currentProdId) {
             const container = document.getElementById('relatedProductsContainer');
             container.innerHTML = '';
@@ -1085,7 +732,6 @@
                 container.appendChild(div);
             });
         }
-
         // --- HÀM XỬ LÝ ĐÁNH GIÁ ---
         let currentReviewStarFilter = 'all';
         function renderHasakiReviews() {
@@ -1143,18 +789,24 @@
             toggleReviewForm();
             renderHasakiReviews();
         }
-
         // --- HÀM XỬ LÝ GIỎ HÀNG ---
         function toggleCart(status) {
-            document.getElementById('cartOverlay').classList.toggle('active', status);
-            document.getElementById('cartDrawer').classList.toggle('active', status);
+            const cartOverlay = document.getElementById('cartOverlay');
+            const cartDrawer = document.getElementById('cartDrawer');
+            if (cartOverlay) cartOverlay.classList.toggle('active', status);
+            if (cartDrawer) cartDrawer.classList.toggle('active', status);
             if (status) renderCartContents();
         }
         function addToCart(productId, variantId = null, event) {
-            if(event) event.stopPropagation();
+            if(event) {
+                event.stopPropagation();
+                event.preventDefault(); // Ensure no default action (like form submission or navigation)
+            }
             const product = APP_PRODUCTS.find(p => p.id === productId);
-            if (!product) return;
-
+            if (!product) {
+                console.error("Sản phẩm không tìm thấy:", productId);
+                return;
+            }
             let itemToAdd = {
                 id: productId,
                 name: product.name,
@@ -1162,7 +814,6 @@
                 image: product.image,
                 stock: product.stock
             };
-
             if (variantId && product.variants) {
                 const variant = product.variants.find(v => v.id === variantId);
                 if (variant) {
@@ -1172,7 +823,6 @@
                     // itemToAdd.stock = variant.stock || product.stock; // Future enhancement
                 }
             }
-
             if (itemToAdd.stock === "HetHang") {
                 alert("🔴 Xin lỗi, sản phẩm này đã hết hàng!");
                 return;
@@ -1181,7 +831,8 @@
             if (existing) existing.quantity++;
             else cart.push({ ...itemToAdd, quantity: 1 });
             updateCartBadge();
-            alert(`🛒 Đã thêm "${itemToAdd.name}" vào giỏ hàng!`);
+            // alert(`🛒 Đã thêm "${itemToAdd.name}" vào giỏ hàng!`); // Removed alert for better UX
+            toggleCart(true); // Open cart drawer after adding item
         }
         function updateCartBadge() {
             document.getElementById('cartCount').innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -1225,22 +876,18 @@
         function processCheckout() {
             if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
             const grandTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            
             document.getElementById('checkoutTotalValue').innerText = grandTotal.toLocaleString() + 'đ';
             document.getElementById('checkout-modal').style.display = 'flex';
             toggleCart(false); // Đóng giỏ hàng
         }
-
         function closeCheckoutModal() {
             document.getElementById('checkout-modal').style.display = 'none';
         }
-
         async function handleConfirmOrder(event) {
             event.preventDefault();
             const confirmBtn = document.getElementById('confirmOrderBtn');
             confirmBtn.disabled = true;
             confirmBtn.innerText = 'ĐANG XỬ LÝ...';
-
             const newOrder = {
                 orderId: 'BD-' + Date.now(),
                 customerInfo: {
@@ -1253,12 +900,10 @@
                 orderDate: new Date().toISOString(),
                 status: 'Mới'
             };
-
             const result = await safeUpdateDatabase(payload => {
                 if (!payload.APP_ORDERS) payload.APP_ORDERS = [];
                 payload.APP_ORDERS.unshift(newOrder);
             });
-
             if (result.success) {
                 alert("🎉 Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại Beauty Deal. Chúng tôi sẽ liên hệ để xác nhận đơn hàng sớm nhất.");
                 cart = [];
@@ -1267,21 +912,17 @@
                 document.getElementById('checkoutForm').reset();
                 APP_ORDERS.unshift(newOrder);
             }
-            
             confirmBtn.disabled = false;
             confirmBtn.innerText = 'Xác Nhận Đặt Hàng';
         }
-
         async function handleNewsletterSubscription(event) {
             event.preventDefault();
             const emailInput = document.getElementById('newsletterEmail');
             const submitBtn = document.getElementById('newsletterSubmitBtn');
             const email = emailInput.value.trim();
             if (!email) return;
-
             submitBtn.disabled = true;
             submitBtn.innerText = 'ĐANG GỬI...';
-
             const result = await safeUpdateDatabase(payload => {
                 if (!payload.APP_SUBSCRIBERS) payload.APP_SUBSCRIBERS = [];
                 if (payload.APP_SUBSCRIBERS.some(sub => sub.email === email)) {
@@ -1289,7 +930,6 @@
                 }
                 payload.APP_SUBSCRIBERS.unshift({ email: email, date: new Date().toISOString() });
             });
-
             if (result.success) {
                 alert('🎉 Đăng ký nhận tin thành công! Cảm ơn bạn đã quan tâm đến Beauty Deal.');
                 emailInput.value = '';
@@ -1297,25 +937,28 @@
             } else if (result.reason === 'exists') {
                 emailInput.value = '';
             }
-
             submitBtn.disabled = false;
             submitBtn.innerText = 'Đăng ký';
         }
-
         function renderPromoBanners() {
             const container = document.getElementById('promoBannersContainer');
             if (!container) return;
             container.innerHTML = '';
             APP_BANNERS.forEach(banner => {
                 let buttonHtml = '';
-                // If a valid product ID is linked, the button opens the product detail page
+            // THAY ĐỔI: Logic nút banner thông minh hơn
+            // Ưu tiên 1: Nếu có ID sản phẩm, nút sẽ mở trang chi tiết sản phẩm đó.
                 if (banner.productId && APP_PRODUCTS.find(p => p.id === banner.productId)) {
                     buttonHtml = `<button onclick="openProductDetail('${banner.productId}')" class="promo-btn">${banner.buttonText}</button>`;
-                } else {
-                    // Fallback to the original link behavior
-                    buttonHtml = `<a href="${banner.buttonLink}" class="promo-btn">${banner.buttonText}</a>`;
+            } 
+            // Ưu tiên 2: Nếu link là '#', nút sẽ cuộn đến khu vực sản phẩm.
+            else if (banner.buttonLink === '#') {
+                buttonHtml = `<button onclick="document.getElementById('productsContainer').previousElementSibling.scrollIntoView({behavior: 'smooth'})" class="promo-btn">${banner.buttonText}</button>`;
                 }
-
+            // Mặc định: Nếu là một link khác, mở link đó trong tab mới.
+            else {
+                buttonHtml = `<a href="${banner.buttonLink}" class="promo-btn" target="_blank" rel="noopener noreferrer">${banner.buttonText}</a>`;
+            }
                 const bannerItem = document.createElement('div');
                 bannerItem.className = 'promo-banner-item';
                 bannerItem.innerHTML = `
@@ -1328,7 +971,6 @@
                 container.appendChild(bannerItem);
             });
         }
-
         // --- HÀM XỬ LÝ QUẢN TRỊ (CHỈ CÒN LOGIN) ---
         function openLoginModal() {
             // Mở trang admin.html trong một tab mới
@@ -1341,11 +983,6 @@
                 adminWindow.focus();
             }
         }
-
-        // Hàm handleAdminLogin sẽ được gọi từ admin.html, không còn ở đây
-        // Hàm activateAdminDashboard sẽ được gọi từ admin.html, không còn ở đây
-        // Hàm logoutAdmin sẽ được gọi từ admin.html, không còn ở đây
     </script>
-
 </body>
 </html>

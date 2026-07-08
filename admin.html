@@ -203,9 +203,24 @@
 
     <header>
         <div class="header-container">
-            <a href="index.html" class="logo-container">
-                <span class="logo">BEAUTY DEAL</span>
-                <span class="logo-slogan">Quản Trị Hệ Thống</span>
+            <a href="index.html" class="logo-container" id="headerLogoContainer">
+                <!-- Ghi chú: Quay lại phương pháp nhúng trực tiếp và đơn giản hóa SVG để đảm bảo hiển thị. -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" style="display:block; max-height:70px; width:auto; background:transparent;">
+                  <g transform="translate(300, 110)">
+                    <rect x="-50" y="-50" width="100" height="100" rx="15" transform="rotate(45)" fill="none" stroke="#ffffff" stroke-width="4"/>
+                    <rect x="-40" y="-40" width="80" height="80" rx="10" transform="rotate(45)" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>
+                    <g transform="rotate(-45)">
+                      <path d="M -5,45 L 5,45 L 5,5 L -5,5 Z" fill="#ffffff" />
+                      <rect x="-7" y="-5" width="14" height="10" fill="#ffffff" />
+                      <path d="M -7,-5 C -20,-35 20,-35 7,-5 Z" fill="none" stroke="#ffffff" stroke-width="2" />
+                      <path d="M -2,-5 C -8,-28 8,-28 2,-5 Z" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.7" />
+                    </g>
+                  </g>
+                  <g transform="translate(300, 240)" text-anchor="middle">
+                    <text font-family="Arial, sans-serif" font-size="44" font-weight="bold" fill="#ffffff" letter-spacing="3">BEAUTY DEAL</text>
+                    <text y="38" font-family="Arial, sans-serif" font-size="15" font-weight="600" fill="#bdc3c7" letter-spacing="4">- QUẢN TRỊ HỆ THỐNG -</text>
+                  </g>
+                </svg>
             </a>
             <div class="header-right">
                 <!-- NEW NOTIFICATION BELL -->
@@ -337,7 +352,8 @@
                             <input type="file" id="prodImageFile" accept="image/*" onchange="previewImage(event, 'prodImagePreview', 'prodImageHidden')">
                             <input type="hidden" id="prodImageHidden">
                             <img id="prodImagePreview" src="" alt="Xem trước ảnh sản phẩm" style="max-width: 100px; max-height: 100px; margin-top: 10px; border: 1px solid #eee; display: none;">
-                            <input type="text" id="prodImageUrl" placeholder="Hoặc dán link ảnh HTTPS từ Unsplash hoặc máy chủ của bạn..." oninput="clearFileInput('prodImageFile', 'prodImagePreview', 'prodImageHidden')">
+                            <input type="text" id="prodImageUrl" placeholder="⭐ Hoặc dán link ảnh (URL) vào đây - Cách ổn định nhất" oninput="clearFileInput('prodImageFile', 'prodImagePreview', 'prodImageHidden')" style="margin-top: 8px; border: 2px solid #3498db; background-color: #f0f7ff;">
+                            <p style="font-size: 12px; color: #e74c3c; margin-top: 5px; font-weight: 600;">LƯU Ý: Tải ảnh từ máy tính có thể gây lỗi. <strong>Ưu tiên sử dụng link ảnh (URL)</strong> để đảm bảo ổn định.</p>
                         </div>
                         <div class="form-group">
                             <label>Thương hiệu *</label>
@@ -389,7 +405,14 @@
                                     <label>Mã màu (Hex)</label>
                                     <input type="text" id="newVariantColorCode" placeholder="#FF5733">
                                 </div>
-                                <button type="button" onclick="addVariantToProduct()" class="form-btn submit" style="padding: 10px 15px; height: 40px;">Thêm</button>
+                                <!-- Removed button from grid to allow more flexible layout for image URL -->
+                            </div>
+                            <div class="form-group" style="margin-top: 10px; margin-bottom: 0;">
+                                <label>URL Hình ảnh phiên bản (Tùy chọn)</label>
+                                <input type="text" id="newVariantImageUrl" placeholder="Dán link ảnh HTTPS cho phiên bản này...">
+                            </div>
+                            <div class="form-actions-row" style="margin-top: 15px; justify-content: flex-start;">
+                                <button type="button" onclick="addVariantToProduct()" class="form-btn submit" style="padding: 10px 20px;">Thêm phiên bản</button>
                             </div>
                         </div>
                     </div>
@@ -451,11 +474,12 @@
                             <input type="text" id="brandName" required placeholder="Ví dụ: Obagi">
                         </div>
                         <div class="form-group">
-                            <label>URL Logo / Tải ảnh lên *</label>
+                            <label>Logo thương hiệu (Tải ảnh lên hoặc dán URL) *</label>
                             <input type="file" id="brandLogoFile" accept="image/*" onchange="previewImage(event, 'brandLogoPreview', 'brandLogoHidden')">
                             <input type="hidden" id="brandLogoHidden">
                             <img id="brandLogoPreview" src="" alt="Xem trước logo" style="max-width: 80px; max-height: 40px; margin-top: 10px; border: 1px solid #eee; display: none;">
-                            <input type="text" id="brandLogoUrlInput" placeholder="Hoặc dán link ảnh logo từ web vào đây..." oninput="clearFileInput('brandLogoFile', 'brandLogoPreview', 'brandLogoHidden')">
+                            <input type="text" id="brandLogoUrlInput" placeholder="⭐ Dán link ảnh (URL) vào đây - Cách ổn định nhất" oninput="clearFileInput('brandLogoFile', 'brandLogoPreview', 'brandLogoHidden')" style="margin-top: 8px; border: 2px solid #3498db; background-color: #f0f7ff;">
+                            <p style="font-size: 12px; color: #e74c3c; margin-top: 5px; font-weight: 600;">LƯU Ý: Tải ảnh từ máy tính có thể gây lỗi. <strong>Ưu tiên sử dụng link ảnh (URL)</strong> để đảm bảo ổn định.</p>
                         </div>
                         <div class="form-group">
                             <label>Liên kết (URL)</label>
@@ -589,6 +613,14 @@
                             <label>Email</label>
                             <input type="email" id="shopInfoEmail" placeholder="info@beautydeal.vn">
                         </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Logo Website (Hiển thị ở Header) *</label>
+                            <input type="file" id="shopInfoMainLogoFile" accept="image/*" onchange="previewImage(event, 'shopInfoMainLogoPreview', 'shopInfoMainLogoHidden')">
+                            <input type="hidden" id="shopInfoMainLogoHidden">
+                            <img id="shopInfoMainLogoPreview" src="" alt="Xem trước logo website" style="max-width: 100px; max-height: 40px; margin-top: 10px; border: 1px solid #eee; display: none;">
+                            <input type="text" id="shopInfoMainLogoUrlInput" placeholder="⭐ Dán link ảnh (URL) vào đây - Cách ổn định nhất" oninput="clearFileInput('shopInfoMainLogoFile', 'shopInfoMainLogoPreview', 'shopInfoMainLogoHidden')" style="margin-top: 8px; border: 2px solid #3498db; background-color: #f0f7ff;">
+                            <p style="font-size: 12px; color: #e74c3c; margin-top: 5px; font-weight: 600;">LƯU Ý: Tải ảnh từ máy tính có thể gây lỗi 403 nếu kích thước lớn. <strong>Ưu tiên sử dụng link ảnh (URL)</strong> đã được tải lên một dịch vụ khác (ví dụ: imgur.com, postimages.org) để đảm bảo ổn định.</p>
+                        </div>
                         <div class="form-group">
                             <label>Link Facebook</label>
                             <input type="text" id="shopInfoFacebook" placeholder="https://facebook.com/yourpage">
@@ -617,64 +649,36 @@
                     </button>
                 </div>
                 <form id="valuePropsForm" onsubmit="saveValueProps(event)">
-                    <!-- Prop 1 -->
-                    <h4 style="margin-top:15px; margin-bottom:5px; color:#555;">Mục 1</h4>
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-                        <div class="form-group">
-                            <label>Tiêu đề</label>
-                            <input type="text" id="propTitle1" placeholder="Cam kết chính hãng">
-                        </div>
-                        <div class="form-group">
-                            <label>Icon (Emoji)</label>
-                            <input type="text" id="propIcon1" placeholder="✅">
-                        </div>
-                        <div class="form-group" style="grid-column: span 2;">
-                            <label>Mô tả</label>
-                            <input type="text" id="propDesc1" placeholder="100% sản phẩm nhập khẩu trực tiếp">
-                        </div>
-                        <div class="form-group" style="grid-column: span 2;">
-                            <label>URL Hình ảnh (sẽ thay thế Icon)</label>
-                            <input type="text" id="propImageUrl1" placeholder="Dán link ảnh vào đây...">
-                        </div>
+                    <div class="form-group">
+                        <label>Chọn mục cần chỉnh sửa</label>
+                        <select id="selectValuePropToEdit" onchange="loadSelectedValueProp()">
+                            <option value="0">Mục 1</option>
+                            <option value="1">Mục 2</option>
+                            <option value="2">Mục 3</option>
+                        </select>
                     </div>
-                    <!-- Prop 2 -->
-                    <h4 style="margin-top:15px; margin-bottom:5px; color:#555; border-top:1px dashed #eee; padding-top:15px;">Mục 2</h4>
+
+                    <h4 style="margin-top:15px; margin-bottom:5px; color:#555;">Chi tiết mục đã chọn</h4>
                     <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
                         <div class="form-group">
                             <label>Tiêu đề</label>
-                            <input type="text" id="propTitle2" placeholder="Giá tốt mỗi ngày">
+                            <input type="text" id="propTitle" placeholder="Cam kết chính hãng">
                         </div>
                         <div class="form-group">
                             <label>Icon (Emoji)</label>
-                            <input type="text" id="propIcon2" placeholder="💰">
+                            <input type="text" id="propIcon" placeholder="✅">
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
                             <label>Mô tả</label>
-                            <input type="text" id="propDesc2" placeholder="Ưu đãi độc quyền, tiết kiệm tối đa">
+                            <input type="text" id="propDesc" placeholder="100% sản phẩm nhập khẩu trực tiếp">
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
-                            <label>URL Hình ảnh (sẽ thay thế Icon)</label>
-                            <input type="text" id="propImageUrl2" placeholder="Dán link ảnh vào đây...">
-                        </div>
-                    </div>
-                    <!-- Prop 3 -->
-                    <h4 style="margin-top:15px; margin-bottom:5px; color:#555; border-top:1px dashed #eee; padding-top:15px;">Mục 3</h4>
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-                        <div class="form-group">
-                            <label>Tiêu đề</label>
-                            <input type="text" id="propTitle3" placeholder="Tư vấn chuyên sâu">
-                        </div>
-                        <div class="form-group">
-                            <label>Icon (Emoji)</label>
-                            <input type="text" id="propIcon3" placeholder="📞">
-                        </div>
-                        <div class="form-group" style="grid-column: span 2;">
-                            <label>Mô tả</label>
-                            <input type="text" id="propDesc3" placeholder="Đội ngũ chuyên gia da liễu hỗ trợ 24/7">
-                        </div>
-                        <div class="form-group" style="grid-column: span 2;">
-                            <label>URL Hình ảnh (sẽ thay thế Icon)</label>
-                            <input type="text" id="propImageUrl3" placeholder="Dán link ảnh vào đây...">
+                            <label>Hình ảnh (Tùy chọn)</label>
+                            <input type="file" id="propImageFile" accept="image/*" onchange="previewImage(event, 'propImagePreview', 'propImageHidden')">
+                            <input type="hidden" id="propImageHidden">
+                            <img id="propImagePreview" src="" alt="Xem trước ảnh" style="max-width: 100px; max-height: 100px; margin-top: 10px; border: 1px solid #eee; display: none;">
+                            <input type="text" id="propImageUrl" placeholder="⭐ Hoặc dán link ảnh (URL) vào đây - Cách ổn định nhất" oninput="clearFileInput('propImageFile', 'propImagePreview', 'propImageHidden')" style="margin-top: 8px; border: 2px solid #3498db; background-color: #f0f7ff;">
+                            <p style="font-size: 12px; color: #e74c3c; margin-top: 5px; font-weight: 600;">LƯU Ý: Tải ảnh từ máy tính có thể gây lỗi. <strong>Ưu tiên sử dụng link ảnh (URL)</strong> để đảm bảo ổn định.</p>
                         </div>
                     </div>
                     <div class="form-actions-row">
@@ -761,18 +765,19 @@
                         <input type="text" id="modalBrandName" required placeholder="Ví dụ: Obagi">
                     </div>
                     <div class="form-group">
-                        <label>Liên kết (URL)</label>
-                        <input type="text" id="modalBrandLink" placeholder="https://obagi.com">
-                    </div>
-                    <div class="form-group">
-                        <label>URL Logo / Tải ảnh lên *</label>
+                        <label>Logo thương hiệu (Tải ảnh lên hoặc dán URL) *</label>
                         <input type="file" id="modalBrandLogoFile" accept="image/*" onchange="previewImage(event, 'modalBrandLogoPreview', 'modalBrandLogoHidden')">
                         <input type="hidden" id="modalBrandLogoHidden">
                         <img id="modalBrandLogoPreview" src="" alt="Xem trước logo" style="max-width: 80px; max-height: 40px; margin-top: 10px; border: 1px solid #eee; display: none;">
-                        <input type="text" id="modalBrandLogoUrlInput" placeholder="Hoặc dán link ảnh logo từ web vào đây..." oninput="clearFileInput('modalBrandLogoFile', 'modalBrandLogoPreview', 'modalBrandLogoHidden')">
+                        <input type="text" id="modalBrandLogoUrlInput" placeholder="⭐ Dán link ảnh (URL) vào đây - Cách ổn định nhất" oninput="clearFileInput('modalBrandLogoFile', 'modalBrandLogoPreview', 'modalBrandLogoHidden')" style="margin-top: 8px; border: 2px solid #3498db; background-color: #f0f7ff;">
+                        <p style="font-size: 12px; color: #e74c3c; margin-top: 5px; font-weight: 600;">LƯU Ý: Tải ảnh từ máy tính có thể gây lỗi. <strong>Ưu tiên sử dụng link ảnh (URL)</strong> để đảm bảo ổn định.</p>
                     </div>
                 </div>
                 <div class="form-actions-row">
+                    <div class="form-group">
+                        <label>Liên kết (URL)</label>
+                        <input type="text" id="modalBrandLink" placeholder="https://obagi.com">
+                    </div>
                     <button type="button" class="form-btn cancel" onclick="closeBrandEditModal()">Hủy</button>
                     <button type="submit" class="form-btn submit">Lưu Thay Đổi</button>
                 </div>
@@ -825,6 +830,7 @@
             social: {
                 facebook: "#", instagram: "#", tiktok: "#"
             }
+            ,mainLogoUrl: "" // NEW: Default empty for main website logo
         };
         const DEFAULT_USER_CREDENTIALS = {
             "admin": { password: "Admin@123", role: "admin" },
@@ -840,8 +846,8 @@
         let currentLoggedInUser = null;
 
         // --- CẤU HÌNH KẾT NỐI DATABASE (JSONBIN.IO) ---
-        const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã thay thế Master Key
-        const JSONBIN_BIN_ID = '6a476dfada38895dfe27361e';   // ✅ Đã thay thế Bin ID
+        const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã cập nhật API Key mới
+        const JSONBIN_BIN_ID = '6a4dacbfda38895dfe3ddc36';   // ✅ Đã cập nhật Bin ID mới
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
 
@@ -854,7 +860,13 @@
                 const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
                 if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
                 const serverData = await response.json();
-                const payload = serverData.record;
+                
+                // ROBUSTNESS FIX: Handle empty or invalid record from server
+                let payload = serverData.record;
+                if (!payload || typeof payload !== 'object') {
+                    console.warn("Server data is invalid or empty. Initializing with an empty object.");
+                    payload = {};
+                }
 
                 // 2. Áp dụng các thay đổi cụ thể lên bản sao này.
                 const callbackResult = updateCallback(payload);
@@ -883,7 +895,7 @@
                 return { success: true, data: payload }; // Trả về payload đã lưu thành công
             } catch (e) {
                 console.error("Critical error during safeUpdateDatabase:", e);
-                alert("❌ A critical error occurred while saving data. Your changes may not be saved.");
+                alert(`❌ Đã xảy ra lỗi nghiêm trọng khi lưu dữ liệu.\n\nChi tiết lỗi:\n${e.message}`);
                 return { success: false };
             }
         }
@@ -894,17 +906,32 @@
                 const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, {
                     headers: { 'X-Master-Key': JSONBIN_API_KEY }
                 });
-                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status} - ${response.statusText}`);
                 
                 const serverData = await response.json();
-                DATABASE = serverData.record; // Dữ liệu từ jsonbin nằm trong 'record'
+
+                // FIX: Xử lý trường hợp server trả về dữ liệu rỗng hoặc không hợp lệ
+                DATABASE = serverData.record || {};
+                if (typeof DATABASE !== 'object' || DATABASE === null) {
+                    console.warn("Dữ liệu từ server không hợp lệ hoặc rỗng. Khởi tạo với object rỗng.");
+                    DATABASE = {};
+                }
                 console.log("✅ Tải dữ liệu từ server thành công!");
 
                 // Gán dữ liệu từ server vào các biến toàn cục
                 APP_PRODUCTS = DATABASE.APP_PRODUCTS || DEFAULT_PRODUCTS;
                 APP_BRANDS = DATABASE.APP_BRANDS || DEFAULT_BRANDS;
                 APP_BANNERS = DATABASE.APP_BANNERS || DEFAULT_BANNERS;
-                APP_SHOP_INFO = DATABASE.APP_SHOP_INFO || DEFAULT_SHOP_INFO;
+
+                // NEW: Robustly merge shop info to prevent errors if parts are missing
+                const loadedShopInfo = DATABASE.APP_SHOP_INFO || {};
+                APP_SHOP_INFO = {
+                    ...DEFAULT_SHOP_INFO,
+                    ...loadedShopInfo,
+                    contact: { ...DEFAULT_SHOP_INFO.contact, ...(loadedShopInfo.contact || {}) },
+                    social: { ...DEFAULT_SHOP_INFO.social, ...(loadedShopInfo.social || {}) },
+                };
+
                 USER_CREDENTIALS = DATABASE.USER_CREDENTIALS || DEFAULT_USER_CREDENTIALS;
                 APP_ORDERS = DATABASE.APP_ORDERS || [];
                 APP_SUBSCRIBERS = DATABASE.APP_SUBSCRIBERS || [];
@@ -919,7 +946,7 @@
 
             } catch (e) {
                 console.error("Không thể tải dữ liệu từ server, sử dụng dữ liệu mặc định.", e);
-                alert("⚠️ Lỗi: Không thể kết nối đến máy chủ dữ liệu. Trang đang sử dụng dữ liệu tạm thời.");
+                alert(`⚠️ Lỗi: Không thể kết nối đến máy chủ dữ liệu.\n\nChi tiết lỗi: ${e.message}\n\nTrang đang sử dụng dữ liệu tạm thời.`);
                 // Nếu lỗi, dùng dữ liệu mặc định
                 APP_PRODUCTS = DEFAULT_PRODUCTS;
                 APP_BRANDS = DEFAULT_BRANDS;
@@ -960,9 +987,9 @@
             }
 
             // KIỂM TRA KÍCH THƯỚC FILE ĐỂ TRÁNH LỖI PAYLOAD VỚI JSONBIN
-            const MAX_FILE_SIZE_KB = 200; // Giới hạn kích thước file là 200KB
+            const MAX_FILE_SIZE_KB = 50; // Giảm giới hạn xuống 50KB để an toàn hơn
             if (file.size > MAX_FILE_SIZE_KB * 1024) {
-                alert(`Lỗi: Kích thước file ảnh quá lớn (${(file.size / 1024).toFixed(0)} KB).\n\nVui lòng chọn file có kích thước nhỏ hơn ${MAX_FILE_SIZE_KB} KB.\n\n💡 MẸO: Bạn có thể nén ảnh trước khi tải lên, hoặc tải ảnh lên một dịch vụ hosting (ví dụ: imgur.com, postimages.org) rồi dán link ảnh vào ô bên dưới.`);
+                alert(`Lỗi: Kích thước file ảnh quá lớn (${(file.size / 1024).toFixed(0)} KB).\n\nDo giới hạn của dịch vụ lưu trữ miễn phí (jsonbin.io), tổng dung lượng dữ liệu không được vượt quá 256KB. Việc tải ảnh lớn sẽ gây ra lỗi 403.\n\nVui lòng chọn file có kích thước nhỏ hơn ${MAX_FILE_SIZE_KB} KB.\n\n💡 GIẢI PHÁP TỐT NHẤT: Tải ảnh lên một dịch vụ hosting miễn phí (ví dụ: imgur.com, postimages.org) rồi dán link ảnh vào ô bên dưới.`);
                 fileInput.value = ''; // Xóa file đã chọn để người dùng chọn lại
                 return;
             }
@@ -976,12 +1003,17 @@
                 hiddenInput.value = reader.result; // Lưu Data URL (Base64)
 
                 // Tự động xóa input URL tương ứng khi đã chọn file
-                if (previewId === 'prodImagePreview') {
-                    document.getElementById('prodImageUrl').value = '';
-                } else if (previewId === 'brandLogoPreview' || previewId === 'modalBrandLogoPreview') {
-                    document.getElementById(previewId.replace('Preview', 'UrlInput')).value = '';
-                } else if (previewId === 'bannerImagePreview') {
-                    document.getElementById('bannerImageUrlInput').value = '';
+                const urlInputMap = {
+                    'prodImagePreview': 'prodImageUrl',
+                    'brandLogoPreview': 'brandLogoUrlInput',
+                    'modalBrandLogoPreview': 'modalBrandLogoUrlInput',
+                    'bannerImagePreview': 'bannerImageUrlInput',
+                    'shopInfoMainLogoPreview': 'shopInfoMainLogoUrlInput',
+                    'propImagePreview': 'propImageUrl'
+                };
+                const urlInputId = urlInputMap[previewId];
+                if (urlInputId && document.getElementById(urlInputId)) {
+                    document.getElementById(urlInputId).value = '';
                 }
             };
             reader.readAsDataURL(file);
@@ -995,6 +1027,27 @@
         }
 
         // --- HÀM XỬ LÝ QUẢN TRỊ ---
+        function renderHeaderLogo() {
+            const logoContainer = document.getElementById('headerLogoContainer');
+            if (!logoContainer) return;
+
+            // Use optional chaining and nullish coalescing for a concise and safe check.
+            const logoUrl = (APP_SHOP_INFO?.mainLogoUrl ?? '').trim();
+
+            if (logoUrl) {
+                logoContainer.innerHTML = ''; // Xóa SVG mặc định
+                const logoImg = document.createElement('img');
+                logoImg.id = 'mainWebsiteLogo';
+                logoImg.src = logoUrl;
+                logoImg.alt = 'Beauty Deal Admin Logo';
+                logoImg.style.height = '70px'; // Sử dụng 'height' để cân đối hơn
+                logoImg.style.width = 'auto';
+                logoImg.style.objectFit = 'contain'; // Thêm object-fit để không bị méo ảnh
+                logoContainer.appendChild(logoImg);
+            }
+            // If logoUrl is empty, do nothing, preserving the default SVG.
+        }
+
         function closeLoginModal() { 
             document.getElementById('loginModal').classList.remove('active'); 
             document.getElementById('loginErrorAlert').classList.remove('active');
@@ -1028,6 +1081,8 @@
             document.getElementById('adminSection').style.display = 'block'; // Show admin section
             document.getElementById('loginModal').classList.remove('active'); // Hide login modal
             
+            renderHeaderLogo(); // NEW: Render the logo from DB
+
             document.querySelectorAll('#loggedInUsername').forEach(el => el.innerText = currentLoggedInUser);
             document.querySelectorAll('#loggedInUserRole').forEach(el => el.innerText = currentUserRole === 'admin' ? 'Quản trị viên' : 'Nhân viên');
 
@@ -1055,7 +1110,7 @@
             }
             
             populateShopInfoForm();
-            populateValuePropsForm();
+            loadSelectedValueProp(); // Initialize form with the first value prop
             renderAdminBrandsTable();
             renderAdminBannersTable();
             renderAdminTable();
@@ -1179,13 +1234,15 @@
             document.getElementById('prodImagePreview').src = '';
             document.getElementById('prodImageHidden').value = '';
             document.getElementById('prodImageUrl').value = '';
+            document.getElementById('newVariantImageUrl').value = ''; // NEW: Clear new variant image URL
+
             // NEW: Reset variant section
             currentEditingVariants = [];
             renderVariantsForEditing();
             document.getElementById('variantManagementSection').classList.remove('active');
-        }
             // NEW: Clear validation errors
             document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+        }
 
         function startEditProduct(id) {
             const p = APP_PRODUCTS.find(item => item.id === id);
@@ -1232,15 +1289,15 @@
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerText;
 
-            // --- VALIDATION LOGIC ---
+            // 1. Clear previous errors
             document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
 
+            // 2. Validate required fields
             const requiredFields = {
                 prodName: 'Tên sản phẩm',
                 prodCurrPrice: 'Giá bán hiện tại',
                 prodBrand: 'Thương hiệu'
             };
-
             const missingFields = [];
             for (const id in requiredFields) {
                 const input = document.getElementById(id);
@@ -1250,34 +1307,34 @@
                 }
             }
 
+            const editId = document.getElementById('editProductId').value;
             const prodImageFile = document.getElementById('prodImageFile');
             const prodImageUrl = document.getElementById('prodImageUrl').value.trim();
-            const editId = document.getElementById('editProductId').value;
-            if (!prodImageFile.files.length && !prodImageUrl && !editId) {
-                 missingFields.push('Hình ảnh sản phẩm');
-                 prodImageFile.classList.add('input-error');
-                 document.getElementById('prodImageUrl').classList.add('input-error');
+            if (!editId && !prodImageFile.files.length && !prodImageUrl) {
+                missingFields.push('Hình ảnh sản phẩm');
+                prodImageFile.classList.add('input-error');
+                document.getElementById('prodImageUrl').classList.add('input-error');
             }
 
             if (missingFields.length > 0) {
                 alert(`❌ Vui lòng điền đầy đủ các trường bắt buộc:\n\n- ${missingFields.join('\n- ')}`);
-                return;
+                return; // Exit if validation fails
             }
-            // --- END VALIDATION ---
 
+            // 3. Disable button
             submitBtn.disabled = true;
             submitBtn.innerText = 'ĐANG LƯU...';
 
+            // 4. Prepare data
+            // NEW ROBUST LOGIC: Prioritize URL input over file upload.
             let productImage = '';
             const prodImageHidden = document.getElementById('prodImageHidden').value.trim();
-
-            if (prodImageFile.files.length > 0 && prodImageHidden) {
-                productImage = prodImageHidden;
-            } else if (prodImageUrl) {
+            if (prodImageUrl) {
                 productImage = prodImageUrl;
+            } else if (prodImageHidden) {
+                productImage = prodImageHidden;
             } else if (editId) {
-                const existingProduct = APP_PRODUCTS.find(p => p.id === editId);
-                if (existingProduct) productImage = existingProduct.image;
+                productImage = APP_PRODUCTS.find(p => p.id === editId)?.image || '';
             }
 
             const productData = {
@@ -1292,23 +1349,46 @@
                 specs: document.getElementById('prodSpecs').value.trim(),
                 ingredients: document.getElementById('prodIngredients').value.trim(),
                 usage: document.getElementById('prodUsage').value.trim(),
-                variants: currentEditingVariants.length > 0 ? currentEditingVariants : null
             };
 
+            // 5. Call safe update
             const result = await safeUpdateDatabase(payload => {
                 if (!payload.APP_PRODUCTS) payload.APP_PRODUCTS = [];
-                if (editId) {
+                
+                if (editId) { // --- UPDATE EXISTING PRODUCT ---
                     const idx = payload.APP_PRODUCTS.findIndex(p => p.id === editId);
-                    if (idx !== -1) payload.APP_PRODUCTS[idx] = { ...payload.APP_PRODUCTS[idx], ...productData };
-                } else {
-                    const newId = "prod" + Date.now();
-                    payload.APP_PRODUCTS.push({ id: newId, ...productData });
+                    if (idx !== -1) {
+                        const finalVariants = currentEditingVariants.map(v => ({
+                            ...v,
+                            id: v.id || `${editId}-${v.colorName.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+                        }));
+                        payload.APP_PRODUCTS[idx] = { 
+                            ...payload.APP_PRODUCTS[idx], 
+                            ...productData,
+                            variants: finalVariants.length > 0 ? finalVariants : null
+                        };
+                    }
+                } else { // --- ADD NEW PRODUCT ---
+                    const newId = `prod${Date.now()}`;
+                    const finalVariants = currentEditingVariants.map(v => ({
+                        ...v,
+                        id: `${newId}-${v.colorName.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+                    }));
+                    const newProduct = { 
+                        id: newId, 
+                        ...productData, 
+                        variants: finalVariants.length > 0 ? finalVariants : null 
+                    };
+                    payload.APP_PRODUCTS.push(newProduct);
                 }
             }, { reloadOnSuccess: true });
 
+            // 6. Handle result
             if (result.success) {
                 alert(editId ? "✅ Cập nhật sản phẩm thành công! Trang sẽ được tải lại." : "✅ Thêm sản phẩm mới thành công! Trang sẽ được tải lại.");
+                // Page will reload, no need to re-enable button
             } else {
+                // If save fails, re-enable the button
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalBtnText;
             }
@@ -1329,7 +1409,10 @@
             currentEditingVariants.forEach((variant, index) => {
                 const item = document.createElement('div');
                 item.className = 'variant-item';
+                // NEW: Display image if available
+                const imageHtml = variant.image ? `<img src="${variant.image}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 4px; margin-right: 5px;">` : '';
                 item.innerHTML = `
+                    ${imageHtml}
                     <div class="variant-swatch" style="background-color: ${variant.colorCode};"></div>
                     <div class="variant-name">${variant.colorName} (${variant.colorCode})</div>
                     <button type="button" class="variant-delete-btn" onclick="deleteVariant(${index})">&times;</button>
@@ -1341,18 +1424,20 @@
         function addVariantToProduct() {
             const nameInput = document.getElementById('newVariantColorName');
             const codeInput = document.getElementById('newVariantColorCode');
+            const imageUrlInput = document.getElementById('newVariantImageUrl'); // NEW
             const colorName = nameInput.value.trim();
             const colorCode = codeInput.value.trim();
+            const imageUrl = imageUrlInput.value.trim(); // NEW
 
-            if (!colorName || !colorCode) {
-                alert("Vui lòng nhập Tên màu và Mã màu.");
-                return;
-            }
-            const newVariantId = document.getElementById('editProductId').value + '-' + colorName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            currentEditingVariants.push({ id: newVariantId, colorName, colorCode, image: '' }); // Image can be added later
+             if (!colorName || !colorCode) {
+                 alert("Vui lòng nhập Tên màu và Mã màu.");
+                 return;
+             }
+             currentEditingVariants.push({ colorName, colorCode, image: imageUrl }); // Updated to include image
             renderVariantsForEditing();
-            nameInput.value = '';
-            codeInput.value = '';
+             nameInput.value = '';
+             codeInput.value = '';
+             imageUrlInput.value = ''; // NEW: Clear image URL input
         }
 
         function deleteVariant(index) {
@@ -1409,6 +1494,7 @@
             document.getElementById('brandLogoPreview').src = '';
             document.getElementById('brandLogoHidden').value = '';
             document.getElementById('brandLogoUrlInput').value = '';
+            document.getElementById('brandLogoUrlInput').value = ''; // Clear URL input as well
         }
 
         async function addNewBrand(e) {
@@ -1419,18 +1505,19 @@
             const name = document.getElementById('brandName').value.trim();
             const link = document.getElementById('brandLink').value.trim();
 
-            // Determine brand logo source
-            let brandLogo = '';
-            const brandLogoFile = document.getElementById('brandLogoFile');
+            // NEW ROBUST LOGIC: Prioritize URL input over file upload.
             const brandLogoUrlInput = document.getElementById('brandLogoUrlInput').value.trim();
             const brandLogoHidden = document.getElementById('brandLogoHidden').value.trim();
 
-            if (brandLogoFile.files.length > 0 && brandLogoHidden) {
-                brandLogo = brandLogoHidden;
-            } else if (brandLogoUrlInput) {
+            let brandLogo = '';
+            if (brandLogoUrlInput) {
                 brandLogo = brandLogoUrlInput;
+            } else if (brandLogoHidden) {
+                brandLogo = brandLogoHidden;
+            } else {
+                alert("Vui lòng cung cấp logo thương hiệu bằng cách tải ảnh lên hoặc dán URL.");
+                return;
             }
-
             if (!name || !brandLogo) return alert("Vui lòng nhập Tên và URL Logo.");
 
             const newId = "brand" + String(Date.now()).slice(-5);
@@ -1453,19 +1540,19 @@
             document.getElementById('modalBrandName').value = brand.name;
             document.getElementById('modalBrandLink').value = brand.link;
 
-            // Handle modal brand logo display for edit
+            // Handle modal brand logo display for edit (similar to product image)
             document.getElementById('modalBrandLogoFile').value = ''; // Clear file input
             document.getElementById('modalBrandLogoHidden').value = ''; // Clear hidden input
             const modalBrandLogoPreview = document.getElementById('modalBrandLogoPreview');
             if (brand.logoUrl.startsWith('data:image')) { // Check if it's a Data URL
                 modalBrandLogoPreview.src = brand.logoUrl;
                 modalBrandLogoPreview.style.display = 'block';
-                document.getElementById('modalBrandLogoUrlInput').value = ''; // Clear URL input
+                document.getElementById('modalBrandLogoUrlInput').value = ''; // Clear URL input if Data URL is present
                 document.getElementById('modalBrandLogoHidden').value = brand.logoUrl; // Keep data URL in hidden input
             } else { // It's a regular URL
                 document.getElementById('modalBrandLogoUrlInput').value = brand.logoUrl;
-                modalBrandLogoPreview.style.display = 'none';
-                modalBrandLogoPreview.src = '';
+                modalBrandLogoPreview.src = brand.logoUrl; // Show preview for URL
+                modalBrandLogoPreview.style.display = 'block';
             }
         }
 
@@ -1478,16 +1565,15 @@
             const name = document.getElementById('modalBrandName').value.trim();
             const link = document.getElementById('modalBrandLink').value.trim();
 
-            // Determine modal brand logo source
+            // NEW ROBUST LOGIC: Prioritize URL input over file upload.
             let brandLogo = '';
-            const modalBrandLogoFile = document.getElementById('modalBrandLogoFile');
             const modalBrandLogoUrlInput = document.getElementById('modalBrandLogoUrlInput').value.trim();
             const modalBrandLogoHidden = document.getElementById('modalBrandLogoHidden').value.trim();
 
-            if (modalBrandLogoFile.files.length > 0 && modalBrandLogoHidden) {
-                brandLogo = modalBrandLogoHidden;
-            } else if (modalBrandLogoUrlInput) {
+            if (modalBrandLogoUrlInput) {
                 brandLogo = modalBrandLogoUrlInput;
+            } else if (modalBrandLogoHidden) {
+                brandLogo = modalBrandLogoHidden;
             } else {
                 // If editing and no new file/URL, retain existing logo
                 const existingBrand = APP_BRANDS.find(b => b.id === id);
@@ -1520,6 +1606,7 @@
             document.getElementById('modalBrandLogoPreview').src = '';
             document.getElementById('modalBrandLogoHidden').value = '';
             document.getElementById('modalBrandLogoUrlInput').value = '';
+            document.getElementById('modalBrandLogoUrlInput').value = ''; // Clear URL input
         }
 
         async function deleteBrand(id) {
@@ -2028,33 +2115,109 @@
             document.getElementById('shopInfoFacebook').value = info.social.facebook;
             document.getElementById('shopInfoInstagram').value = info.social.instagram;
             document.getElementById('shopInfoTiktok').value = info.social.tiktok;
+
+            // NEW: Populate main website logo fields
+            const mainLogoPreview = document.getElementById('shopInfoMainLogoPreview');
+            const mainLogoUrlInput = document.getElementById('shopInfoMainLogoUrlInput');
+            const mainLogoHidden = document.getElementById('shopInfoMainLogoHidden');
+            const mainLogoFile = document.getElementById('shopInfoMainLogoFile');
+
+            mainLogoFile.value = ''; // Clear file input
+            mainLogoHidden.value = ''; // Clear hidden input
+
+            if (info.mainLogoUrl) {
+                if (info.mainLogoUrl.startsWith('data:image')) { // If it's a Data URL
+                    mainLogoPreview.src = info.mainLogoUrl;
+                    mainLogoPreview.style.display = 'block';
+                    mainLogoUrlInput.value = ''; // Clear URL input if Data URL is present
+                    mainLogoHidden.value = info.mainLogoUrl; // Keep Data URL in hidden input
+                } else { // It's a regular URL
+                    mainLogoUrlInput.value = info.mainLogoUrl;
+                    mainLogoPreview.src = info.mainLogoUrl; // Show preview for URL
+                    mainLogoPreview.style.display = 'block';
+                }
+            } else {
+                mainLogoUrlInput.value = '';
+                mainLogoPreview.style.display = 'none';
+                mainLogoPreview.src = '';
+            }
         }
 
+        // REWRITTEN FOR ROBUSTNESS: This function now builds a new object from the form
+        // and replaces the old one entirely, avoiding complex merge issues.
         async function saveShopInfo(e) {
             e.preventDefault();
             if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền thay đổi thông tin cửa hàng!");
 
-            APP_SHOP_INFO.contact.address = document.getElementById('shopInfoAddress').value.trim();
-            APP_SHOP_INFO.contact.phone = document.getElementById('shopInfoPhone').value.trim();
-            APP_SHOP_INFO.contact.email = document.getElementById('shopInfoEmail').value.trim();
-            APP_SHOP_INFO.social.facebook = document.getElementById('shopInfoFacebook').value.trim();
-            APP_SHOP_INFO.social.instagram = document.getElementById('shopInfoInstagram').value.trim();
-            APP_SHOP_INFO.social.tiktok = document.getElementById('shopInfoTiktok').value.trim();
+            // 1. Create a new, clean shop info object from all form fields.
+            const newInfo = {
+                mainLogoUrl: '', // Default to empty
+                contact: {
+                    address: document.getElementById('shopInfoAddress').value.trim(),
+                    phone: document.getElementById('shopInfoPhone').value.trim(),
+                    email: document.getElementById('shopInfoEmail').value.trim(),
+                },
+                social: {
+                    facebook: document.getElementById('shopInfoFacebook').value.trim(),
+                    instagram: document.getElementById('shopInfoInstagram').value.trim(),
+                    tiktok: document.getElementById('shopInfoTiktok').value.trim(),
+                }
+            };
 
-            await safeUpdateDatabase(db => { db.APP_SHOP_INFO = APP_SHOP_INFO; });
-            alert("✅ Cập nhật thông tin cửa hàng thành công!");
+            // 2. Determine the final logo URL (URL input has priority over file upload).
+            const mainLogoUrlInput = document.getElementById('shopInfoMainLogoUrlInput').value.trim();
+            const mainLogoHidden = document.getElementById('shopInfoMainLogoHidden').value.trim();
+            if (mainLogoUrlInput) {
+                newInfo.mainLogoUrl = mainLogoUrlInput;
+            } else if (mainLogoHidden) {
+                newInfo.mainLogoUrl = mainLogoHidden;
+            }
+
+            // 3. Atomically update the database by replacing the entire APP_SHOP_INFO object.
+            const result = await safeUpdateDatabase(payload => {
+                payload.APP_SHOP_INFO = newInfo;
+            });
+            if (result.success) {
+                APP_SHOP_INFO = result.data.APP_SHOP_INFO; // Update local state with the saved data
+                alert("✅ Cập nhật thông tin cửa hàng thành công!");
+                renderHeaderLogo(); // Re-render logo in admin page immediately
+            }
         }
 
         // --- HÀM XỬ LÝ QUẢN LÝ "TẠI SAO CHỌN BEAUTY DEAL" ---
-        function populateValuePropsForm() {
-            if (!APP_VALUE_PROPS || APP_VALUE_PROPS.length < 3) {
-                APP_VALUE_PROPS = [...DEFAULT_VALUE_PROPS]; // Nếu dữ liệu lỗi, dùng mặc định
-            }
-            for (let i = 0; i < 3; i++) { // Lặp 3 lần cho 3 mục
-                document.getElementById(`propIcon${i+1}`).value = APP_VALUE_PROPS[i].icon || '';
-                document.getElementById(`propTitle${i+1}`).value = APP_VALUE_PROPS[i].title || '';
-                document.getElementById(`propDesc${i+1}`).value = APP_VALUE_PROPS[i].description || '';
-                document.getElementById(`propImageUrl${i+1}`).value = APP_VALUE_PROPS[i].imageUrl || '';
+        function loadSelectedValueProp() {
+            const select = document.getElementById('selectValuePropToEdit');
+            const index = select.value;
+            const prop = APP_VALUE_PROPS[index];
+            if (!prop) return;
+
+            document.getElementById('propTitle').value = prop.title || '';
+            document.getElementById('propIcon').value = prop.icon || '';
+            document.getElementById('propDesc').value = prop.description || '';
+            
+            const imageUrlInput = document.getElementById('propImageUrl');
+            const imagePreview = document.getElementById('propImagePreview');
+            const imageHidden = document.getElementById('propImageHidden');
+            const imageFile = document.getElementById('propImageFile');
+
+            imageFile.value = '';
+            imageHidden.value = '';
+
+            if (prop.imageUrl) {
+                if (prop.imageUrl.startsWith('data:image')) {
+                    imageHidden.value = prop.imageUrl;
+                    imageUrlInput.value = '';
+                    imagePreview.src = prop.imageUrl;
+                    imagePreview.style.display = 'block';
+                } else {
+                    imageUrlInput.value = prop.imageUrl;
+                    imagePreview.src = prop.imageUrl;
+                    imagePreview.style.display = 'block';
+                }
+            } else {
+                imageUrlInput.value = '';
+                imagePreview.src = '';
+                imagePreview.style.display = 'none';
             }
         }
 
@@ -2062,20 +2225,40 @@
             e.preventDefault();
             if (currentUserRole !== 'admin') return alert("❌ Bạn không có quyền thay đổi mục này!");
 
-            const newProps = [];
-            for (let i = 0; i < 3; i++) { // Lặp 3 lần
-                newProps.push({
-                    icon: document.getElementById(`propIcon${i+1}`).value.trim(),
-                    title: document.getElementById(`propTitle${i+1}`).value.trim(),
-                    description: document.getElementById(`propDesc${i+1}`).value.trim(),
-                    imageUrl: document.getElementById(`propImageUrl${i+1}`).value.trim()
-                });
+            const index = document.getElementById('selectValuePropToEdit').value;
+            if (!APP_VALUE_PROPS[index]) return;
+
+            // NEW ROBUST LOGIC: Prioritize URL input over file upload.
+            let imageUrl = '';
+            const imageUrlInput = document.getElementById('propImageUrl').value.trim();
+            const imageHidden = document.getElementById('propImageHidden').value.trim();
+
+            if (imageUrlInput) {
+                imageUrl = imageUrlInput;
+            } else if (imageHidden) {
+                imageUrl = imageHidden;
+            } else {
+                imageUrl = APP_VALUE_PROPS[index]?.imageUrl || ''; // Retain existing if no new one
             }
+
+            const updatedProp = {
+                title: document.getElementById('propTitle').value.trim(),
+                icon: document.getElementById('propIcon').value.trim(),
+                description: document.getElementById('propDesc').value.trim(),
+                imageUrl: imageUrl
+            };
+
             const result = await safeUpdateDatabase(payload => {
-                payload.APP_VALUE_PROPS = newProps;
+                if (!payload.APP_VALUE_PROPS || payload.APP_VALUE_PROPS.length < 3) {
+                    payload.APP_VALUE_PROPS = [...DEFAULT_VALUE_PROPS];
+                }
+                payload.APP_VALUE_PROPS[index] = updatedProp;
             });
-            if(result.success) APP_VALUE_PROPS = result.data.APP_VALUE_PROPS;
-            alert("✅ Cập nhật mục 'Tại Sao Chọn Beauty Deal' thành công!");
+
+            if (result.success) {
+                APP_VALUE_PROPS = result.data.APP_VALUE_PROPS;
+                alert("✅ Cập nhật mục 'Tại Sao Chọn Beauty Deal' thành công!");
+            }
         }
 
         async function resetValuePropsToDefaults() {
@@ -2085,7 +2268,7 @@
                 });
                 if (result.success) {
                     APP_VALUE_PROPS = result.data.APP_VALUE_PROPS;
-                    populateValuePropsForm();
+                    loadSelectedValueProp();
                     alert("✅ Đã cập nhật lại 3 mục về nội dung mẫu thành công!");
                 }
             }
@@ -2106,7 +2289,17 @@
                     APP_PRODUCTS: DEFAULT_PRODUCTS,
                     APP_BRANDS: DEFAULT_BRANDS,
                     APP_BANNERS: DEFAULT_BANNERS,
-                    APP_SHOP_INFO: DEFAULT_SHOP_INFO,
+                    APP_SHOP_INFO: { // Ensure mainLogoUrl is included in default
+                        contact: {
+                            address: "123 Đường ABC, Quận XYZ, TP.HCM",
+                            phone: "0987 654 321",
+                            email: "info@beautydeal.vn"
+                        },
+                        social: {
+                            facebook: "#", instagram: "#", tiktok: "#"
+                        },
+                        mainLogoUrl: "" // Default empty for main website logo
+                    },
                     USER_CREDENTIALS: DEFAULT_USER_CREDENTIALS,
                     APP_VALUE_PROPS: DEFAULT_VALUE_PROPS,
                     APP_ORDERS: [],
@@ -2114,6 +2307,7 @@
                     APP_NOTIFICATIONS: []
                 };
 
+                console.log("Dữ liệu gửi đi để reset:", freshDatabase);
                 const response = await fetch(JSONBIN_URL, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
