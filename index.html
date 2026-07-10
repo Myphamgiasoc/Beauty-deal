@@ -679,7 +679,7 @@
                 <div class="detail-top-left"><img src="${prod.image}" alt="${prod.name}"></div>
                 <div class="detail-top-right">
                     <h1 class="detail-top-title">${prod.name}</h1>
-                    <div class="detail-top-brand-row">Thương hiệu: <span>${prod.brand}</span> | Mã barcode: <span>${prod.id}</span></div>
+                    <div class="detail-top-brand-row">Thương hiệu: <span>${prod.brand}</span> | Mã barcode: <span>${prod.barcode || prod.id}</span></div>
                     <div class="detail-top-price-card">
                         <span class="detail-top-curr-price">${prod.currPrice.toLocaleString()}đ</span>
                         ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}

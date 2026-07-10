@@ -335,6 +335,10 @@
                             <input type="text" id="prodName" required placeholder="Ví dụ: Nước tẩy trang Bioderma 500ml">
                         </div>
                         <div class="form-group">
+                            <label>Mã barcode / SKU (Tùy chọn)</label>
+                            <input type="text" id="prodBarcode" placeholder="Mã vạch hoặc mã sản phẩm riêng của bạn">
+                        </div>
+                        <div class="form-group">
                             <label>Danh mục hệ thống *</label>
                             <select id="prodCategory" required>
                                 <option value="TRANG ĐIỂM">Trang điểm</option>
@@ -437,6 +441,7 @@
                         <tr>
                             <th>Ảnh</th>
                             <th>Tên sản phẩm</th>
+                            <th>Mã barcode</th>
                             <th>Danh mục</th>
                             <th>Giá bán</th>
                             <th>Giá gốc</th>
@@ -1215,6 +1220,7 @@
                 tr.innerHTML = `
                     <td><img src="${p.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"></td>
                     <td style="font-weight:600;">${p.name}</td>
+                    <td>${p.barcode || '-'}</td>
                     <td>${p.category}</td>
                     <td style="color:#2980b9; font-weight:bold;">${p.currPrice.toLocaleString('vi-VN')}đ</td>
                     <td style="color:#999; text-decoration:line-through;">${p.origPrice ? p.origPrice.toLocaleString('vi-VN') + 'đ' : '-'}</td>
@@ -1255,6 +1261,7 @@
             document.getElementById('editProductId').value = p.id;
             document.getElementById('formTitle').innerText = `Cập Nhật Sản Phẩm [Mã: ${p.id}]`;
             document.getElementById('prodName').value = p.name;
+            document.getElementById('prodBarcode').value = p.barcode || ''; // NEW: Populate barcode
             document.getElementById('prodCategory').value = p.category;
             document.getElementById('prodCurrPrice').value = p.currPrice;
             document.getElementById('prodOrigPrice').value = p.origPrice || '';
@@ -1344,6 +1351,7 @@
 
             const productData = {
                 name: document.getElementById('prodName').value.trim(),
+                barcode: document.getElementById('prodBarcode').value.trim() || null,
                 category: document.getElementById('prodCategory').value,
                 currPrice: parseInt(document.getElementById('prodCurrPrice').value),
                 origPrice: document.getElementById('prodOrigPrice').value ? parseInt(document.getElementById('prodOrigPrice').value) : null,
