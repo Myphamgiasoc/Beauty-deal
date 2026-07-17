@@ -378,7 +378,9 @@
         .product-prices {
             display: flex;
             align-items: center;
-            gap: 25px; /* Tăng khoảng cách để tránh chồng chéo ký tự 'đ' */
+            flex-wrap: wrap;
+            /* Cho phép giá xuống dòng nếu không đủ không gian, giải quyết lỗi trên mobile */
+            gap: 10px;
             margin-bottom: 14px;
             margin-top: auto
         }
