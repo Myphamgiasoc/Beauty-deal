@@ -1788,6 +1788,11 @@
                     };
                     APP_NOTIFICATIONS.unshift(newNotif);
                     newNotificationAdded = true;
+
+                    // NEW: Placeholder for sending SMS/Call notification
+                    // This would typically involve a backend call to an SMS/Call API
+                    // console.log(`Sending SMS to ${order.customerInfo.phone} for new order ${order.orderId}`);
+                    // sendSmsNotification(order.customerInfo.phone, `Beauty Deal: Co don hang moi #${order.orderId} chua xac nhan.`);
                 }
             });
 
