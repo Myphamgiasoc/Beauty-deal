@@ -370,11 +370,8 @@
                             <input type="text" id="prodBrand" required placeholder="Ví dụ: L'Oreal, La Roche-Posay...">
                         </div>
                         <div class="form-group">
-                            <label>Trạng thái kho hàng *</label>
-                            <select id="prodStock" required>
-                                <option value="ConHang">Còn Hàng Tồn</option>
-                                <option value="HetHang">Hết Hàng Toàn Hệ Thống</option>
-                            </select>
+                            <label>Số lượng tồn kho *</label>
+                            <input type="number" id="prodStock" required placeholder="Ví dụ: 50" value="0" min="0">
                         </div>
                     </div>
 
@@ -812,17 +809,17 @@
         let currentEditingVariants = []; // NEW: Temp array for variants during product edit
 
         const DEFAULT_PRODUCTS = [
-            { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: "ConHang", desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
+            { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: 50, desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
             {
-                id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: "ConHang", desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn.",
+                id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: 30, desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn.",
                 variants: [
                     { id: "1710002-slay", colorName: "Slay (Đỏ cam)", colorCode: "#E56D54", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80" },
                     { id: "1710002-pioneer", colorName: "Pioneer (Đỏ thuần)", colorCode: "#BF1D29", image: "https://images.unsplash.com/photo-1599948125323-74185a3990a7?auto=format&fit=crop&w=500&q=80" },
                     { id: "1710002-lover", colorName: "Lover (Hồng đất)", colorCode: "#A56A76", image: "https://images.unsplash.com/photo-1620921298831-8383b693a443?auto=format&fit=crop&w=500&q=80" }
                 ]
             },
-            { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: "ConHang", desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
-            { id: "1710004", name: "Dầu Gội L'Oréal Professionnel Serie Expert Absolut Repair 500ml", category: "DẦU GỘI & CHĂM SÓC TÓC", currPrice: 560000, origPrice: 680000, image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80", brand: "L'Oréal Professionnel", stock: "ConHang", desc: "Dầu gội cao cấp phục hồi hư tổn xơ rối nặng chuyên sâu nhờ dưỡng chất Protein hạt diêm mạch vàng (Gold Quinoa).", specs: "Dung tích: 500ml\nLoại tóc: Tóc hư tổn, chẻ ngọn\nThương hiệu: Pháp", ingredients: "Aqua / Water / Eau, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Dimethicone, Sodium Chloride, Citric Acid.", usage: "Thoa đều dầu gội lên tóc ướt, massage nhẹ nhàng da đầu và ngọn tóc, sau đó xả sạch lại với nước." }
+            { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: 25, desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
+            { id: "1710004", name: "Dầu Gội L'Oréal Professionnel Serie Expert Absolut Repair 500ml", category: "DẦU GỘI & CHĂM SÓC TÓC", currPrice: 560000, origPrice: 680000, image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80", brand: "L'Oréal Professionnel", stock: 15, desc: "Dầu gội cao cấp phục hồi hư tổn xơ rối nặng chuyên sâu nhờ dưỡng chất Protein hạt diêm mạch vàng (Gold Quinoa).", specs: "Dung tích: 500ml\nLoại tóc: Tóc hư tổn, chẻ ngọn\nThương hiệu: Pháp", ingredients: "Aqua / Water / Eau, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Dimethicone, Sodium Chloride, Citric Acid.", usage: "Thoa đều dầu gội lên tóc ướt, massage nhẹ nhàng da đầu và ngọn tóc, sau đó xả sạch lại với nước." }
         ];
         const DEFAULT_BRANDS = [
             // Ghi chú: Dữ liệu thương hiệu mặc định đã được dọn dẹp.
@@ -1153,6 +1150,20 @@
             document.getElementById('passwordChangeBox').classList.toggle('active'); 
         }
 
+        function getProductStock(product) {
+            if (!product) return 0;
+            // Case 1: Stock is a valid number (new format)
+            if (typeof product.stock === 'number' && !isNaN(product.stock)) {
+                return product.stock;
+            }
+            // Case 2: Stock is the old string "ConHang"
+            if (product.stock === 'ConHang') {
+                return 99; // Return a high number to represent "in stock"
+            }
+            // Case 3: Stock is "HetHang", undefined, null, or other invalid values. Treat as 0.
+            return 0;
+        }
+
         async function handleAdminChangePassword(e) {
             e.preventDefault();
             if (currentUserRole !== 'admin') {
@@ -1178,8 +1189,8 @@
 
         function updateKPIStats() {
             document.getElementById('statTotalProducts').innerText = APP_PRODUCTS.length;
-            document.getElementById('statInStock').innerText = APP_PRODUCTS.filter(p => p.stock === "ConHang").length;
-            document.getElementById('statOutOfStock').innerText = APP_PRODUCTS.filter(p => p.stock === "HetHang").length;
+            document.getElementById('statInStock').innerText = APP_PRODUCTS.filter(p => getProductStock(p) > 0).length;
+            document.getElementById('statOutOfStock').innerText = APP_PRODUCTS.filter(p => getProductStock(p) === 0).length;
             document.getElementById('statNewOrders').innerText = APP_ORDERS.filter(o => o.status === 'Mới').length;
             document.getElementById('statSubscribers').innerText = APP_SUBSCRIBERS.length;
         }
@@ -1190,13 +1201,13 @@
             const productListTitle = document.getElementById('adminProductListTitle');
 
             if (filterType === 'inStock') {
-                productsToDisplay = APP_PRODUCTS.filter(p => p.stock === "ConHang");
+                productsToDisplay = APP_PRODUCTS.filter(p => getProductStock(p) > 0);
                 productListTitle.innerText = "Quản Lý Sản Phẩm (Còn Tồn)";
             } else if (filterType === 'outOfStock') {
-                productsToDisplay = APP_PRODUCTS.filter(p => p.stock === "HetHang");
+                productsToDisplay = APP_PRODUCTS.filter(p => getProductStock(p) === 0);
                 productListTitle.innerText = "Quản Lý Sản Phẩm (Hết Hàng)";
             } else if (filterType === 'soldOut') {
-                productsToDisplay = APP_PRODUCTS.filter(p => p.stock === "HetHang");
+                productsToDisplay = APP_PRODUCTS.filter(p => getProductStock(p) === 0);
                 productListTitle.innerText = "Quản Lý Sản Phẩm (Đã Bán - Mô phỏng)";
             } else { // 'all'
                 productListTitle.innerText = "Quản Lý Sản Phẩm (Tất cả)";
@@ -1217,6 +1228,9 @@
                 productsToRender = [];
             }
             productsToRender.forEach(p => {
+                const stock = getProductStock(p);
+                const stockDisplay = stock > 0 ? `${stock} sản phẩm` : 'Hết hàng';
+                const stockColor = stock > 10 ? '#27ae60' : (stock > 0 ? '#f39c12' : '#e74c3c');
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><img src="${p.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"></td>
@@ -1226,7 +1240,7 @@
                     <td style="color:#2980b9; font-weight:bold;">${p.currPrice.toLocaleString('vi-VN')}đ</td>
                     <td style="color:#999; text-decoration:line-through;">${p.origPrice ? p.origPrice.toLocaleString('vi-VN') + 'đ' : '-'}</td>
                     <td>${p.brand}</td>
-                    <td><span style="color:${p.stock==='ConHang'?'#27ae60':'#e74c3c'}; font-weight:bold;">${p.stock==='ConHang'?'Còn Hàng':'Hết Hàng'}</span></td>
+                    <td><span style="color:${stockColor}; font-weight:bold;">${stockDisplay}</span></td>
                     <td>
                         <button class="action-btn edit" onclick="startEditProduct('${p.id}')">Sửa</button> 
                         <button class="action-btn delete" onclick="deleteProduct('${p.id}')">Xóa</button>
@@ -1358,7 +1372,7 @@
                 origPrice: document.getElementById('prodOrigPrice').value ? parseInt(document.getElementById('prodOrigPrice').value) : null,
                 image: productImage,
                 brand: document.getElementById('prodBrand').value.trim(),
-                stock: document.getElementById('prodStock').value,
+                stock: parseInt(document.getElementById('prodStock').value, 10) || 0,
                 desc: document.getElementById('prodDesc').value.trim(),
                 specs: document.getElementById('prodSpecs').value.trim(),
                 ingredients: document.getElementById('prodIngredients').value.trim(),

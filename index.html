@@ -1303,6 +1303,20 @@
         }
         .toast-notification.show { transform: translateX(0); }
 
+        .out-of-stock-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c0392b;
+            font-weight: bold;
+            font-size: 18px;
+            text-transform: uppercase;
+            backdrop-filter: blur(2px);
+        }
+
         /* Media Queries */
         @media (max-width:768px) {
             .banner-slider { min-height: 320px }
@@ -1670,17 +1684,17 @@
             { icon: '📞', imageUrl: 'https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=150&q=80', title: 'Tư vấn chuyên sâu', description: 'Đội ngũ chuyên gia da liễu hỗ trợ 24/7' }
         ];
         const DEFAULT_PRODUCTS = [
-            { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: "ConHang", desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
+            { id: "1710001", name: "Nước Tẩy Trang Bioderma Sensibio H2O Cho Da Nhạy Cảm 500ml", category: "CHĂM SÓC DA MẶT", currPrice: 395000, origPrice: 495000, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=500&q=80", brand: "Bioderma", stock: 50, desc: "Nước tẩy trang công nghệ Micellar dịu nhẹ, làm sạch sâu 99% lớp trang điểm và bụi mịn mà không gây khô da.", specs: "Dung tích: 500ml\nLoại da: Da nhạy cảm, da thường\nXuất xứ: Pháp", ingredients: "Aqua/Water/Eau, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract.", usage: "Thấm ướt bông tẩy trang, lau nhẹ nhàng toàn mặt theo chiều kết cấu da đến khi sạch hoàn toàn." },
             {
-                id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: "ConHang", desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn.",
+                id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: 30, desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn.",
                 variants: [
                     { id: "1710002-slay", colorName: "Slay (Đỏ cam)", colorCode: "#E56D54", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80" },
                     { id: "1710002-pioneer", colorName: "Pioneer (Đỏ thuần)", colorCode: "#BF1D29", image: "https://images.unsplash.com/photo-1599948125323-74185a3990a7?auto=format&fit=crop&w=500&q=80" },
                     { id: "1710002-lover", colorName: "Lover (Hồng đất)", colorCode: "#A56A76", image: "https://images.unsplash.com/photo-1620921298831-8383b693a443?auto=format&fit=crop&w=500&q=80" }
                 ]
             },
-            { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: "ConHang", desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
-            { id: "1710004", name: "Dầu Gội L'Oréal Professionnel Serie Expert Absolut Repair 500ml", category: "DẦU GỘI & CHĂM SÓC TÓC", currPrice: 560000, origPrice: 680000, image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80", brand: "L'Oréal Professionnel", stock: "ConHang", desc: "Dầu gội cao cấp phục hồi hư tổn xơ rối nặng chuyên sâu nhờ dưỡng chất Protein hạt diêm mạch vàng (Gold Quinoa).", specs: "Dung tích: 500ml\nLoại tóc: Tóc hư tổn, chẻ ngọn\nThương hiệu: Pháp", ingredients: "Aqua / Water / Eau, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Dimethicone, Sodium Chloride, Citric Acid.", usage: "Thoa đều dầu gội lên tóc ướt, massage nhẹ nhàng da đầu và ngọn tóc, sau đó xả sạch lại với nước." }
+            { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: 25, desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
+            { id: "1710004", name: "Dầu Gội L'Oréal Professionnel Serie Expert Absolut Repair 500ml", category: "DẦU GỘI & CHĂM SÓC TÓC", currPrice: 560000, origPrice: 680000, image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=500&q=80", brand: "L'Oréal Professionnel", stock: 15, desc: "Dầu gội cao cấp phục hồi hư tổn xơ rối nặng chuyên sâu nhờ dưỡng chất Protein hạt diêm mạch vàng (Gold Quinoa).", specs: "Dung tích: 500ml\nLoại tóc: Tóc hư tổn, chẻ ngọn\nThương hiệu: Pháp", ingredients: "Aqua / Water / Eau, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Dimethicone, Sodium Chloride, Citric Acid.", usage: "Thoa đều dầu gội lên tóc ướt, massage nhẹ nhàng da đầu và ngọn tóc, sau đó xả sạch lại với nước." }
         ];
         const DEFAULT_BRANDS = [
             // Ghi chú: Dữ liệu thương hiệu mặc định đã được dọn dẹp.
@@ -1894,29 +1908,37 @@
         });
         function renderProductsGrid(productsToRender) {
             const container = document.getElementById('productsContainer'); container.innerHTML = '';
-            // Lọc ra các sản phẩm còn hàng để hiển thị
-            const availableProducts = APP_PRODUCTS.filter(p => p.stock !== "HetHang");
 
             // Nếu không có danh sách sản phẩm cụ thể, mặc định hiển thị 4 sản phẩm nổi bật đầu tiên.
             // Khi tìm kiếm hoặc lọc, `productsToRender` sẽ là danh sách đã được lọc.
-            // Đảm bảo rằng productsToRender (nếu có) cũng đã được lọc theo trạng thái còn hàng.
-            const products = productsToRender !== undefined ? productsToRender.filter(p => p.stock !== "HetHang") : availableProducts.slice(0, 4);
+            // SỬA LỖI: Chỉ hiển thị sản phẩm còn hàng trên trang chủ.
+            const availableProducts = APP_PRODUCTS.filter(p => getProductStock(p) > 0);
+            const products = productsToRender !== undefined ? productsToRender : availableProducts.slice(0, 4);
             if (products.length === 0) {
                 container.innerHTML = `<p style="grid-column: span 4; text-align:center; padding: 40px; color:#999; font-weight:600;">Không có sản phẩm nào phù hợp!</p>`;
                 return;
             }
             products.forEach(prod => {
                 const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
-                
+                const stock = getProductStock(prod);
+                const isOutOfStock = stock === 0;
+                const buttonHtml = isOutOfStock 
+                    ? `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`
+                    : `<button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>`;
+
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.onclick = () => openProductDetail(prod.id);
                 card.innerHTML = `
-                    <div class="product-image-wrapper"><img src="${prod.image}" class="product-image" alt="${prod.name}">${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}</div>
+                    <div class="product-image-wrapper">
+                        <img src="${prod.image}" class="product-image" alt="${prod.name}">
+                        ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                        ${isOutOfStock ? '<div class="out-of-stock-overlay">Hết hàng</div>' : ''}
+                    </div>
                     <div class="product-info">
                         <div class="product-name">${prod.name}</div>
                         <div class="product-prices"> <span class="current-price">${prod.currPrice.toLocaleString()}đ</span> ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''} </div>
-                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>
+                        ${buttonHtml}
                     </div>`;
                 container.appendChild(card);
             });
@@ -1925,9 +1947,8 @@
             const container = document.getElementById('bestSellerProductsContainer');
             const title = document.getElementById('bestSellerProductsTitle'); // Sửa để ổn định hơn
             container.innerHTML = '';
-            // Lọc ra các sản phẩm còn hàng trước khi lấy danh sách bán chạy
-            const availableProducts = APP_PRODUCTS.filter(p => p.stock !== "HetHang");
-            // Demo: Lấy 4 sản phẩm tiếp theo làm sản phẩm bán chạy từ danh sách đã lọc
+            // SỬA LỖI: Chỉ hiển thị sản phẩm còn hàng.
+            const availableProducts = APP_PRODUCTS.filter(p => getProductStock(p) > 0);
             const bestSellers = availableProducts.slice(4, 8); 
             if (bestSellers.length === 0) {
                 if(container) container.style.display = 'none';
@@ -1938,15 +1959,24 @@
             if(title) title.style.display = 'block';
             bestSellers.forEach(prod => {
                 const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
+                const stock = getProductStock(prod);
+                const isOutOfStock = stock === 0;
+                const buttonHtml = isOutOfStock 
+                    ? `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`
+                    : `<button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>`;
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.onclick = () => openProductDetail(prod.id);
                 card.innerHTML = `
-                    <div class="product-image-wrapper"><img src="${prod.image}" class="product-image" alt="${prod.name}">${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}</div>
+                    <div class="product-image-wrapper">
+                        <img src="${prod.image}" class="product-image" alt="${prod.name}">
+                        ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
+                        ${isOutOfStock ? '<div class="out-of-stock-overlay">Hết hàng</div>' : ''}
+                    </div>
                     <div class="product-info">
                         <div class="product-name">${prod.name}</div>
                         <div class="product-prices"> <span class="current-price">${prod.currPrice.toLocaleString()}đ</span> ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''} </div>
-                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>
+                        ${buttonHtml}
                     </div>`;
                 container.appendChild(card);
             });
@@ -2000,7 +2030,8 @@
 
                 if (isSearching || isFilterTriggered) { // Sửa đổi điều kiện: Nếu đang tìm kiếm hoặc vừa nhấn lọc danh mục
                     // Lọc ra các sản phẩm còn hàng trước khi áp dụng các bộ lọc khác
-                    let filtered = APP_PRODUCTS.filter(p => p.stock !== "HetHang");
+                    // SỬA LỖI: Luôn bắt đầu lọc từ danh sách sản phẩm còn hàng.
+                    let filtered = APP_PRODUCTS.filter(p => getProductStock(p) > 0);
                     if (currentFilterCategory !== "TẤT CẢ") {
                         filtered = filtered.filter(p => p.category === currentFilterCategory);
                     }
@@ -2062,6 +2093,9 @@
             const mainBanner = document.getElementById('mainBanner');
             if (mainBanner) mainBanner.style.display = 'none';
             const detailSection = document.getElementById('productDetailSection');
+            const stock = getProductStock(prod);
+            const isOutOfStock = stock === 0;
+
             detailSection.classList.add('active');
             // NEW: Logic for variants
             let variantHtml = '';
@@ -2083,7 +2117,10 @@
                     </div>
                 `;
             }
-            const buyButtonId = (prod.variants && prod.variants.length > 0) ? prod.variants[0].id : prod.id;
+            const buyButtonId = (prod.variants && prod.variants.length > 0) ? prod.variants[0].id : prod.id;            const buyButtonHtml = isOutOfStock
+                ? `<button id="detailBuyButton" class="detail-top-buy-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`
+                : `<button id="detailBuyButton" class="detail-top-buy-btn" onclick="addToCart('${productId}', '${buyButtonId}', event)">Thêm vào giỏ hàng ngay</button>`;
+
             // Cập nhật cấu trúc HTML để sử dụng wrapper cho hình ảnh
             document.getElementById('detailProductTopBox').innerHTML = `
                 <div class="detail-top-left">
@@ -2099,7 +2136,7 @@
                         ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
                     </div>
                     ${variantHtml}
-                    <button id="detailBuyButton" class="detail-top-buy-btn" onclick="addToCart('${productId}', '${buyButtonId}', event)">Thêm vào giỏ hàng ngay</button>
+                    ${buyButtonHtml}
                 </div>`;
             document.getElementById('mota').innerHTML = `<h3>Mô tả sản phẩm</h3><div class="tab-content-text">${prod.desc || 'Đang cập nhật...'}</div>`;
             document.getElementById('thongso').innerHTML = `<h3>Thông số kỹ thuật</h3><div class="tab-content-text">${prod.specs || 'Đang cập nhật...'}</div>`;
@@ -2266,6 +2303,19 @@
                 if (callback) callback();
             }, { once: true });
         }
+        function getProductStock(product) {
+            if (!product) return 0;
+            // Case 1: Stock is a valid number (new format)
+            if (typeof product.stock === 'number' && !isNaN(product.stock)) {
+                return product.stock;
+            }
+            // Case 2: Stock is the old string "ConHang"
+            if (product.stock === 'ConHang') {
+                return 99; // Return a high number to represent "in stock"
+            }
+            // Case 3: Stock is "HetHang", undefined, null, or other invalid values. Treat as 0.
+            return 0;
+        }
         function addToCart(productId, variantId = null, event) {
             if(event) {
                 event.stopPropagation();
@@ -2276,12 +2326,17 @@
                 console.error("Sản phẩm không tìm thấy:", productId);
                 return;
             }
+            const stock = getProductStock(product);
+            if (stock === 0) {
+                alert("🔴 Xin lỗi, sản phẩm này đã tạm hết hàng!");
+                return;
+            }
+
             let itemToAdd = {
                 id: productId,
                 name: product.name,
                 price: product.currPrice,
                 image: product.image,
-                stock: product.stock
             };
             if (variantId && product.variants) {
                 const variant = product.variants.find(v => v.id === variantId);
@@ -2291,13 +2346,14 @@
                     itemToAdd.image = variant.image || product.image;
                 }
             }
-            if (itemToAdd.stock === "HetHang") {
-                alert("🔴 Xin lỗi, sản phẩm này đã hết hàng!");
+
+            const existingItem = cart.find(item => item.id === itemToAdd.id);
+            if (existingItem && existingItem.quantity >= stock) {
+                alert(`🔴 Xin lỗi, bạn chỉ có thể mua tối đa ${stock} sản phẩm này.`);
                 return;
             }
-            const existingItem = cart.find(item => item.id === itemToAdd.id);
-            if (existingItem) existingItem.quantity++;
-            else cart.push({ ...itemToAdd, quantity: 1 });
+
+            if (existingItem) existingItem.quantity++; else cart.push({ ...itemToAdd, quantity: 1 });
             let sourceImageElement = event?.target.closest('.product-card')?.querySelector('.product-image') || document.querySelector('.detail-top-left .detail-image');
             flyToCartAnimation(sourceImageElement, () => {
                 updateCartBadge();
@@ -2338,6 +2394,18 @@
         function changeCartQty(id, delta) {
             const item = cart.find(c => c.id === id);
             if (!item) return;
+
+            if (delta > 0) { // Chỉ kiểm tra khi tăng số lượng
+                const baseProductId = id.split('-')[0];
+                const product = APP_PRODUCTS.find(p => p.id === baseProductId);
+                const stock = getProductStock(product);
+                
+                if (item.quantity >= stock) {
+                    alert(`🔴 Xin lỗi, bạn chỉ có thể mua tối đa ${stock} sản phẩm này.`);
+                    return; // Không tăng số lượng
+                }
+            }
+
             item.quantity += delta;
             if (item.quantity <= 0) cart = cart.filter(c => c.id !== id);
             updateCartBadge();
@@ -2379,6 +2447,19 @@
             const result = await safeUpdateDatabase(payload => {
                 if (!payload.APP_ORDERS) payload.APP_ORDERS = [];
                 payload.APP_ORDERS.unshift(newOrder);
+
+                // TRỪ TỒN KHO
+                if (payload.APP_PRODUCTS) {
+                    newOrder.items.forEach(cartItem => {
+                        const baseProductId = cartItem.id.split('-')[0];
+                        const productToUpdate = payload.APP_PRODUCTS.find(p => p.id === baseProductId);
+                        if (productToUpdate) {
+                            const currentStock = Number(productToUpdate.stock) || 0;
+                            const newStock = currentStock - cartItem.quantity;
+                            productToUpdate.stock = newStock < 0 ? 0 : newStock; // Ngăn tồn kho âm
+                        }
+                    });
+                }
             });
             if (result.success) {
                 alert("🎉 Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại Beauty Deal. Chúng tôi sẽ liên hệ để xác nhận đơn hàng sớm nhất.");
