@@ -1261,6 +1261,27 @@
             cursor: pointer
         }
 
+        /* Animation for flying to cart */
+        .fly-to-cart-image {
+            position: fixed;
+            z-index: 9999;
+            border-radius: 20%; /* Start with a slight radius */
+            transition: all 0.8s cubic-bezier(0.55, 0.085, 0.68, 0.53); /* Ease-in curve */
+            will-change: transform, top, left, width, height, opacity;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        @keyframes cart-shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0) scale(1.1); }
+            20%, 80% { transform: translate3d(2px, 0, 0) scale(1.1); }
+            30%, 50%, 70% { transform: translate3d(-3px, 0, 0) scale(1.1); }
+            40%, 60% { transform: translate3d(3px, 0, 0) scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .cart-icon.shake { animation: cart-shake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
+
+
         /* Media Queries */
         @media (max-width:768px) {
             .banner-slider { min-height: 320px }
@@ -1874,7 +1895,7 @@
                     <div class="product-info">
                         <div class="product-name">${prod.name}</div>
                         <div class="product-prices"> <span class="current-price">${prod.currPrice.toLocaleString()}đ</span> ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''} </div>
-                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', event)">Thêm giỏ hàng</button>
+                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>
                     </div>`;
                 container.appendChild(card);
             });
@@ -1904,7 +1925,7 @@
                     <div class="product-info">
                         <div class="product-name">${prod.name}</div>
                         <div class="product-prices"> <span class="current-price">${prod.currPrice.toLocaleString()}đ</span> ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''} </div>
-                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', event)">Thêm giỏ hàng</button>
+                        <button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>
                     </div>`;
                 container.appendChild(card);
             });
@@ -2175,10 +2196,42 @@
             if (cartDrawer) cartDrawer.classList.toggle('active', status);
             if (status) renderCartContents();
         }
+        function flyToCartAnimation(sourceElement, callback) {
+            if (!sourceElement) {
+                if (callback) callback();
+                return;
+            }
+            const cartIcon = document.querySelector('.cart-icon');
+            const sourceRect = sourceElement.getBoundingClientRect();
+            const cartRect = cartIcon.getBoundingClientRect();
+            const flyingImage = sourceElement.cloneNode(true);
+            flyingImage.classList.add('fly-to-cart-image');
+            flyingImage.style.top = `${sourceRect.top}px`;
+            flyingImage.style.left = `${sourceRect.left}px`;
+            flyingImage.style.width = `${sourceRect.width}px`;
+            flyingImage.style.height = `${sourceRect.height}px`;
+            flyingImage.style.opacity = '1';
+            document.body.appendChild(flyingImage);
+            requestAnimationFrame(() => {
+                flyingImage.style.top = `${cartRect.top + 10}px`;
+                flyingImage.style.left = `${cartRect.left + 10}px`;
+                flyingImage.style.width = '30px';
+                flyingImage.style.height = '30px';
+                flyingImage.style.opacity = '0.2';
+                flyingImage.style.borderRadius = '50%';
+                flyingImage.style.transform = 'scale(0.1) rotate(360deg)';
+            });
+            flyingImage.addEventListener('transitionend', () => {
+                flyingImage.remove();
+                cartIcon.classList.add('shake');
+                setTimeout(() => cartIcon.classList.remove('shake'), 600);
+                if (callback) callback();
+            }, { once: true });
+        }
         function addToCart(productId, variantId = null, event) {
             if(event) {
                 event.stopPropagation();
-                event.preventDefault(); // Ensure no default action (like form submission or navigation)
+                event.preventDefault();
             }
             const product = APP_PRODUCTS.find(p => p.id === productId);
             if (!product) {
@@ -2195,22 +2248,23 @@
             if (variantId && product.variants) {
                 const variant = product.variants.find(v => v.id === variantId);
                 if (variant) {
-                    itemToAdd.id = variant.id; // Use variant ID for uniqueness in cart
+                    itemToAdd.id = variant.id;
                     itemToAdd.name = `${product.name} - ${variant.colorName}`;
                     itemToAdd.image = variant.image || product.image;
-                    // itemToAdd.stock = variant.stock || product.stock; // Future enhancement
                 }
             }
             if (itemToAdd.stock === "HetHang") {
                 alert("🔴 Xin lỗi, sản phẩm này đã hết hàng!");
                 return;
             }
-            const existing = cart.find(item => item.id === itemToAdd.id);
-            if (existing) existing.quantity++;
+            const existingItem = cart.find(item => item.id === itemToAdd.id);
+            if (existingItem) existingItem.quantity++;
             else cart.push({ ...itemToAdd, quantity: 1 });
-            updateCartBadge();
-            // alert(`🛒 Đã thêm "${itemToAdd.name}" vào giỏ hàng!`); // Removed alert for better UX
-            toggleCart(true); // Open cart drawer after adding item
+            let sourceImageElement = event?.target.closest('.product-card')?.querySelector('.product-image') || document.querySelector('.detail-top-left .detail-image');
+            flyToCartAnimation(sourceImageElement, () => {
+                updateCartBadge();
+                toggleCart(true);
+            });
         }
         function updateCartBadge() {
             document.getElementById('cartCount').innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -2225,7 +2279,7 @@
             }
             let grandTotal = 0;
             cart.forEach(item => {
-                grandTotal += item.price * item.quantity;
+                grandTotal += (Number(item.price) || 0) * (Number(item.quantity) || 1);
                 const div = document.createElement('div');
                 div.className = 'cart-item';
                 div.innerHTML = `
@@ -2253,7 +2307,7 @@
         }
         function processCheckout() {
             if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
-            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
             const shippingFee = 20000; // Phí vận chuyển cố định
             document.getElementById('shippingFeeDisplay').innerText = shippingFee.toLocaleString() + 'đ';
             document.getElementById('checkoutTotalValue').innerText = (subtotal + shippingFee).toLocaleString() + 'đ';
@@ -2268,7 +2322,7 @@
             const confirmBtn = document.getElementById('confirmOrderBtn');
             confirmBtn.disabled = true;
             confirmBtn.innerText = 'ĐANG XỬ LÝ...';
-            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
             const shippingFee = 20000; // Phí vận chuyển cố định
             const newOrder = {
                 orderId: 'BD-' + Date.now(),
