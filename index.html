@@ -1281,6 +1281,27 @@
         }
         .cart-icon.shake { animation: cart-shake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
 
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            top: 85px; /* Below the sticky header */
+            right: 20px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10001;
+            transform: translateX(120%);
+            transition: transform 0.4s ease-in-out;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 300px;
+        }
+        .toast-notification.show { transform: translateX(0); }
 
         /* Media Queries */
         @media (max-width:768px) {
@@ -2196,6 +2217,23 @@
             if (cartDrawer) cartDrawer.classList.toggle('active', status);
             if (status) renderCartContents();
         }
+        function showToast(message) {
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `<span>🛒</span> <span style="flex: 1;">${message}</span>`;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, 3000); // Show for 3 seconds
+        }
         function flyToCartAnimation(sourceElement, callback) {
             if (!sourceElement) {
                 if (callback) callback();
@@ -2263,7 +2301,7 @@
             let sourceImageElement = event?.target.closest('.product-card')?.querySelector('.product-image') || document.querySelector('.detail-top-left .detail-image');
             flyToCartAnimation(sourceImageElement, () => {
                 updateCartBadge();
-                toggleCart(true);
+                showToast(`Đã thêm "${itemToAdd.name}" vào giỏ.`);
             });
         }
         function updateCartBadge() {
