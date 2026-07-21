@@ -108,7 +108,8 @@
         /* Variant Management Styles */
         .variant-item { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid #eee; border-radius: 4px; margin-bottom: 5px; background: #fff; }
         .variant-swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #ccc; }
-        .variant-name { flex-grow: 1; font-size: 13px; font-weight: 500; }
+        .variant-name { flex-grow: 1; font-size: 13px; font-weight: 500; min-width: 100px; }
+        .variant-stock { margin-left: auto; font-weight: bold; font-size: 13px; color: #34495e; white-space: nowrap; }
         .variant-delete-btn { background: #e74c3c; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-weight: bold; line-height: 24px; text-align: center; }
         #variantManagementSection { display: none; } /* Hide by default */
         #variantManagementSection.active { display: block; }
@@ -403,7 +404,7 @@
                         </div>
                         <div style="background: #f9f9f9; padding: 15px; border-radius: 6px;">
                             <h5 style="margin-bottom: 10px;">Thêm màu mới</h5>
-                            <div class="form-grid" style="grid-template-columns: 1fr 1fr 100px; align-items: flex-end;">
+                            <div class="form-grid" style="grid-template-columns: 1fr 1fr 80px; align-items: flex-end;">
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label>Tên màu</label>
                                     <input type="text" id="newVariantColorName" placeholder="Ví dụ: Đỏ cam">
@@ -412,9 +413,12 @@
                                     <label>Mã màu (Hex)</label>
                                     <input type="text" id="newVariantColorCode" placeholder="#FF5733">
                                 </div>
-                                <!-- Removed button from grid to allow more flexible layout for image URL -->
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label>Tồn kho</label>
+                                    <input type="number" id="newVariantStock" placeholder="SL" value="0" min="0">
+                                </div>
                             </div>
-                            <div class="form-group" style="margin-top: 10px; margin-bottom: 0;">
+                            <div class="form-group" style="margin-top: 10px; margin-bottom: 10px;">
                                 <label>URL Hình ảnh phiên bản (Tùy chọn)</label>
                                 <input type="text" id="newVariantImageUrl" placeholder="Dán link ảnh HTTPS cho phiên bản này...">
                             </div>
@@ -813,9 +817,9 @@
             {
                 id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: 30, desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn.",
                 variants: [
-                    { id: "1710002-slay", colorName: "Slay (Đỏ cam)", colorCode: "#E56D54", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80" },
-                    { id: "1710002-pioneer", colorName: "Pioneer (Đỏ thuần)", colorCode: "#BF1D29", image: "https://images.unsplash.com/photo-1599948125323-74185a3990a7?auto=format&fit=crop&w=500&q=80" },
-                    { id: "1710002-lover", colorName: "Lover (Hồng đất)", colorCode: "#A56A76", image: "https://images.unsplash.com/photo-1620921298831-8383b693a443?auto=format&fit=crop&w=500&q=80" }
+                    { id: "1710002-slay", colorName: "Slay (Đỏ cam)", colorCode: "#E56D54", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", stock: 10 },
+                    { id: "1710002-pioneer", colorName: "Pioneer (Đỏ thuần)", colorCode: "#BF1D29", image: "https://images.unsplash.com/photo-1599948125323-74185a3990a7?auto=format&fit=crop&w=500&q=80", stock: 15 },
+                    { id: "1710002-lover", colorName: "Lover (Hồng đất)", colorCode: "#A56A76", image: "https://images.unsplash.com/photo-1620921298831-8383b693a443?auto=format&fit=crop&w=500&q=80", stock: 5 }
                 ]
             },
             { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: 25, desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
@@ -1265,6 +1269,7 @@
             // NEW: Reset variant section
             currentEditingVariants = [];
             renderVariantsForEditing();
+            document.getElementById('prodStock').disabled = false;
             document.getElementById('variantManagementSection').classList.remove('active');
             // NEW: Clear validation errors
             document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
@@ -1304,9 +1309,16 @@
             document.getElementById('prodUsage').value = p.usage || '';
 
             // NEW: Handle variants
-            currentEditingVariants = p.variants ? JSON.parse(JSON.stringify(p.variants)) : [];
+            if (p.variants) {
+                // Ensure every variant has a stock property, defaulting to 0 if missing.
+                currentEditingVariants = JSON.parse(JSON.stringify(p.variants)).map(v => ({ ...v, stock: v.stock === undefined ? 0 : v.stock }));
+            } else {
+                currentEditingVariants = [];
+            }
             renderVariantsForEditing();
             document.getElementById('variantManagementSection').classList.add('active');
+            // NEW: Disable main stock input if variants exist, as it will be auto-calculated
+            document.getElementById('prodStock').disabled = currentEditingVariants.length > 0;
 
             window.scrollTo({ top: document.getElementById('adminFormBox').offsetTop - 20, behavior: 'smooth' });
         }
@@ -1372,7 +1384,6 @@
                 origPrice: document.getElementById('prodOrigPrice').value ? parseInt(document.getElementById('prodOrigPrice').value) : null,
                 image: productImage,
                 brand: document.getElementById('prodBrand').value.trim(),
-                stock: parseInt(document.getElementById('prodStock').value, 10) || 0,
                 desc: document.getElementById('prodDesc').value.trim(),
                 specs: document.getElementById('prodSpecs').value.trim(),
                 ingredients: document.getElementById('prodIngredients').value.trim(),
@@ -1390,10 +1401,13 @@
                             ...v,
                             id: v.id || `${editId}-${v.colorName.toLowerCase().replace(/[^a-z0-9]/g, '')}`
                         }));
+                        // If variants exist, total stock is their sum. Otherwise, use the main stock input.
+                        const totalStock = finalVariants.length > 0
+                            ? finalVariants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0)
+                            : parseInt(document.getElementById('prodStock').value, 10) || 0;
                         payload.APP_PRODUCTS[idx] = { 
                             ...payload.APP_PRODUCTS[idx], 
-                            ...productData,
-                            variants: finalVariants.length > 0 ? finalVariants : null
+                            ...productData, stock: totalStock, variants: finalVariants.length > 0 ? finalVariants : null
                         };
                     }
                 } else { // --- ADD NEW PRODUCT ---
@@ -1402,10 +1416,14 @@
                         ...v,
                         id: `${newId}-${v.colorName.toLowerCase().replace(/[^a-z0-9]/g, '')}`
                     }));
+                    // If variants exist, total stock is their sum. Otherwise, use the main stock input.
+                    const totalStock = finalVariants.length > 0
+                        ? finalVariants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0)
+                        : parseInt(document.getElementById('prodStock').value, 10) || 0;
                     const newProduct = { 
                         id: newId, 
                         ...productData, 
-                        variants: finalVariants.length > 0 ? finalVariants : null 
+                        stock: totalStock, variants: finalVariants.length > 0 ? finalVariants : null 
                     };
                     payload.APP_PRODUCTS.push(newProduct);
                 }
@@ -1442,7 +1460,8 @@
                 item.innerHTML = `
                     ${imageHtml}
                     <div class="variant-swatch" style="background-color: ${variant.colorCode};"></div>
-                    <div class="variant-name">${variant.colorName} (${variant.colorCode})</div>
+                    <div class="variant-name">${variant.colorName}</div>
+                    <div class="variant-stock">Tồn kho: <input type="number" value="${variant.stock || 0}" min="0" onchange="updateVariantStock(${index}, this.value)" style="width: 70px; padding: 5px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"></div>
                     <button type="button" class="variant-delete-btn" onclick="deleteVariant(${index})">&times;</button>
                 `;
                 container.appendChild(item);
@@ -1452,26 +1471,41 @@
         function addVariantToProduct() {
             const nameInput = document.getElementById('newVariantColorName');
             const codeInput = document.getElementById('newVariantColorCode');
-            const imageUrlInput = document.getElementById('newVariantImageUrl'); // NEW
+            const imageUrlInput = document.getElementById('newVariantImageUrl');
+            const stockInput = document.getElementById('newVariantStock');
             const colorName = nameInput.value.trim();
             const colorCode = codeInput.value.trim();
-            const imageUrl = imageUrlInput.value.trim(); // NEW
+            const imageUrl = imageUrlInput.value.trim();
+            const stock = parseInt(stockInput.value, 10) || 0;
 
              if (!colorName || !colorCode) {
                  alert("Vui lòng nhập Tên màu và Mã màu.");
                  return;
              }
-             currentEditingVariants.push({ colorName, colorCode, image: imageUrl }); // Updated to include image
+             currentEditingVariants.push({ colorName, colorCode, image: imageUrl, stock: stock }); // Updated to include stock
             renderVariantsForEditing();
              nameInput.value = '';
              codeInput.value = '';
-             imageUrlInput.value = ''; // NEW: Clear image URL input
+             imageUrlInput.value = '';
+             stockInput.value = '0';
+
+            // Disable main stock input as variants now control stock
+            document.getElementById('prodStock').disabled = true;
+        }
+
+        function updateVariantStock(index, newStock) {
+            if (currentEditingVariants[index]) {
+                currentEditingVariants[index].stock = parseInt(newStock, 10) || 0;
+                // No need to re-render, the input holds the state.
+            }
         }
 
         function deleteVariant(index) {
             if (confirm("Bạn có chắc muốn xóa màu này?")) {
                 currentEditingVariants.splice(index, 1);
                 renderVariantsForEditing();
+                // Re-enable main stock input if all variants are deleted
+                document.getElementById('prodStock').disabled = currentEditingVariants.length > 0;
             }
         }
 

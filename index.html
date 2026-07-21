@@ -1272,6 +1272,29 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
+        /* NEW: Variant Selector Modal Styles */
+        .variant-modal-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .variant-modal-item.selected {
+            border-color: #0056b3;
+            background-color: #f0f7ff;
+        }
+        .variant-modal-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+        .variant-modal-item .variant-swatch { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ccc; flex-shrink: 0; }
+        .variant-modal-item .variant-name { font-weight: 600; color: #333; }
+        #variant-selector-modal { animation: popupFade 0.3s ease; }
+        #closeVariantModalBtn:hover { color: #333 !important; }
+
+
         @keyframes cart-shake {
             10%, 90% { transform: translate3d(-1px, 0, 0) scale(1.1); }
             20%, 80% { transform: translate3d(2px, 0, 0) scale(1.1); }
@@ -1568,6 +1591,18 @@
             <button class="checkout-btn" onclick="processCheckout()">TIẾN HÀNH THANH TOÁN</button>
         </div>
     </div>
+    <!-- NEW: Variant Selector Modal -->
+    <div id="variant-selector-modal" style="display: none; position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
+            <span id="closeVariantModalBtn" style="position: absolute; right: 20px; top: 12px; font-size: 32px; cursor: pointer; color: #aaa; transition: color 0.2s;">&times;</span>
+            <h3 id="variantModalTitle" style="color: #0056b3; margin-top: 5px; font-size: 20px; font-weight: bold; margin-bottom: 20px;">Chọn phiên bản sản phẩm</h3>
+            <div id="variantModalList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px; padding-right: 5px;">
+                <!-- Variants will be populated here by JS -->
+            </div>
+            <button id="variantModalAddToCartBtn" style="background-color: #e74c3c; color: white; padding: 13px; border: none; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; text-transform: uppercase;">Thêm vào giỏ hàng</button>
+        </div>
+    </div>
+
     <!-- CHECKOUT MODAL -->
     <div id="checkout-modal" style="display: none; position: fixed; inset: 0; z-index: 99999; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center;">
         <div style="background-color: #ffffff; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: popupFade 0.3s ease;">
@@ -1688,9 +1723,9 @@
             {
                 id: "1710002", name: "Son Kem Lì Maybelline New York Superstay Matte Ink", category: "TRANG ĐIỂM", currPrice: 198000, origPrice: 245000, image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", brand: "Maybelline", stock: 30, desc: "Dòng son kem lì nổi tiếng với công nghệ mực đàn hồi giúp giữ màu lâu trôi lên đến 16 tiếng, không lem, không trôi.", specs: "Dung tích: 5ml\nĐộ lì: Siêu lì lâu trôi\nXuất xứ: Mỹ", ingredients: "Dimethicone, Trimethylsiloxysilicate, Isododecane, Nylon-611/Dimethicone Copolymer, Dimethicone Crosspolymer.", usage: "Tán đều son vào lòng môi hoặc toàn môi. Chờ khoảng 1-2 phút để son khô lì hoàn toàn.",
                 variants: [
-                    { id: "1710002-slay", colorName: "Slay (Đỏ cam)", colorCode: "#E56D54", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80" },
-                    { id: "1710002-pioneer", colorName: "Pioneer (Đỏ thuần)", colorCode: "#BF1D29", image: "https://images.unsplash.com/photo-1599948125323-74185a3990a7?auto=format&fit=crop&w=500&q=80" },
-                    { id: "1710002-lover", colorName: "Lover (Hồng đất)", colorCode: "#A56A76", image: "https://images.unsplash.com/photo-1620921298831-8383b693a443?auto=format&fit=crop&w=500&q=80" }
+                    { id: "1710002-slay", colorName: "Slay (Đỏ cam)", colorCode: "#E56D54", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80", stock: 10 },
+                    { id: "1710002-pioneer", colorName: "Pioneer (Đỏ thuần)", colorCode: "#BF1D29", image: "https://images.unsplash.com/photo-1599948125323-74185a3990a7?auto=format&fit=crop&w=500&q=80", stock: 15 },
+                    { id: "1710002-lover", colorName: "Lover (Hồng đất)", colorCode: "#A56A76", image: "https://images.unsplash.com/photo-1620921298831-8383b693a443?auto=format&fit=crop&w=500&q=80", stock: 5 }
                 ]
             },
             { id: "1710003", name: "Kem Chống Nắng La Roche-Posay Anthelios UVMune 400 Fluid 50ml", category: "KEM CHỐNG NẮNG", currPrice: 425000, origPrice: 515000, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=500&q=80", brand: "La Roche-Posay", stock: 25, desc: "Kem chống nắng bảo vệ da tối ưu khỏi tia UVA dài độc hại nhờ màng lọc độc quyền Mexoryl 400. Kết cấu dạng sữa lỏng nhẹ kiểm soát dầu.", specs: "Dung tích: 50ml\nChỉ số: SPF50+, PA++++\nLoại da: Da dầu, hỗn hợp thiên dầu", ingredients: "Aqua, Alcohol Denat, Triethyl Citrate, Diisopropyl Sebacate, Silica, Ethylhexyl Salicylate, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine.", usage: "Lắc đều chai trước khi dùng. Thoa đều một lượng vừa đủ lên mặt và cổ trước khi ra nắng 20 phút." },
@@ -1874,6 +1909,14 @@
                 renderValueProps(); // Gọi hàm render chính thức
                 // Gắn sự kiện cho nút đóng modal thanh toán
                 document.getElementById('closeCheckoutModalBtn').addEventListener('click', closeCheckoutModal);
+                // NEW: Gắn sự kiện cho modal chọn phiên bản
+                document.getElementById('closeVariantModalBtn').addEventListener('click', closeVariantSelectorModal);
+                document.getElementById('variant-selector-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'variant-selector-modal') {
+                        closeVariantSelectorModal();
+                    }
+                });
+
                 // NEW: Check for in-app browser and show prompt
                 detectAndPromptOpenInBrowser();
             } catch (error) {
@@ -1921,16 +1964,21 @@
             products.forEach(prod => {
                 const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
                 const stock = getProductStock(prod);
-                const isOutOfStock = stock === 0;
-                const buttonHtml = isOutOfStock 
-                    ? `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`
-                    : `<button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>`;
+                const isOutOfStock = stock === 0; 
+                const hasVariants = prod.variants && prod.variants.length > 0;
+                let buttonHtml;
+                if (isOutOfStock) {
+                    buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`;
+                } else if (hasVariants) {
+                    buttonHtml = `<button class="add-to-cart-btn" onclick="openVariantSelectorModal('${prod.id}', event)">Chọn phiên bản</button>`;
+                } else {
+                    buttonHtml = `<button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>`;
+                }
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.onclick = () => openProductDetail(prod.id);
                 card.innerHTML = `
-                    <div class="product-image-wrapper">
+                    <div class="product-image-wrapper" onclick="openProductDetail('${prod.id}')">
                         <img src="${prod.image}" class="product-image" alt="${prod.name}">
                         ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
                         ${isOutOfStock ? '<div class="out-of-stock-overlay">Hết hàng</div>' : ''}
@@ -1960,15 +2008,20 @@
             bestSellers.forEach(prod => {
                 const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
                 const stock = getProductStock(prod);
-                const isOutOfStock = stock === 0;
-                const buttonHtml = isOutOfStock 
-                    ? `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`
-                    : `<button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>`;
+                const isOutOfStock = stock === 0; 
+                const hasVariants = prod.variants && prod.variants.length > 0;
+                let buttonHtml;
+                if (isOutOfStock) {
+                    buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`;
+                } else if (hasVariants) {
+                    buttonHtml = `<button class="add-to-cart-btn" onclick="openVariantSelectorModal('${prod.id}', event)">Chọn phiên bản</button>`;
+                } else {
+                    buttonHtml = `<button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>`;
+                }
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.onclick = () => openProductDetail(prod.id);
                 card.innerHTML = `
-                    <div class="product-image-wrapper">
+                    <div class="product-image-wrapper" onclick="openProductDetail('${prod.id}')">
                         <img src="${prod.image}" class="product-image" alt="${prod.name}">
                         ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
                         ${isOutOfStock ? '<div class="out-of-stock-overlay">Hết hàng</div>' : ''}
@@ -2218,6 +2271,78 @@
                 wrapper.appendChild(item);
             });
         }
+        // --- HÀM XỬ LÝ MODAL CHỌN PHIÊN BẢN ---
+        function openVariantSelectorModal(productId, event) {
+            if(event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
+            const product = APP_PRODUCTS.find(p => p.id === productId);
+            if (!product || !product.variants || product.variants.length === 0) {
+                // Fallback: nếu vì lý do nào đó hàm này được gọi cho sản phẩm không có phiên bản, hãy thêm trực tiếp.
+                addToCart(productId, null, event);
+                return;
+            }
+
+            const modal = document.getElementById('variant-selector-modal');
+            const modalList = document.getElementById('variantModalList');
+            const modalTitle = document.getElementById('variantModalTitle');
+            const addToCartBtn = document.getElementById('variantModalAddToCartBtn');
+
+            modalTitle.innerHTML = `<span style="font-weight:normal; font-size: 15px; color: #555;">Chọn phiên bản cho:</span><br>${product.name}`;
+            modalList.innerHTML = '';
+
+            // TÌM PHIÊN BẢN CÒN HÀNG ĐẦU TIÊN ĐỂ CHỌN LÀM MẶC ĐỊNH
+            const firstAvailableVariantIndex = product.variants.findIndex(v => (v.stock || 0) > 0);
+
+            product.variants.forEach((variant, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'variant-modal-item';
+                const stock = variant.stock || 0;
+
+                // Chọn phiên bản đầu tiên CÒN HÀNG làm mặc định
+                if (index === firstAvailableVariantIndex) {
+                    itemDiv.classList.add('selected');
+                }
+                
+                itemDiv.dataset.variantId = variant.id;
+
+                const imageHtml = variant.image ? `<img src="${variant.image}" alt="${variant.colorName}">` : `<div class="variant-swatch" style="background-color: ${variant.colorCode};"></div>`;
+                const stockHtml = stock > 0 ? `<span style="margin-left: auto; font-size: 13px; color: #27ae60; font-weight: 600;">Còn hàng</span>` : `<span style="margin-left: auto; font-size: 13px; color: #c0392b; font-weight: 600;">Hết hàng</span>`;
+                
+                itemDiv.innerHTML = `${imageHtml}<span class="variant-name">${variant.colorName}</span>${stockHtml}`;
+
+                if (stock > 0) {
+                    // Chỉ gán sự kiện click cho các phiên bản còn hàng
+                    itemDiv.onclick = () => {
+                        modalList.querySelectorAll('.variant-modal-item').forEach(el => el.classList.remove('selected'));
+                        itemDiv.classList.add('selected');
+                    };
+                } else {
+                    // Vô hiệu hóa các phiên bản hết hàng
+                    itemDiv.style.opacity = '0.6';
+                    itemDiv.style.cursor = 'not-allowed';
+                }
+                modalList.appendChild(itemDiv);
+            });
+
+            addToCartBtn.onclick = (e) => {
+                const selectedVariantEl = modalList.querySelector('.variant-modal-item.selected');
+                if (selectedVariantEl) {
+                    const selectedVariantId = selectedVariantEl.dataset.variantId;
+                    addToCart(productId, selectedVariantId, event);
+                    closeVariantSelectorModal();
+                } else { 
+                    alert("Tất cả các phiên bản của sản phẩm này đã hết hàng."); 
+                }
+            };
+            modal.style.display = 'flex';
+        }
+        function closeVariantSelectorModal() {
+            const modal = document.getElementById('variant-selector-modal');
+            if (modal) modal.style.display = 'none';
+        }
         function filterReviewStars(starVal, btnElement) {
             currentReviewStarFilter = starVal;
             btnElement.closest('.summary-center-filters').querySelectorAll('.filter-stars-btn').forEach(b => b.classList.remove('active'));
@@ -2321,39 +2446,50 @@
                 event.stopPropagation();
                 event.preventDefault();
             }
+
             const product = APP_PRODUCTS.find(p => p.id === productId);
             if (!product) {
                 console.error("Sản phẩm không tìm thấy:", productId);
                 return;
             }
-            const stock = getProductStock(product);
+
+            let stock = getProductStock(product); // Tổng tồn kho của sản phẩm
+            let variant = null;
+            let itemToAddId = productId;
+
+            // Nếu một phiên bản được thêm, tìm nó và kiểm tra tồn kho cụ thể của nó
+            if (variantId && product.variants) {
+                variant = product.variants.find(v => v.id === variantId);
+                if (variant) {
+                    stock = variant.stock || 0; // Sử dụng tồn kho của phiên bản
+                    itemToAddId = variant.id;
+                }
+            }
+
             if (stock === 0) {
-                alert("🔴 Xin lỗi, sản phẩm này đã tạm hết hàng!");
+                alert("🔴 Xin lỗi, phiên bản sản phẩm này đã tạm hết hàng!");
                 return;
             }
 
             let itemToAdd = {
-                id: productId,
+                id: itemToAddId,
                 name: product.name,
                 price: product.currPrice,
                 image: product.image,
             };
-            if (variantId && product.variants) {
-                const variant = product.variants.find(v => v.id === variantId);
-                if (variant) {
-                    itemToAdd.id = variant.id;
-                    itemToAdd.name = `${product.name} - ${variant.colorName}`;
-                    itemToAdd.image = variant.image || product.image;
-                }
+            if (variant) { // Sử dụng đối tượng phiên bản đã tìm thấy trước đó
+                itemToAdd.name = `${product.name} - ${variant.colorName}`;
+                itemToAdd.image = variant.image || product.image;
             }
 
             const existingItem = cart.find(item => item.id === itemToAdd.id);
-            if (existingItem && existingItem.quantity >= stock) {
-                alert(`🔴 Xin lỗi, bạn chỉ có thể mua tối đa ${stock} sản phẩm này.`);
+            const quantityInCart = existingItem ? existingItem.quantity : 0;
+            if (quantityInCart >= stock) {
+                alert(`🔴 Xin lỗi, bạn chỉ có thể mua tối đa ${stock} sản phẩm của phiên bản này.`);
                 return;
             }
 
-            if (existingItem) existingItem.quantity++; else cart.push({ ...itemToAdd, quantity: 1 });
+            if (existingItem) { existingItem.quantity++; } else { cart.push({ ...itemToAdd, quantity: 1 }); }
             let sourceImageElement = event?.target.closest('.product-card')?.querySelector('.product-image') || document.querySelector('.detail-top-left .detail-image');
             flyToCartAnimation(sourceImageElement, () => {
                 updateCartBadge();
@@ -2452,11 +2588,30 @@
                 if (payload.APP_PRODUCTS) {
                     newOrder.items.forEach(cartItem => {
                         const baseProductId = cartItem.id.split('-')[0];
-                        const productToUpdate = payload.APP_PRODUCTS.find(p => p.id === baseProductId);
-                        if (productToUpdate) {
-                            const currentStock = Number(productToUpdate.stock) || 0;
-                            const newStock = currentStock - cartItem.quantity;
-                            productToUpdate.stock = newStock < 0 ? 0 : newStock; // Ngăn tồn kho âm
+                        const productIndex = payload.APP_PRODUCTS.findIndex(p => p.id === baseProductId);
+                        if (productIndex !== -1) {
+                            const productToUpdate = payload.APP_PRODUCTS[productIndex];
+                            let stockUpdated = false;
+                            // Trường hợp 1: Sản phẩm trong giỏ là một phiên bản
+                            if (productToUpdate.variants && cartItem.id !== baseProductId) {
+                                const variantIndex = productToUpdate.variants.findIndex(v => v.id === cartItem.id);
+                                if (variantIndex !== -1) {
+                                    const variantToUpdate = productToUpdate.variants[variantIndex];
+                                    const currentStock = Number(variantToUpdate.stock) || 0;
+                                    variantToUpdate.stock = Math.max(0, currentStock - cartItem.quantity);
+                                    stockUpdated = true;
+                                }
+                            } 
+                            // Trường hợp 2: Sản phẩm trong giỏ là sản phẩm gốc (không có phiên bản)
+                            else if (!productToUpdate.variants) {
+                                const currentStock = Number(productToUpdate.stock) || 0;
+                                productToUpdate.stock = Math.max(0, currentStock - cartItem.quantity);
+                                stockUpdated = true;
+                            }
+                            // Sau khi cập nhật tồn kho của phiên bản, tính toán lại tổng tồn kho của sản phẩm cha
+                            if (stockUpdated && productToUpdate.variants && productToUpdate.variants.length > 0) {
+                                productToUpdate.stock = productToUpdate.variants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+                            }
                         }
                     });
                 }
