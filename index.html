@@ -1618,9 +1618,13 @@
                     <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Số điện thoại nhận hàng *</label>
                     <input type="tel" id="checkoutCustomerPhone" required placeholder="Ví dụ: 0912xxxxxx" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box;">
                 </div>
-                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 18px;">
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 12px;">
                     <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Địa chỉ giao hàng chi tiết *</label>
                     <textarea id="checkoutCustomerAddress" required rows="3" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố" style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 18px;">
+                    <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Ghi chú cho đơn hàng (Tùy chọn)</label>
+                    <textarea id="checkoutCustomerNotes" rows="2" placeholder="Ví dụ: Giao hàng trong giờ hành chính, gọi trước khi giao..." style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding: 10px 0; border-top: 1px dashed #eee; border-bottom: 1px dashed #eee;">
                     <span style="font-weight: 600; font-size: 14px; color: #333;">Phí vận chuyển:</span>
@@ -2571,7 +2575,8 @@
                 customerInfo: {
                     name: document.getElementById('checkoutCustomerName').value.trim(),
                     phone: document.getElementById('checkoutCustomerPhone').value.trim(),
-                    address: document.getElementById('checkoutCustomerAddress').value.trim()
+                    address: document.getElementById('checkoutCustomerAddress').value.trim(),
+                    notes: document.getElementById('checkoutCustomerNotes').value.trim()
                 },
                 items: [...cart], // Lưu các sản phẩm trong giỏ hàng
                 subtotal: subtotal, // Lưu tổng tiền sản phẩm (chưa bao gồm phí ship)

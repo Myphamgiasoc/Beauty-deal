@@ -2012,7 +2012,9 @@
                 `- ${item.name} (SL: ${item.quantity}) - ${item.price.toLocaleString('vi-VN')}đ`
             ).join('\n');
 
-            const message = `CHI TIẾT ĐƠN HÀNG: ${order.orderId}\n---------------------------------\nKhách hàng: ${order.customerInfo.name}\nSố điện thoại: ${order.customerInfo.phone}\nĐịa chỉ: ${order.customerInfo.address}\n---------------------------------\nSản phẩm:\n${itemsDetails}\n---------------------------------\nTổng tiền: ${order.totalAmount.toLocaleString('vi-VN')}đ\nTrạng thái: ${order.status}`;
+            const notesInfo = order.customerInfo.notes ? `\nGhi chú: ${order.customerInfo.notes}` : '';
+
+            const message = `CHI TIẾT ĐƠN HÀNG: ${order.orderId}\n---------------------------------\nKhách hàng: ${order.customerInfo.name}\nSố điện thoại: ${order.customerInfo.phone}\nĐịa chỉ: ${order.customerInfo.address}${notesInfo}\n---------------------------------\nSản phẩm:\n${itemsDetails}\n---------------------------------\nTổng tiền: ${order.totalAmount.toLocaleString('vi-VN')}đ\nTrạng thái: ${order.status}`;
             alert(message);
         }
 
@@ -2037,6 +2039,8 @@
                 `;
             });
 
+            const notesHtml = order.customerInfo.notes ? `<p><strong>Ghi chú:</strong> ${order.customerInfo.notes}</p>` : '';
+
             const billHtml = `
                 <div class="receipt-container">
                     <div class="receipt-header">
@@ -2048,6 +2052,7 @@
                         <p><strong>Hóa đơn:</strong> ${order.orderId}</p>
                         <p><strong>Ngày:</strong> ${new Date(order.orderDate).toLocaleString('vi-VN')}</p>
                         <p><strong>Khách hàng:</strong> ${order.customerInfo.name}</p>
+                        ${notesHtml}
                     </div>
                     <div class="receipt-section">
                         <table class="receipt-table">
