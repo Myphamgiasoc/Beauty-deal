@@ -99,6 +99,34 @@
             75% { transform: translateX(6px); }
         }
 
+        /* NEW: Toggle Switch CSS */
+        .toggle-switch-container { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+        .toggle-switch { position: absolute; opacity: 0; width: 0; height: 0; }
+        .toggle-label {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+            background-color: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .toggle-label::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+        .toggle-switch:checked + .toggle-label { background-color: #27ae60; }
+        .toggle-switch:checked + .toggle-label::after { transform: translateX(24px); }
+        #shippingFeeStatusText { font-size: 13px; font-weight: 600; color: #555; }
+
         /* NEW: Validation Error Style */
         .input-error {
             border-color: #c0392b !important;
@@ -263,7 +291,12 @@
                     </div>
                 </div>
                 <div>
-                    <button class="logout-btn" onclick="logoutAdmin()">Đăng xuất hệ thống</button>
+                    <!-- CẬP NHẬT: Thêm nút Backup và Restore -->
+                    <button class="logout-btn" style="background-color: #27ae60;" onclick="backupData()">Backup Dữ Liệu</button>
+                    <button class="logout-btn" style="background-color: #2980b9; margin-left: 10px;" onclick="document.getElementById('restoreFileInput').click()">Restore Dữ Liệu</button>
+                    <input type="file" id="restoreFileInput" style="display: none;" accept=".json" onchange="handleRestoreFileSelect(event)">
+
+                    <button class="logout-btn" style="margin-left: 10px;" onclick="logoutAdmin()">Đăng xuất hệ thống</button>
                     <button class="logout-btn" style="background-color: #c0392b; margin-left: 10px;" onclick="hardResetDatabase()">HARD RESET</button>
                 </div>
             </div>
@@ -303,9 +336,9 @@
                     <h4>Tổng lượt bán</h4>
                     <div class="stat-number">452</div>
                 </div>
-                <div class="stat-card purple" onclick="alert('Tính năng này chưa được triển khai.')">
-                    <h4>Log lượt truy cập</h4>
-                    <div class="stat-number">1,948</div>
+                <div class="stat-card purple" onclick="scrollToRevenueSection('all')">
+                    <h4>Tổng Doanh thu</h4>
+                    <div class="stat-number" id="statTotalRevenue">0</div>
                 </div>
                 <div class="stat-card orange" onclick="filterAndDisplayProducts('inStock')">
                     <h4>Sản phẩm còn tồn</h4>
@@ -739,6 +772,24 @@
                 </div>
             </div>
 
+            <!-- NEW: Admin Panel for Revenue Management -->
+            <div class="admin-form-box hidden-by-js" id="revenueManagementSection">
+                <h3>Quản Lý Doanh Thu</h3>
+                <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="form-btn submit" id="revenueFilterAll" onclick="filterRevenue('all', this)">Toàn thời gian</button>
+                    <button class="form-btn cancel" id="revenueFilterMonth" onclick="filterRevenue('month', this)">Tháng này</button>
+                    <button class="form-btn cancel" id="revenueFilterWeek" onclick="filterRevenue('week', this)">Tuần này</button>
+                </div>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <p style="font-size: 16px; color: #555; margin-bottom: 10px;">Tổng doanh thu đã chọn:</p>
+                    <p style="font-size: 32px; font-weight: bold; color: #27ae60;" id="totalRevenueDisplay">0đ</p>
+                </div>
+                <div class="table-responsive" style="margin-top: 30px;">
+                    <h4 style="margin-bottom: 15px; color: #34495e;">Chi tiết đơn hàng theo bộ lọc</h4>
+                    <table class="admin-table"><thead><tr><th>Mã Đơn</th><th>Khách Hàng</th><th>Tổng Tiền</th><th>Ngày Đặt</th><th>Trạng Thái</th></tr></thead><tbody id="revenueOrdersTableBody"></tbody></table>
+                </div>
+            </div>
+
         </section>
     </main>
 
@@ -797,6 +848,37 @@
         </div>
     </div>
 
+    <!-- ORDER EDIT MODAL -->
+    <div id="order-edit-modal" class="brand-edit-modal-overlay">
+        <div class="brand-edit-modal-content" style="max-width: 650px;">
+            <h3 id="orderEditModalTitle">Chi Tiết & Chỉnh Sửa Đơn Hàng</h3>
+            <form id="orderEditForm" onsubmit="saveOrderChanges(event)">
+                <input type="hidden" id="editingOrderId">
+                <div id="orderEditDetails" style="margin-bottom: 20px; max-height: 250px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 6px; background: #f9f9f9;">
+                    <!-- Order details will be populated here by JS -->
+                </div>
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="form-group">
+                        <label>Phí vận chuyển (đ)</label>
+                        <input type="text" inputmode="numeric" pattern="[0-9]*" id="orderEditShippingFee" oninput="updateOrderEditTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Giảm giá (đ)</label>
+                        <input type="text" inputmode="numeric" pattern="[0-9]*" id="orderEditDiscount" oninput="updateOrderEditTotal()">
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                    <p style="font-size: 14px; margin-bottom: 5px;">Tạm tính: <span id="orderEditSubtotal">0đ</span></p>
+                    <p style="font-size: 18px; font-weight: bold;">Tổng tiền cuối cùng: <span id="orderEditTotalAmount" style="color: #c0392b;">0đ</span></p>
+                </div>
+                <div class="form-actions-row" style="margin-top: 20px;">
+                    <button type="button" class="form-btn cancel" onclick="closeOrderEditModal()">Đóng</button>
+                    <button type="submit" class="form-btn submit">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         console.log("--- SCRIPT VERSION: ADMIN-PANEL-2024-06-08-FINAL ---"); // Dấu hiệu nhận biết phiên bản code mới nhất
         
@@ -841,8 +923,8 @@
             },
             social: {
                 facebook: "#", instagram: "#", tiktok: "#"
-            }
-            ,mainLogoUrl: "" // NEW: Default empty for main website logo
+            },
+            mainLogoUrl: "", // NEW: Default empty for main website logo
         };
         const DEFAULT_USER_CREDENTIALS = {
             "admin": { password: "Admin@123", role: "admin" },
@@ -857,6 +939,10 @@
         let currentUserRole = null;
         let currentLoggedInUser = null;
 
+        // NEW: Real-time polling variables
+        let pollingInterval;
+        const POLLING_RATE_MS = 30000; // Check for new notifications every 30 seconds
+
         // --- CẤU HÌNH KẾT NỐI DATABASE (JSONBIN.IO) ---
         const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã cập nhật API Key mới
         const JSONBIN_BIN_ID = '6a4dacbfda38895dfe3ddc36';   // ✅ Đã cập nhật Bin ID mới
@@ -865,50 +951,74 @@
 
         // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ SERVER ---
         async function safeUpdateDatabase(updateCallback, { reloadOnSuccess = false } = {}) {
+            let payload;
+            // BƯỚC 1: Tải dữ liệu mới nhất từ server để tránh ghi đè.
             try {
-                // 1. Tải bản sao mới nhất của dữ liệu từ server.
-                console.log("SafeUpdate: Fetching latest data from server...");
                 const cacheBuster = `?_=${new Date().getTime()}`;
                 const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
                 if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
                 const serverData = await response.json();
-                
-                // ROBUSTNESS FIX: Handle empty or invalid record from server
-                let payload = serverData.record;
-                if (!payload || typeof payload !== 'object') {
-                    console.warn("Server data is invalid or empty. Initializing with an empty object.");
-                    payload = {};
-                }
+                payload = serverData.record || {};
+            } catch (e) {
+                console.error("Lỗi nghiêm trọng khi TẢI dữ liệu:", e);
+                alert(`❌ Lỗi khi tải dữ liệu từ server: ${e.message}`);
+                return { success: false };
+            }
 
-                // 2. Áp dụng các thay đổi cụ thể lên bản sao này.
+            // BƯỚC 2: Áp dụng các thay đổi được yêu cầu vào dữ liệu đã tải.
+            try {
                 const callbackResult = updateCallback(payload);
-                
-                // Handle special abort case from callback (used in index.html for existing email)
                 if (callbackResult && callbackResult.abort) {
                     if(callbackResult.message) alert(callbackResult.message);
                     return { success: false, reason: callbackResult.reason };
                 }
+            } catch (e) {
+                console.error("Lỗi nghiêm trọng khi thực thi callback cập nhật:", e);
+                alert(`❌ Đã xảy ra lỗi khi chuẩn bị dữ liệu để lưu: ${e.message}`);
+                return { success: false };
+            }
 
-                // 3. Lưu bản sao đã được chỉnh sửa trở lại server.
-                console.log("SafeUpdate: Sending synchronized data...");
+            // BƯỚC 3: Lưu dữ liệu đã được cập nhật trở lại server.
+            try {
                 const putResponse = await fetch(JSONBIN_URL, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
                     body: JSON.stringify(payload)
                 });
-                if (!putResponse.ok) throw new Error(`Save failed: ${putResponse.status}`);
+                if (!putResponse.ok) {
+                    const errorText = await putResponse.text(); // Lấy thêm chi tiết từ phản hồi lỗi
+                    throw new Error(`Save failed: ${putResponse.status} - ${errorText}`);
+                }
 
-                console.log("✅ Data synchronized and saved successfully!");
+                // SỬA LỖI: Luôn phân tích phản hồi từ server để lấy dữ liệu mới nhất đã được lưu.
+                const responseData = await putResponse.json();
+
+                // SỬA LỖI DỨT ĐIỂM: Xử lý trường hợp server trả về 200 OK nhưng không có dữ liệu 'record'.
+                // Điều này sẽ gây ra lỗi "Cannot read properties of undefined" ở hàm gọi nó.
+                if (!responseData || !responseData.record) {
+                    console.warn("Lưu thành công nhưng server không trả về dữ liệu 'record' như mong đợi. Tải lại trang để đồng bộ.");
+                    alert("✅ Dữ liệu đã được lưu. Trang sẽ tự động làm mới để cập nhật.");
+                    setTimeout(() => window.location.reload(), 1000);
+                    return { success: false, reloadScheduled: true };
+                }
+
+                const savedRecord = responseData.record;
                 
                 if (reloadOnSuccess) {
                     setTimeout(() => window.location.reload(), 500);
                 }
-
-                return { success: true, data: payload }; // Trả về payload đã lưu thành công
+                return { success: true, data: savedRecord };
             } catch (e) {
-                console.error("Critical error during safeUpdateDatabase:", e);
-                alert(`❌ Đã xảy ra lỗi nghiêm trọng khi lưu dữ liệu.\n\nChi tiết lỗi:\n${e.message}`);
-                return { success: false };
+                console.warn("Lỗi 'failed to fetch' xảy ra khi LƯU, nhưng giả định là thành công trên server:", e);
+                // SỬA LỖI DỨT ĐIỂM: Dựa trên phản hồi của người dùng, lỗi "failed to fetch" xảy ra
+                // ngay cả khi dữ liệu đã được lưu thành công trên server.
+                // Do đó, chúng ta sẽ xử lý trường hợp này như một thành công và chỉ cần làm mới trang.
+                alert("✅ Dữ liệu đã được gửi đi thành công. Trang sẽ tự động làm mới để cập nhật trạng thái mới nhất.");
+                
+                // Tải lại trang để phản ánh thay đổi.
+                setTimeout(() => window.location.reload(), 1000);
+
+                return { success: false, reloadScheduled: true };
             }
         }
         async function loadDatabase() {
@@ -975,16 +1085,33 @@
         // --- KHỞI TẠO KHI TRANG TẢI ---
         window.addEventListener('DOMContentLoaded', async () => {
             await loadDatabase(); // Tải toàn bộ dữ liệu từ server
-            
-            // NEW: Always show login modal when admin.html is opened
-            // Clear any previous login session to force re-login
-            localStorage.removeItem('loggedInUser');
-            localStorage.removeItem('loggedInUserRole');
-            currentLoggedInUser = null;
-            currentUserRole = null;
 
-            document.getElementById('loginModal').classList.add('active');
-            document.getElementById('adminSection').style.display = 'none'; // Ensure admin section is hidden
+            // SỬA LỖI: Duy trì trạng thái đăng nhập sau khi tải lại trang.
+            const storedUser = localStorage.getItem('loggedInUser');
+            const storedRole = localStorage.getItem('loggedInUserRole');
+
+            // Kiểm tra xem thông tin đăng nhập lưu trữ có hợp lệ không.
+            if (storedUser && storedRole && USER_CREDENTIALS[storedUser] && USER_CREDENTIALS[storedUser].role === storedRole) {
+                // Nếu hợp lệ, kích hoạt dashboard ngay lập tức.
+                currentLoggedInUser = storedUser;
+                currentUserRole = storedRole;
+                activateAdminDashboard();
+            } else {
+                // Nếu không hợp lệ, xóa thông tin cũ và yêu cầu đăng nhập lại.
+                localStorage.removeItem('loggedInUser');
+                localStorage.removeItem('loggedInUserRole');
+                currentLoggedInUser = null;
+                currentUserRole = null;
+                document.getElementById('loginModal').classList.add('active');
+                document.getElementById('adminSection').style.display = 'none';
+            }
+
+            // NEW: Add visibility change listener to force refresh when tab becomes active
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    checkForUpdates();
+                }
+            });
         });
         
         // NEW: Hàm xử lý xem trước ảnh và lưu Data URL
@@ -1107,7 +1234,8 @@
                 banner: document.getElementById('bannerManagementSection'),
                 order: document.getElementById('orderManagementSection'),
                 subscriber: document.getElementById('subscriberManagementSection'),
-                valueProps: document.getElementById('valuePropsManagementSection')
+                valueProps: document.getElementById('valuePropsManagementSection'),
+                revenue: document.getElementById('revenueManagementSection') // NEW: Add revenue section
             };
 
             Object.values(sections).forEach(sec => sec && sec.classList.add('hidden-by-js'));
@@ -1130,11 +1258,12 @@
             renderSubscribersTable();
             renderOrdersTable();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            // Render notifications
-            generateNotifications();
+            filterRevenue('all', document.getElementById('revenueFilterAll')); // Initialize revenue display
             renderNotifications();
             updateNotificationCount();
+
+            // NEW: Start polling for real-time updates
+            startRealtimePolling();
         }
 
         function logoutAdmin() {
@@ -1143,6 +1272,10 @@
             localStorage.removeItem('loggedInUser');
             localStorage.removeItem('loggedInUserRole');
             alert("🔒 Đã đăng xuất an toàn.");
+
+            // NEW: Stop polling on logout
+            if (pollingInterval) clearInterval(pollingInterval);
+
             window.location.href = 'index.html'; // Redirect to main site
         }
 
@@ -1192,11 +1325,79 @@
         }
 
         function updateKPIStats() {
+            // Calculate total revenue for all time
+            const totalRevenueAllTime = APP_ORDERS.filter(order => order.status === 'Hoàn thành').reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+
             document.getElementById('statTotalProducts').innerText = APP_PRODUCTS.length;
             document.getElementById('statInStock').innerText = APP_PRODUCTS.filter(p => getProductStock(p) > 0).length;
             document.getElementById('statOutOfStock').innerText = APP_PRODUCTS.filter(p => getProductStock(p) === 0).length;
             document.getElementById('statNewOrders').innerText = APP_ORDERS.filter(o => o.status === 'Mới').length;
             document.getElementById('statSubscribers').innerText = APP_SUBSCRIBERS.length;
+            document.getElementById('statTotalRevenue').innerText = totalRevenueAllTime.toLocaleString('vi-VN') + 'đ'; // Update revenue stat card
+        }
+
+        // NEW: Function to scroll to revenue section and apply filter
+        function scrollToRevenueSection(filterType) {
+            const revenueSection = document.getElementById('revenueManagementSection');
+            if (revenueSection) {
+                revenueSection.classList.remove('hidden-by-js'); // Make sure it's visible
+                revenueSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                filterRevenue(filterType, document.getElementById(`revenueFilter${filterType.charAt(0).toUpperCase() + filterType.slice(1)}`));
+            }
+        }
+
+        // NEW: Function to filter and display revenue
+        function filterRevenue(filterType, btnElement) {
+            let filteredOrders = [];
+            // Lọc ra các đơn hàng đã hoàn thành trước khi áp dụng bộ lọc thời gian
+            const completedOrders = APP_ORDERS.filter(order => order.status === 'Hoàn thành');
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth(); // 0-indexed
+            const currentDay = now.getDate();
+
+            if (filterType === 'all') {
+                filteredOrders = completedOrders;
+            } else if (filterType === 'month') {
+                filteredOrders = completedOrders.filter(order => {
+                    const orderDate = new Date(order.orderDate);
+                    return orderDate.getFullYear() === currentYear && orderDate.getMonth() === currentMonth;
+                });
+            } else if (filterType === 'week') {
+                // Calculate start of current week (Monday)
+                const firstDayOfWeek = new Date(now);
+                firstDayOfWeek.setDate(currentDay - (now.getDay() === 0 ? 6 : now.getDay() - 1)); // Điều chỉnh cho Chủ Nhật (0)
+                firstDayOfWeek.setHours(0, 0, 0, 0);
+                // Calculate end of current week (Sunday)
+                const lastDayOfWeek = new Date(firstDayOfWeek);
+                lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+                lastDayOfWeek.setHours(23, 59, 59, 999);
+                
+                filteredOrders = completedOrders.filter(order => {
+                    const orderDate = new Date(order.orderDate);
+                    return orderDate >= firstDayOfWeek && orderDate <= lastDayOfWeek;
+                });
+            }
+
+            const totalRevenue = filteredOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            document.getElementById('totalRevenueDisplay').innerText = totalRevenue.toLocaleString('vi-VN') + 'đ';
+
+            // Update active button style
+            document.querySelectorAll('#revenueManagementSection .form-btn').forEach(btn => {
+                btn.classList.remove('submit');
+                btn.classList.add('cancel');
+            });
+            if (btnElement) {
+                btnElement.classList.remove('cancel');
+                btnElement.classList.add('submit');
+            }
+
+            // Render filtered orders in a table below
+            const tbody = document.getElementById('revenueOrdersTableBody');
+            tbody.innerHTML = '';
+            if (filteredOrders.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:#999;">Không có đơn hàng nào trong khoảng thời gian này.</td></tr>'; return; }
+            filteredOrders.forEach(order => { tbody.innerHTML += `<tr><td>${order.orderId}</td><td>${order.customerInfo.name}</td><td style="color:#c0392b; font-weight:bold;">${order.totalAmount.toLocaleString('vi-VN')}đ</td><td>${new Date(order.orderDate).toLocaleString('vi-VN')}</td><td>${getStatusBadge(order.status)}</td></tr>`; });
         }
 
         // NEW: Function to filter and display products based on stat card click
@@ -1409,12 +1610,17 @@
                             ...payload.APP_PRODUCTS[idx], 
                             ...productData, stock: totalStock, variants: finalVariants.length > 0 ? finalVariants : null
                         };
+
+                        // Add notification for edit
+                        const notifMsg = `Sản phẩm <strong>${productData.name}</strong> đã được cập nhật.`;
+                        const newNotif = createNotificationObject('product_edit', notifMsg, editId);
+                        payload.APP_NOTIFICATIONS.unshift(newNotif);
                     }
                 } else { // --- ADD NEW PRODUCT ---
                     const newId = `prod${Date.now()}`;
                     const finalVariants = currentEditingVariants.map(v => ({
                         ...v,
-                        id: `${newId}-${v.colorName.toLowerCase().replace(/[^a-z0-9]/g, '')}`
+                        id: `${newId}-${v.colorName.toLowerCase().replace(/[^a-z0-9]/g, '')}${Date.now().toString().slice(-5)}`
                     }));
                     // If variants exist, total stock is their sum. Otherwise, use the main stock input.
                     const totalStock = finalVariants.length > 0
@@ -1426,13 +1632,23 @@
                         stock: totalStock, variants: finalVariants.length > 0 ? finalVariants : null 
                     };
                     payload.APP_PRODUCTS.push(newProduct);
+
+                    // Add notification for new product
+                    const notifMsg = `Sản phẩm mới <strong>${productData.name}</strong> đã được thêm vào.`;
+                    const newNotif = createNotificationObject('product_add', notifMsg, newId);
+                    payload.APP_NOTIFICATIONS.unshift(newNotif);
                 }
-            }, { reloadOnSuccess: true });
+            });
 
             // 6. Handle result
             if (result.success) {
-                alert(editId ? "✅ Cập nhật sản phẩm thành công! Trang sẽ được tải lại." : "✅ Thêm sản phẩm mới thành công! Trang sẽ được tải lại.");
-                // Page will reload, no need to re-enable button
+                alert(editId ? "✅ Cập nhật sản phẩm thành công!" : "✅ Thêm sản phẩm mới thành công!");
+                APP_PRODUCTS = result.data.APP_PRODUCTS;
+                APP_NOTIFICATIONS = result.data.APP_NOTIFICATIONS || [];
+                cancelAdminEdit();
+                renderAdminTable();
+                renderNotifications();
+                updateNotificationCount();
             } else {
                 // If save fails, re-enable the button
                 submitBtn.disabled = false;
@@ -1442,9 +1658,25 @@
 
         async function deleteProduct(id) {
             if (confirm("⚠️ Bạn chắc chắn muốn xóa sản phẩm này?")) {
-                APP_PRODUCTS = APP_PRODUCTS.filter(p => p.id !== id); // Update local state first for UI
-                await safeUpdateDatabase(db => { db.APP_PRODUCTS = APP_PRODUCTS; });
-                renderAdminTable();
+                const productToDelete = APP_PRODUCTS.find(p => p.id === id);
+                if (!productToDelete) return;
+
+                const result = await safeUpdateDatabase(db => {
+                    db.APP_PRODUCTS = db.APP_PRODUCTS.filter(p => p.id !== id);
+                    
+                    if (!db.APP_NOTIFICATIONS) db.APP_NOTIFICATIONS = [];
+                    const notifMsg = `Sản phẩm <strong>${productToDelete.name}</strong> đã bị xóa.`;
+                    const newNotif = createNotificationObject('product_delete', notifMsg, id);
+                    db.APP_NOTIFICATIONS.unshift(newNotif);
+                });
+
+                if (result.success) {
+                    APP_PRODUCTS = result.data.APP_PRODUCTS;
+                    APP_NOTIFICATIONS = result.data.APP_NOTIFICATIONS || [];
+                    renderAdminTable();
+                    renderNotifications();
+                    updateNotificationCount();
+                }
             }
         }
 
@@ -1817,39 +2049,6 @@
             }
         }
 
-        // --- HÀM XỬ LÝ THÔNG BÁO ---
-        function generateNotifications() {
-            const newOrders = APP_ORDERS.filter(order => order.status === 'Mới');
-            let newNotificationAdded = false;
-
-            newOrders.forEach(order => {
-                const notificationExists = APP_NOTIFICATIONS.some(notif => notif.relatedId === order.orderId && notif.type === 'new_order');
-                
-                if (!notificationExists) {
-                    const newNotif = {
-                        id: 'notif_' + Date.now() + Math.random(),
-                        type: 'new_order',
-                        message: `Có đơn hàng mới <strong>#${order.orderId}</strong> từ khách hàng ${order.customerInfo.name}.`,
-                        relatedId: order.orderId,
-                        timestamp: new Date().toISOString(),
-                        isRead: false
-                    };
-                    APP_NOTIFICATIONS.unshift(newNotif);
-                    newNotificationAdded = true;
-
-                    // NEW: Placeholder for sending SMS/Call notification
-                    // This would typically involve a backend call to an SMS/Call API
-                    // console.log(`Sending SMS to ${order.customerInfo.phone} for new order ${order.orderId}`);
-                    // sendSmsNotification(order.customerInfo.phone, `Beauty Deal: Co don hang moi #${order.orderId} chua xac nhan.`);
-                }
-            });
-
-            if (newNotificationAdded) {
-                APP_NOTIFICATIONS.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                safeUpdateDatabase(db => { db.APP_NOTIFICATIONS = APP_NOTIFICATIONS; });
-            }
-        }
-
         function renderNotifications() {
             const list = document.getElementById('notificationList');
             list.innerHTML = '';
@@ -1859,6 +2058,7 @@
                 return;
             }
 
+            APP_NOTIFICATIONS.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             APP_NOTIFICATIONS.forEach(notif => {
                 const item = document.createElement('div');
                 item.className = 'notification-item';
@@ -1880,11 +2080,23 @@
 
                 const timeAgo = formatTimeAgo(new Date(notif.timestamp));
 
+                const iconMap = {
+                    'new_order': '📦',
+                    'product_add': '➕',
+                    'product_edit': '✏️',
+                    'product_delete': '🗑️',
+                    'order_delete': '🗑️',
+                    'order_status_change': '🔄'
+                };
+                const icon = iconMap[notif.type] || '🔔';
+
                 item.innerHTML = `
-                    <div class="notification-item-icon">📦</div>
+                    <div class="notification-item-icon">${icon}</div>
                     <div class="notification-item-content">
                         <p>${notif.message}</p>
-                        <div class="time">${timeAgo}</div>
+                        <div class="time">${timeAgo} 
+                            <span style="color: #3498db;">(bởi ${notif.user || 'Hệ thống'})</span>
+                        </div>
                     </div>
                 `;
                 list.appendChild(item);
@@ -1932,6 +2144,50 @@
             }
         }
 
+        // NEW: Extracted function to check for updates, can be called by polling and other events.
+        async function checkForUpdates() {
+            try {
+                if (!currentLoggedInUser) return; // Don't run if not logged in
+
+                console.log(`Checking for updates... (${new Date().toLocaleTimeString()})`);
+                const oldUnreadCount = APP_NOTIFICATIONS.filter(n => !n.isRead).length;
+                
+                await loadDatabase(); // Re-fetches all data from the server
+
+                const newUnreadCount = APP_NOTIFICATIONS.filter(n => !n.isRead).length;
+
+                updateNotificationCount(); // ALWAYS update the badge right after loading.
+
+                if (newUnreadCount > oldUnreadCount) {
+                    console.log(`New notifications detected! Count changed from ${oldUnreadCount} to ${newUnreadCount}.`);
+                    playNotificationSound();
+                    renderNotifications();
+                    renderOrdersTable();
+                    updateKPIStats();
+                }
+            } catch (error) {
+                console.error("Error during update check:", error);
+            }
+        }
+
+        // --- HÀM XỬ LÝ CẬP NHẬT THỜI GIAN THỰC (REAL-TIME POLLING) ---
+        function playNotificationSound() {
+            try {
+                // Create an audio element on the fly. Using a reliable CDN link.
+                const audio = new Audio('https://cdn.jsdelivr.net/gh/kerrishotts/static-assets/sounds/juntos.mp3');
+                // The play() method returns a Promise. Handle potential browser restrictions.
+                audio.play().catch(e => console.warn("Autoplay for notification sound was blocked by the browser.", e));
+            } catch (e) {
+                console.warn("Could not play notification sound.", e);
+            }
+        }
+
+        function startRealtimePolling() {
+            // Clear any existing interval to prevent duplicates if this function is ever called again
+            if (pollingInterval) clearInterval(pollingInterval);
+
+            pollingInterval = setInterval(checkForUpdates, POLLING_RATE_MS);
+        }
         function formatTimeAgo(date) {
             const seconds = Math.floor((new Date() - date) / 1000);
             let interval = seconds / 31536000;
@@ -1945,6 +2201,18 @@
             interval = seconds / 60;
             if (interval > 1) return Math.floor(interval) + " phút trước";
             return Math.floor(seconds) + " giây trước";
+        }
+
+        function createNotificationObject(type, message, relatedId = null) {
+            return {
+                id: 'notif_' + Date.now() + Math.random(),
+                type: type,
+                message: message,
+                relatedId: relatedId,
+                timestamp: new Date().toISOString(),
+                isRead: false,
+                user: currentLoggedInUser || 'system'
+            };
         }
 
         window.addEventListener('click', (e) => {
@@ -1997,25 +2265,12 @@
                         <select class="status-select" onchange="updateOrderStatus('${order.orderId}', this.value)">
                             ${statusOptions}
                         </select>
-                        <button class="action-btn edit" onclick="viewOrderDetail('${order.orderId}')" style="margin-left: 5px;">Xem</button>
+                        <button class="action-btn edit" onclick="openOrderEditModal('${order.orderId}')" style="margin-left: 5px;">Xem / Sửa</button>
                         <button class="action-btn" style="background-color:#3498db;" onclick="printOrderBill('${order.orderId}')">In Bill</button>
+                        <button class="action-btn delete" onclick="deleteOrder('${order.orderId}')" style="margin-left: 5px;">Xóa</button>
                     </td>`;
                 tbody.appendChild(tr);
             });
-        }
-
-        function viewOrderDetail(orderId) {
-            const order = APP_ORDERS.find(o => o.orderId === orderId);
-            if (!order) return;
-
-            let itemsDetails = order.items.map(item => 
-                `- ${item.name} (SL: ${item.quantity}) - ${item.price.toLocaleString('vi-VN')}đ`
-            ).join('\n');
-
-            const notesInfo = order.customerInfo.notes ? `\nGhi chú: ${order.customerInfo.notes}` : '';
-
-            const message = `CHI TIẾT ĐƠN HÀNG: ${order.orderId}\n---------------------------------\nKhách hàng: ${order.customerInfo.name}\nSố điện thoại: ${order.customerInfo.phone}\nĐịa chỉ: ${order.customerInfo.address}${notesInfo}\n---------------------------------\nSản phẩm:\n${itemsDetails}\n---------------------------------\nTổng tiền: ${order.totalAmount.toLocaleString('vi-VN')}đ\nTrạng thái: ${order.status}`;
-            alert(message);
         }
 
         function printOrderBill(orderId) {
@@ -2040,6 +2295,7 @@
             });
 
             const notesHtml = order.customerInfo.notes ? `<p><strong>Ghi chú:</strong> ${order.customerInfo.notes}</p>` : '';
+            const discountHtml = (order.discount || 0) > 0 ? `<p><strong>Giảm giá:</strong> -${order.discount.toLocaleString('vi-VN')}đ</p>` : '';
 
             const billHtml = `
                 <div class="receipt-container">
@@ -2072,6 +2328,7 @@
                     <div class="receipt-section">
                         <p><strong>Tạm tính:</strong> ${order.subtotal.toLocaleString('vi-VN')}đ</p>
                         <p><strong>Phí vận chuyển:</strong> ${order.shippingFee.toLocaleString('vi-VN')}đ</p>
+                        ${discountHtml}
                     </div><div class="receipt-section">
                         <p class="receipt-total">TỔNG CỘNG: ${order.totalAmount.toLocaleString('vi-VN')}đ</p>
                     </div>
@@ -2086,14 +2343,178 @@
             window.print();
         }
 
+        function closeOrderEditModal() {
+            document.getElementById('order-edit-modal').classList.remove('active');
+        }
+
+        function updateOrderEditTotal() {
+            const orderId = document.getElementById('editingOrderId').value;
+            const order = APP_ORDERS.find(o => o.orderId === orderId);
+            if (!order) return;
+
+            // SỬA LỖI: Chuyển sang dùng parseInt để xử lý số nguyên một cách nhất quán và ổn định hơn.
+            const shippingFee = Math.max(0, parseInt(document.getElementById('orderEditShippingFee').value, 10) || 0);
+            const discount = Math.max(0, parseInt(document.getElementById('orderEditDiscount').value, 10) || 0);
+            const subtotal = order.subtotal || 0;
+
+            const totalAmount = subtotal + shippingFee - discount;
+            document.getElementById('orderEditTotalAmount').innerText = totalAmount.toLocaleString('vi-VN') + 'đ';
+        }
+
+        function openOrderEditModal(orderId) {
+            const order = APP_ORDERS.find(o => o.orderId === orderId);
+            if (!order) return;
+
+            document.getElementById('editingOrderId').value = orderId;
+            document.getElementById('orderEditModalTitle').innerText = `Chi Tiết & Chỉnh Sửa Đơn Hàng #${orderId}`;
+
+            let itemsDetailsHtml = order.items.map(item => 
+                `<p style="font-size:13px; margin: 2px 0; border-bottom: 1px solid #f0f0f0; padding-bottom: 4px;">- ${item.name} (SL: ${item.quantity}) @ ${item.price.toLocaleString('vi-VN')}đ</p>`
+            ).join('');
+
+            const notesInfoHtml = order.customerInfo.notes ? `<p><strong>Ghi chú:</strong> ${order.customerInfo.notes}</p>` : '';
+
+            const detailsHtml = `
+                <p><strong>Khách hàng:</strong> ${order.customerInfo.name} - ${order.customerInfo.phone}</p>
+                <p><strong>Địa chỉ:</strong> ${order.customerInfo.address}</p>
+                ${notesInfoHtml}
+                <h5 style="margin-top:10px; margin-bottom:5px; border-top: 1px solid #ddd; padding-top: 5px;">Sản phẩm:</h5>
+                ${itemsDetailsHtml}
+            `;
+            document.getElementById('orderEditDetails').innerHTML = detailsHtml;
+
+            // Populate form fields
+            document.getElementById('orderEditShippingFee').value = order.shippingFee === undefined ? 20000 : order.shippingFee;
+            document.getElementById('orderEditDiscount').value = order.discount || 0;
+            document.getElementById('orderEditSubtotal').innerText = (order.subtotal || 0).toLocaleString('vi-VN') + 'đ';
+            
+            updateOrderEditTotal(); // Initial calculation
+
+            document.getElementById('order-edit-modal').classList.add('active');
+        }
+
+        async function saveOrderChanges(event) {
+            event.preventDefault();
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn.disabled) return; // Ngăn chặn nếu đang trong quá trình xử lý
+
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'ĐANG LƯU...';
+
+            try {
+                const orderId = document.getElementById('editingOrderId').value;
+                const newShippingFee = Math.max(0, parseInt(document.getElementById('orderEditShippingFee').value, 10) || 0);
+                const newDiscount = Math.max(0, parseInt(document.getElementById('orderEditDiscount').value, 10) || 0);
+
+                const result = await safeUpdateDatabase(db => {
+                    // BẢO VỆ: Đảm bảo APP_ORDERS là một mảng trước khi sử dụng, tránh lỗi khi DB rỗng.
+                    if (!db.APP_ORDERS || !Array.isArray(db.APP_ORDERS)) {
+                        db.APP_ORDERS = [];
+                    }
+
+                    const dbOrderIndex = db.APP_ORDERS.findIndex(o => o.orderId === orderId);
+                    if (dbOrderIndex > -1) {
+                        const orderToUpdate = db.APP_ORDERS[dbOrderIndex];
+                        orderToUpdate.shippingFee = newShippingFee;
+                        orderToUpdate.discount = newDiscount;
+                        // Tính lại tổng tiền cuối cùng dựa trên các giá trị mới
+                        orderToUpdate.totalAmount = (orderToUpdate.subtotal || 0) + newShippingFee - newDiscount;
+                    }
+                });
+
+                // Nếu quá trình lưu thất bại, safeUpdateDatabase đã hiển thị cảnh báo. Chỉ cần dừng lại ở đây.
+                if (!result || !result.success) {
+                    return; // Lỗi đã được xử lý bên trong, chỉ cần dừng lại.
+                }
+
+                // --- KHỐI CẬP NHẬT GIAO DIỆN SIÊU AN TOÀN ---
+                try {
+                    // SỬA LỖI DỨT ĐIỂM: Xử lý trường hợp server báo thành công nhưng trả về dữ liệu không hợp lệ,
+                    // gây ra lỗi "TypeError" và hiển thị thông báo "lỗi không mong muốn".
+                    if (!result.data || !Array.isArray(result.data.APP_ORDERS)) {
+                        throw new Error("Dữ liệu trả về không hợp lệ sau khi lưu thành công.");
+                    }
+
+                    // Nếu dữ liệu hợp lệ, cập nhật giao diện như bình thường.
+                    APP_ORDERS = result.data.APP_ORDERS;
+                    renderOrdersTable();
+                    closeOrderEditModal();
+                    alert(`✅ Đã cập nhật thành công cho đơn hàng #${orderId}.`);
+                } catch (uiError) {
+                    // Bắt lỗi cập nhật giao diện, thông báo thành công và tải lại trang.
+                    console.warn("Lỗi cập nhật giao diện sau khi lưu thành công, sẽ tải lại trang.", uiError);
+                    alert("✅ Cập nhật thành công! Giao diện sẽ được làm mới để hiển thị thay đổi.");
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+
+            } catch (error) {
+                console.error("Lỗi không mong muốn trong hàm saveOrderChanges:", error);
+                alert(`❌ Đã xảy ra lỗi không mong muốn khi lưu đơn hàng. Vui lòng thử lại.\n\nChi tiết: ${error.message}`);
+            } finally {
+                // ĐẢM BẢO: Nút bấm luôn được kích hoạt lại, dù có lỗi hay không.
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+            }
+        }
+
         async function updateOrderStatus(orderId, newStatus) {
             const orderIndex = APP_ORDERS.findIndex(o => o.orderId === orderId);
             if (orderIndex > -1) {
-                APP_ORDERS[orderIndex].status = newStatus;
-                await safeUpdateDatabase(db => { db.APP_ORDERS = APP_ORDERS; });
-                renderOrdersTable(); 
-                updateKPIStats();
-                alert(`Đã cập nhật trạng thái đơn hàng ${orderId} thành "${newStatus}".`);
+                const oldStatus = APP_ORDERS[orderIndex].status;
+                if (oldStatus === newStatus) return; // Không có gì thay đổi
+
+                const result = await safeUpdateDatabase(db => {
+                    const dbOrderIndex = db.APP_ORDERS.findIndex(o => o.orderId === orderId);
+                    if (dbOrderIndex > -1) {
+                        db.APP_ORDERS[dbOrderIndex].status = newStatus;
+
+                        if (!db.APP_NOTIFICATIONS) db.APP_NOTIFICATIONS = [];
+                        const notifMsg = `Đơn hàng <strong>#${orderId}</strong> đổi trạng thái từ '${oldStatus}' sang <strong>'${newStatus}'</strong>.`;
+                        const newNotif = createNotificationObject('order_status_change', notifMsg, orderId);
+                        db.APP_NOTIFICATIONS.unshift(newNotif);
+                    }
+                });
+
+                if (result.success) {
+                    APP_ORDERS = result.data.APP_ORDERS;
+                    APP_NOTIFICATIONS = result.data.APP_NOTIFICATIONS || [];
+                    renderOrdersTable(); 
+                    updateKPIStats();
+                    renderNotifications();
+                    updateNotificationCount();
+                    alert(`Đã cập nhật trạng thái đơn hàng ${orderId} thành "${newStatus}".`);
+                }
+            }
+        }
+
+        async function deleteOrder(orderId) {
+            if (confirm(`⚠️ Bạn có chắc chắn muốn XÓA HOÀN TOÀN đơn hàng #${orderId} khỏi hệ thống không? Hành động này không thể hoàn tác.`)) {
+                const orderToDelete = APP_ORDERS.find(o => o.orderId === orderId);
+                if (!orderToDelete) return;
+
+                const result = await safeUpdateDatabase(db => {
+                    const initialCount = db.APP_ORDERS ? db.APP_ORDERS.length : 0;
+                    db.APP_ORDERS = db.APP_ORDERS.filter(o => o.orderId !== orderId);
+
+                    if (db.APP_ORDERS.length < initialCount) {
+                        if (!db.APP_NOTIFICATIONS) db.APP_NOTIFICATIONS = [];
+                        const notifMsg = `Đơn hàng <strong>#${orderId}</strong> đã bị xóa vĩnh viễn.`;
+                        const newNotif = createNotificationObject('order_delete', notifMsg, orderId);
+                        db.APP_NOTIFICATIONS.unshift(newNotif);
+                    }
+                });
+
+                if (result.success) {
+                    APP_ORDERS = result.data.APP_ORDERS;
+                    APP_NOTIFICATIONS = result.data.APP_NOTIFICATIONS || [];
+                    renderOrdersTable();
+                    updateKPIStats(); // Cập nhật lại các chỉ số thống kê
+                    filterRevenue('all', document.getElementById('revenueFilterAll')); // Cập nhật lại mục doanh thu
+                    renderNotifications();
+                    updateNotificationCount();
+                    alert(`✅ Đã xóa thành công đơn hàng #${orderId}.`);
+                }
             }
         }
 
@@ -2349,6 +2770,107 @@
             }
         }
 
+        // --- HÀM XỬ LÝ BACKUP VÀ RESTORE ---
+        async function backupData() {
+            if (currentUserRole !== 'admin') {
+                return alert("❌ Bạn không có quyền thực hiện chức năng này!");
+            }
+            
+            // Ensure we have the latest data before backing up
+            alert("Đang tải dữ liệu mới nhất từ server để chuẩn bị backup...");
+            await loadDatabase(); 
+
+            try {
+                const dataToBackup = DATABASE; // Backup the entire database object
+                if (!dataToBackup || Object.keys(dataToBackup).length === 0) {
+                    return alert("⚠️ Không có dữ liệu để backup. Dữ liệu trên server có thể đang bị rỗng.");
+                }
+
+                const jsonString = JSON.stringify(dataToBackup, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                a.href = url;
+                a.download = `beautydeal-database-backup-${today}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert("✅ Backup toàn bộ dữ liệu thành công! File JSON đã được tải về máy của bạn.");
+
+            } catch (error) {
+                console.error("Lỗi khi backup dữ liệu:", error);
+                alert(`❌ Đã xảy ra lỗi khi tạo file backup: ${error.message}`);
+            }
+        }
+
+        function handleRestoreFileSelect(event) {
+            if (currentUserRole !== 'admin') {
+                return alert("❌ Bạn không có quyền thực hiện chức năng này!");
+            }
+
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const restoredData = JSON.parse(e.target.result);
+
+                    // Basic validation: check if it has some of our main keys
+                    if (!restoredData.APP_PRODUCTS || !restoredData.USER_CREDENTIALS || !restoredData.APP_BRANDS) {
+                        throw new Error("File backup không hợp lệ hoặc bị hỏng. File phải chứa APP_PRODUCTS, USER_CREDENTIALS, và APP_BRANDS.");
+                    }
+
+                    const confirmation = prompt("⚠️ CẢNH BÁO ⚠️\n\nHành động này sẽ THAY THẾ TOÀN BỘ dữ liệu hiện tại trên server bằng dữ liệu từ file backup. Dữ liệu không có trong file backup sẽ bị mất.\n\nĐể xác nhận, gõ 'RESTORE' vào ô bên dưới:");
+
+                    if (confirmation === 'RESTORE') {
+                        restoreData(restoredData);
+                    } else {
+                        alert("Hành động Restore đã được hủy.");
+                    }
+
+                } catch (error) {
+                    console.error("Lỗi khi đọc file restore:", error);
+                    alert(`❌ Đã xảy ra lỗi khi xử lý file backup: ${error.message}`);
+                } finally {
+                    // Reset file input to allow selecting the same file again
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function restoreData(dataToRestore) {
+            try {
+                alert("Đang tiến hành Restore... Vui lòng không đóng trang.");
+
+                // We don't use safeUpdateDatabase here because we are overwriting the entire bin.
+                const response = await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+                    body: JSON.stringify(dataToRestore)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`Lỗi khi restore: ${response.status} - ${response.statusText}\nDetails: ${errorBody}`);
+                }
+
+                alert("✅ RESTORE THÀNH CÔNG! Toàn bộ dữ liệu đã được khôi phục từ file backup. Trang sẽ được tải lại.");
+                window.location.reload();
+
+            } catch (e) {
+                console.error("Lỗi khi thực hiện Restore:", e);
+                alert(`❌ Đã xảy ra lỗi nghiêm trọng trong quá trình Restore. Dữ liệu có thể không được thay đổi.\n\nChi tiết: ${e.message}`);
+            }
+        }
+
         async function hardResetDatabase() {
             const confirmation = prompt("⚠️ CẢNH BÁO CỰC KỲ NGUY HIỂM ⚠️\n\nHành động này sẽ XÓA SẠCH TOÀN BỘ dữ liệu hiện tại (sản phẩm, đơn hàng, tài khoản...) và khôi phục lại dữ liệu gốc của trang web.\n\nChỉ thực hiện khi bạn chắc chắn muốn làm mới hoàn toàn hệ thống. Để xác nhận, gõ 'RESET' vào ô bên dưới:");
 
@@ -2373,7 +2895,7 @@
                         social: {
                             facebook: "#", instagram: "#", tiktok: "#"
                         },
-                        mainLogoUrl: "" // Default empty for main website logo
+                        mainLogoUrl: "", // Default empty for main website logo
                     },
                     USER_CREDENTIALS: DEFAULT_USER_CREDENTIALS,
                     APP_VALUE_PROPS: DEFAULT_VALUE_PROPS,

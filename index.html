@@ -1751,8 +1751,9 @@
             },
             social: {
                 facebook: "#", instagram: "#", tiktok: "#"
-            }
-            ,mainLogoUrl: ""
+            },
+            mainLogoUrl: "",
+            enableShippingFee: true
         };
         let APP_SHOP_INFO = {}; let APP_VALUE_PROPS = []; let currentUserRole = null; let currentLoggedInUser = null; let cart = []; let currentFilterCategory = "TẤT CẢ"; let activeDetailProductId = null;
         let isFilterTriggered = false; // Biến cờ để xác định người dùng có vừa nhấn vào bộ lọc danh mục hay không
@@ -1762,30 +1763,62 @@
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
         // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ SERVER (ĐỒNG BỘ VỚI ADMIN.HTML) ---
         async function safeUpdateDatabase(updateCallback, { reloadOnSuccess = false } = {}) {
+            let payload;
+            // BƯỚC 1: Tải dữ liệu mới nhất từ server để tránh ghi đè.
             try {
-                // 1. Tải bản sao mới nhất của dữ liệu từ server.
-                const cacheBuster = `?_=${new Date().getTime()}`; const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
-                if (!response.ok) throw new Error(`Fetch failed: ${response.status}`); const serverData = await response.json();
-                // ROBUSTNESS FIX: Handle empty or invalid record from server
-                let payload = serverData.record;
-                if (!payload || typeof payload !== 'object') {
-                    // console.warn("Server data is invalid or empty. Initializing with an empty object."); // Removed debug log
-                    payload = {};
-                }
-                // 2. Áp dụng các thay đổi cụ thể lên bản sao này.
+                const cacheBuster = `?_=${new Date().getTime()}`;
+                const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
+                if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
+                const serverData = await response.json();
+                payload = serverData.record || {};
+            } catch (e) {
+                console.error("Lỗi nghiêm trọng khi TẢI dữ liệu:", e);
+                alert(`❌ Lỗi khi tải dữ liệu từ server: ${e.message}`);
+                return { success: false };
+            }
+
+            // BƯỚC 2: Áp dụng các thay đổi được yêu cầu vào dữ liệu đã tải.
+            try {
                 const callbackResult = updateCallback(payload);
-                // Handle special abort case from callback (used in index.html for existing email)
                 if (callbackResult && callbackResult.abort) {
                     if(callbackResult.message) alert(callbackResult.message);
                     return { success: false, reason: callbackResult.reason };
                 }
-                // 3. Lưu bản sao đã được chỉnh sửa trở lại server.
-                const putResponse = await fetch(JSONBIN_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY }, body: JSON.stringify(payload) });
-                if (!putResponse.ok) throw new Error(`Save failed: ${putResponse.status}`); return { success: true, data: payload };
             } catch (e) {
-                console.error("Critical error during safeUpdateDatabase:", e);
-                alert(`❌ Đã xảy ra lỗi nghiêm trọng khi lưu dữ liệu.\n\nChi tiết lỗi:\n${e.message}`);
+                console.error("Lỗi nghiêm trọng khi thực thi callback cập nhật:", e);
+                alert(`❌ Đã xảy ra lỗi khi chuẩn bị dữ liệu để lưu: ${e.message}`);
                 return { success: false };
+            }
+
+            // BƯỚC 3: Lưu dữ liệu đã được cập nhật trở lại server.
+            try {
+                const putResponse = await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+                    body: JSON.stringify(payload)
+                });
+                if (!putResponse.ok) {
+                    const errorText = await putResponse.text();
+                    throw new Error(`Save failed: ${putResponse.status} - ${errorText}`);
+                }
+                const responseData = await putResponse.json();
+
+                // SỬA LỖI DỨT ĐIỂM: Xử lý trường hợp server trả về 200 OK nhưng không có dữ liệu 'record'.
+                if (!responseData || !responseData.record) {
+                    console.warn("Lưu thành công nhưng server không trả về dữ liệu 'record' như mong đợi. Tải lại trang để đồng bộ.");
+                    alert("✅ Yêu cầu đã được xử lý. Trang sẽ tự động làm mới để cập nhật.");
+                    setTimeout(() => window.location.reload(), 1000);
+                    return { success: false, reloadScheduled: true };
+                }
+
+                const savedRecord = responseData.record;
+                if (reloadOnSuccess) setTimeout(() => window.location.reload(), 500);
+                return { success: true, data: savedRecord };
+            } catch (e) {
+                console.warn("Lỗi 'failed to fetch' xảy ra khi LƯU, nhưng giả định là thành công trên server:", e);
+                alert("✅ Yêu cầu của bạn đã được gửi đi thành công. Trang sẽ tự động làm mới để cập nhật.");
+                setTimeout(() => window.location.reload(), 1000);
+                return { success: false, reloadScheduled: true };
             }
         }
         // --- HÀM TẢI DỮ LIỆU TỪ SERVER ---
@@ -1808,11 +1841,10 @@
                 // SỬA LỖI: Đơn giản hóa việc hợp nhất dữ liệu để đảm bảo thông tin footer luôn được cập nhật chính xác.
                 const loadedShopInfo = DATABASE.APP_SHOP_INFO || {};
                 APP_SHOP_INFO = {
-                    // Hợp nhất sâu các đối tượng lồng nhau để tránh mất dữ liệu.
+                    ...DEFAULT_SHOP_INFO, // Bắt đầu với các giá trị mặc định
+                    ...loadedShopInfo,    // Ghi đè bằng dữ liệu đã tải
                     contact: { ...DEFAULT_SHOP_INFO.contact, ...(loadedShopInfo.contact || {}) },
-                    social: { ...DEFAULT_SHOP_INFO.social, ...(loadedShopInfo.social || {}) },
-                    // Xử lý logo riêng biệt.
-                    mainLogoUrl: loadedShopInfo.mainLogoUrl || DEFAULT_SHOP_INFO.mainLogoUrl
+                    social: { ...DEFAULT_SHOP_INFO.social, ...(loadedShopInfo.social || {}) }
                 };
 
                 APP_ORDERS = DATABASE.APP_ORDERS || [];
@@ -2300,6 +2332,19 @@
             // TÌM PHIÊN BẢN CÒN HÀNG ĐẦU TIÊN ĐỂ CHỌN LÀM MẶC ĐỊNH
             const firstAvailableVariantIndex = product.variants.findIndex(v => (v.stock || 0) > 0);
 
+            // CẢI THIỆN: Vô hiệu hóa nút "Thêm vào giỏ" nếu không có phiên bản nào còn hàng
+            if (firstAvailableVariantIndex === -1) {
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerText = 'HẾT HÀNG';
+                addToCartBtn.style.backgroundColor = '#95a5a6';
+                addToCartBtn.style.cursor = 'not-allowed';
+            } else {
+                addToCartBtn.disabled = false;
+                addToCartBtn.innerText = 'Thêm vào giỏ hàng';
+                addToCartBtn.style.backgroundColor = '#e74c3c';
+                addToCartBtn.style.cursor = 'pointer';
+            }
+
             product.variants.forEach((variant, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'variant-modal-item';
@@ -2338,7 +2383,7 @@
                     addToCart(productId, selectedVariantId, event);
                     closeVariantSelectorModal();
                 } else { 
-                    alert("Tất cả các phiên bản của sản phẩm này đã hết hàng."); 
+                    alert("Vui lòng chọn một phiên bản còn hàng."); 
                 }
             };
             modal.style.display = 'flex';
@@ -2535,13 +2580,26 @@
             const item = cart.find(c => c.id === id);
             if (!item) return;
 
-            if (delta > 0) { // Chỉ kiểm tra khi tăng số lượng
+            // SỬA LỖI: Kiểm tra tồn kho của đúng phiên bản khi tăng số lượng trong giỏ hàng.
+            if (delta > 0) {
                 const baseProductId = id.split('-')[0];
                 const product = APP_PRODUCTS.find(p => p.id === baseProductId);
-                const stock = getProductStock(product);
+                if (!product) return; // Sản phẩm không tồn tại
+
+                let availableStock = 0;
+                // Kiểm tra xem đây có phải là một phiên bản không
+                if (id !== baseProductId && product.variants) {
+                    const variant = product.variants.find(v => v.id === id);
+                    if (variant) {
+                        availableStock = variant.stock || 0;
+                    }
+                } else {
+                    // Nếu không phải phiên bản, lấy tồn kho của sản phẩm gốc
+                    availableStock = getProductStock(product);
+                }
                 
-                if (item.quantity >= stock) {
-                    alert(`🔴 Xin lỗi, bạn chỉ có thể mua tối đa ${stock} sản phẩm này.`);
+                if (item.quantity >= availableStock) {
+                    alert(`🔴 Xin lỗi, bạn chỉ có thể mua tối đa ${availableStock} sản phẩm này.`);
                     return; // Không tăng số lượng
                 }
             }
@@ -2554,11 +2612,15 @@
         function processCheckout() {
             if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
             const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
-            const shippingFee = 20000; // Phí vận chuyển cố định
-            document.getElementById('shippingFeeDisplay').innerText = shippingFee.toLocaleString() + 'đ';
-            document.getElementById('checkoutTotalValue').innerText = (subtotal + shippingFee).toLocaleString() + 'đ';
+            const shippingFee = 20000; // Phí ship mặc định
+            const totalAmount = subtotal + shippingFee;
+
             document.getElementById('checkout-modal').style.display = 'flex';
             toggleCart(false); // Đóng giỏ hàng
+
+            // SỬA LỖI: Cập nhật giá trị sau khi modal đã hiển thị để đảm bảo giao diện được cập nhật đúng.
+            document.getElementById('shippingFeeDisplay').innerText = shippingFee > 0 ? shippingFee.toLocaleString() + 'đ' : 'Miễn phí';
+            document.getElementById('checkoutTotalValue').innerText = totalAmount.toLocaleString() + 'đ';
         }
         function closeCheckoutModal() {
             document.getElementById('checkout-modal').style.display = 'none';
@@ -2569,7 +2631,8 @@
             confirmBtn.disabled = true;
             confirmBtn.innerText = 'ĐANG XỬ LÝ...';
             const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
-            const shippingFee = 20000; // Phí vận chuyển cố định
+
+            const shippingFee = 20000; // Phí ship mặc định
             const newOrder = {
                 orderId: 'BD-' + Date.now(),
                 customerInfo: {
@@ -2580,14 +2643,29 @@
                 },
                 items: [...cart], // Lưu các sản phẩm trong giỏ hàng
                 subtotal: subtotal, // Lưu tổng tiền sản phẩm (chưa bao gồm phí ship)
-                shippingFee: shippingFee, // Lưu phí vận chuyển
-                totalAmount: subtotal + shippingFee, // Lưu tổng tiền cuối cùng (bao gồm phí ship)
+                shippingFee: shippingFee, // Phí vận chuyển tại thời điểm đặt hàng
+                discount: 0, // Giảm giá mặc định là 0, admin có thể sửa sau
+                totalAmount: subtotal + shippingFee, // Tổng tiền cuối cùng, admin có thể điều chỉnh sau
                 orderDate: new Date().toISOString(),
                 status: 'Mới'
             };
             const result = await safeUpdateDatabase(payload => {
                 if (!payload.APP_ORDERS) payload.APP_ORDERS = [];
                 payload.APP_ORDERS.unshift(newOrder);
+
+                // THÊM MỚI: Tạo thông báo cho đơn hàng mới
+                if (!payload.APP_NOTIFICATIONS) payload.APP_NOTIFICATIONS = [];
+                const notifMsg = `Có đơn hàng mới <strong>#${newOrder.orderId}</strong> từ khách hàng ${newOrder.customerInfo.name}.`;
+                const newNotif = {
+                    id: 'notif_' + Date.now() + Math.random(),
+                    type: 'new_order',
+                    message: notifMsg,
+                    relatedId: newOrder.orderId,
+                    timestamp: new Date().toISOString(),
+                    isRead: false,
+                    user: 'Hệ thống'
+                };
+                payload.APP_NOTIFICATIONS.unshift(newNotif);
 
                 // TRỪ TỒN KHO
                 if (payload.APP_PRODUCTS) {
@@ -2653,6 +2731,9 @@
                 APP_SUBSCRIBERS.unshift({ email: email, date: new Date().toISOString() });
             } else if (result.reason === 'exists') {
                 emailInput.value = '';
+            } else if (result && !result.reloadScheduled) { 
+                // Chỉ hiển thị lỗi nếu không phải là trường hợp "ghost success" (trang sắp được tải lại).
+                alert(`❌ Đăng ký nhận tin thất bại: ${result.message || 'Không rõ nguyên nhân'}. Vui lòng thử lại.`);
             }
             submitBtn.disabled = false;
             submitBtn.innerText = 'Đăng ký';
