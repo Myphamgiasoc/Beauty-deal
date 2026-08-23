@@ -338,9 +338,9 @@
                     <h4>Tổng sản phẩm</h4>
                     <div class="stat-number" id="statTotalProducts">0</div>
                 </div>
-                <div class="stat-card green" onclick="filterAndDisplayProducts('soldOut')">
+                <div class="stat-card green" onclick="scrollToOrderSection()" title="Xem các đơn hàng đã phát sinh">
                     <h4>Tổng lượt bán</h4>
-                    <div class="stat-number">452</div>
+                    <div class="stat-number" id="statTotalSold">0</div>
                 </div>
                 <div class="stat-card purple revenue-card" onclick="scrollToRevenueSection('all')">
                     <h4>Tổng Doanh thu</h4>
@@ -1417,13 +1417,27 @@
         function updateKPIStats() {
             // Calculate total revenue for all time
             const totalRevenueAllTime = APP_ORDERS.filter(order => order.status === 'Hoàn thành').reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            const totalSoldUnits = APP_ORDERS
+                .filter(order => order.status !== 'Đã hủy')
+                .reduce((sum, order) => sum + (Array.isArray(order.items)
+                    ? order.items.reduce((itemSum, item) => itemSum + (Number(item.quantity) || 0), 0)
+                    : 0), 0);
 
             document.getElementById('statTotalProducts').innerText = APP_PRODUCTS.length;
             document.getElementById('statInStock').innerText = APP_PRODUCTS.filter(p => getProductStock(p) > 0).length;
             document.getElementById('statOutOfStock').innerText = APP_PRODUCTS.filter(p => getProductStock(p) === 0).length;
             document.getElementById('statNewOrders').innerText = APP_ORDERS.filter(o => o.status === 'Mới').length;
             document.getElementById('statSubscribers').innerText = APP_SUBSCRIBERS.length;
+            document.getElementById('statTotalSold').innerText = totalSoldUnits.toLocaleString('vi-VN');
             document.getElementById('statTotalRevenue').innerText = totalRevenueAllTime.toLocaleString('vi-VN') + 'đ'; // Update revenue stat card
+        }
+
+        function scrollToOrderSection() {
+            const orderSection = document.getElementById('orderManagementSection');
+            if (orderSection) {
+                orderSection.classList.remove('hidden-by-js');
+                orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         // NEW: Function to scroll to revenue section and apply filter
