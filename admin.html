@@ -2381,6 +2381,10 @@
             return Array.isArray(orders) ? orders.map(normalizeOrder).filter(Boolean) : [];
         }
 
+        function getOrderId(order) {
+            return String(order?.orderId || order?.id || '');
+        }
+
         function getStatusBadge(status) {
             const statusMap = {
                 'Mới': { text: 'Mới', class: 'new' },
@@ -2650,25 +2654,31 @@
 
         async function deleteOrder(orderId) {
             if (confirm(`⚠️ Bạn có chắc chắn muốn XÓA HOÀN TOÀN đơn hàng #${orderId} khỏi hệ thống không? Hành động này không thể hoàn tác.`)) {
-                const orderToDelete = APP_ORDERS.find(o => o.orderId === orderId);
+                const orderToDelete = APP_ORDERS.find(o => getOrderId(o) === String(orderId));
                 if (!orderToDelete) return;
 
                 const result = await safeUpdateDatabase(db => {
                     if (!Array.isArray(db.APP_ORDERS)) db.APP_ORDERS = [];
-                    const initialCount = db.APP_ORDERS.length;
-                    db.APP_ORDERS = db.APP_ORDERS.filter(o => o.orderId !== orderId);
+                    const ordersBeforeDelete = db.APP_ORDERS.length;
+                    db.APP_ORDERS = db.APP_ORDERS.filter(o => getOrderId(o) !== String(orderId));
 
-                    if (db.APP_ORDERS.length < initialCount) {
-                        if (!db.APP_NOTIFICATIONS) db.APP_NOTIFICATIONS = [];
-                        const notifMsg = `Đơn hàng <strong>#${orderId}</strong> đã bị xóa vĩnh viễn.`;
-                        const newNotif = createNotificationObject('order_delete', notifMsg, orderId);
-                        db.APP_NOTIFICATIONS.unshift(newNotif);
+                    if (db.APP_ORDERS.length === ordersBeforeDelete) {
+                        return { abort: true, message: `Không tìm thấy đơn hàng #${orderId} trên server. Vui lòng tải lại dữ liệu.`, reason: 'order_not_found' };
                     }
+
+                    if (!Array.isArray(db.APP_NOTIFICATIONS)) db.APP_NOTIFICATIONS = [];
+                    const notifMsg = `Đơn hàng <strong>#${orderId}</strong> đã bị xóa vĩnh viễn.`;
+                    const newNotif = createNotificationObject('order_delete', notifMsg, orderId);
+                    db.APP_NOTIFICATIONS.unshift(newNotif);
                 });
 
                 if (result.success) {
-                    APP_ORDERS = result.data.APP_ORDERS;
+                    APP_ORDERS = normalizeOrders(result.data.APP_ORDERS);
                     APP_NOTIFICATIONS = result.data.APP_NOTIFICATIONS || [];
+                    if (APP_ORDERS.some(order => getOrderId(order) === String(orderId))) {
+                        alert(`❌ Server chưa xác nhận xóa đơn hàng #${orderId}. Vui lòng thử lại.`);
+                        return;
+                    }
                     renderOrdersTable();
                     updateKPIStats(); // Cập nhật lại các chỉ số thống kê
                     filterRevenue('all', document.getElementById('revenueFilterAll')); // Cập nhật lại mục doanh thu
