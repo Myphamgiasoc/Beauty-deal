@@ -23,6 +23,7 @@
         .logo { font-size: 26px; font-weight: bold; letter-spacing: 1.5px; color: #ffffff; text-decoration: none; line-height: 1.2; }
         .logo-slogan { font-size: 12px; color: #bdc3c7; font-weight: normal; margin-top: 2px; letter-spacing: 0.5px; }
         
+        
         /* Admin specific styles */
         main h2 {
             font-size: 22px;
@@ -51,6 +52,7 @@
         .stat-card.red { background: linear-gradient(135deg, #c0392b, #e74c3c); }
         .stat-card h4 { font-size: 13px; text-transform: uppercase; opacity: 0.9; margin-bottom: 5px; }
         .stat-card .stat-number { font-size: 26px; font-weight: bold; }
+        .stat-card.revenue-card .stat-number { font-size: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .password-change-box { display: none; background: #fffcf5; border: 1px solid #f0ad4e; border-radius: 8px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(243,156,18,0.06); }
         .password-change-box.active { display: block; }
@@ -74,6 +76,10 @@
         .form-btn { padding: 10px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; }
         .form-btn.submit { background: #3498db; color: white; }
         .form-btn.cancel { background: #bdc3c7; color: #333; }
+        .product-filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 15px; }
+        .product-filter-bar label { font-size: 13px; font-weight: 600; color: #444; }
+        .product-filter-bar select { min-width: 230px; padding: 9px 10px; border: 1px solid #ccc; border-radius: 6px; font: inherit; background: #fff; }
+        .product-filter-bar .form-btn { padding: 9px 16px; }
 
         .table-responsive { overflow-x: auto; margin-top: 10px; border: 1px solid #e2e8f0; border-radius: 6px; }
         .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; background: white; }
@@ -336,7 +342,7 @@
                     <h4>Tổng lượt bán</h4>
                     <div class="stat-number">452</div>
                 </div>
-                <div class="stat-card purple" onclick="scrollToRevenueSection('all')">
+                <div class="stat-card purple revenue-card" onclick="scrollToRevenueSection('all')">
                     <h4>Tổng Doanh thu</h4>
                     <div class="stat-number" id="statTotalRevenue">0</div>
                 </div>
@@ -469,6 +475,20 @@
             </div>
 
             <h2>Danh Sách Sản Phẩm</h2>
+            <div class="product-filter-bar" aria-label="Lọc danh sách sản phẩm">
+                <label for="adminProductCategoryFilter">Danh mục:</label>
+                <select id="adminProductCategoryFilter">
+                    <option value="all">Tất cả sản phẩm</option>
+                    <option value="TRANG ĐIỂM">Trang điểm</option>
+                    <option value="DẦU GỘI & CHĂM SÓC TÓC">Dầu gội & chăm sóc tóc</option>
+                    <option value="KEM CHỐNG NẮNG">Kem chống nắng</option>
+                    <option value="CHĂM SÓC DA MẶT">Chăm sóc da mặt</option>
+                    <option value="DỤNG CỤ TRANG ĐIỂM">Dụng cụ trang điểm</option>
+                    <option value="CHĂM SÓC CƠ THỂ">Chăm sóc cơ thể</option>
+                </select>
+                <button type="button" class="form-btn submit" onclick="filterProductsByCategory()">Lọc sản phẩm</button>
+                <button type="button" class="form-btn cancel" onclick="resetProductCategoryFilter()">Hiện tất cả</button>
+            </div>
 
             <div class="table-responsive">
                 <table class="admin-table">
@@ -927,8 +947,8 @@
             mainLogoUrl: "", // NEW: Default empty for main website logo
         };
         const DEFAULT_USER_CREDENTIALS = {
-            "admin": { password: "Admin@123", role: "admin" },
-            "employee": { password: "Employee@123", role: "employee" }
+            "admin": { password: "sha256:e86f78a8a3caf0b60d8e74e5942aa6d86dc150cd3c03338aef25b7d2d7e3acc7", role: "admin" },
+            "employee": { password: "sha256:b4bd29480ab196faa782e0d4ecd10c2f4212814105227e5f7992f5bf4b212a64", role: "employee" }
         };
         const DEFAULT_VALUE_PROPS = [
             { icon: '✅', imageUrl: 'https://images.unsplash.com/photo-1588695954914-3452d55e246c?auto=format&fit=crop&w=150&q=80', title: 'Cam kết chính hãng', description: '100% sản phẩm nhập khẩu trực tiếp' },
@@ -938,16 +958,72 @@
         
         let currentUserRole = null;
         let currentLoggedInUser = null;
+        const ADMIN_SESSION_KEY = 'beautyDealAdminSession';
+        const ADMIN_SESSION_DURATION_MS = 60 * 60 * 1000;
+        let adminSessionTimeout;
+
+        function clearAdminSession() {
+            localStorage.removeItem(ADMIN_SESSION_KEY);
+            sessionStorage.removeItem('loggedInUser');
+            sessionStorage.removeItem('loggedInUserRole');
+            if (adminSessionTimeout) clearTimeout(adminSessionTimeout);
+        }
+
+        function scheduleAdminSessionExpiry(expiresAt) {
+            if (adminSessionTimeout) clearTimeout(adminSessionTimeout);
+            adminSessionTimeout = setTimeout(() => {
+                clearAdminSession();
+                currentLoggedInUser = null;
+                currentUserRole = null;
+                document.getElementById('adminSection').style.display = 'none';
+                document.getElementById('loginModal').classList.add('active');
+                alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+            }, Math.max(0, expiresAt - Date.now()));
+        }
+
+        function saveAdminSession(username, role) {
+            const expiresAt = Date.now() + ADMIN_SESSION_DURATION_MS;
+            localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ username, role, expiresAt }));
+            scheduleAdminSessionExpiry(expiresAt);
+        }
+
+        function restoreAdminSession(session) {
+            scheduleAdminSessionExpiry(session.expiresAt);
+        }
+
+        function getValidAdminSession() {
+            try {
+                const session = JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY) || 'null');
+                if (session && session.expiresAt > Date.now()) return session;
+            } catch (error) {
+                console.warn('Phiên đăng nhập không hợp lệ.', error);
+            }
+            clearAdminSession();
+            return null;
+        }
 
         // NEW: Real-time polling variables
         let pollingInterval;
-        const POLLING_RATE_MS = 30000; // Check for new notifications every 30 seconds
+        const POLLING_RATE_MS = 5000; // Check for new orders and notifications every 5 seconds
 
         // --- CẤU HÌNH KẾT NỐI DATABASE (JSONBIN.IO) ---
         const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã cập nhật API Key mới
         const JSONBIN_BIN_ID = '6a4dacbfda38895dfe3ddc36';   // ✅ Đã cập nhật Bin ID mới
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
+        async function hashPassword(password) {
+            const data = new TextEncoder().encode(password);
+            const digest = await crypto.subtle.digest('SHA-256', data);
+            return `sha256:${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')}`;
+        }
+        function compactPayloadForStorage(payload) {
+            if (Array.isArray(payload.APP_NOTIFICATIONS)) {
+                const unread = payload.APP_NOTIFICATIONS.filter(notification => !notification.isRead);
+                const read = payload.APP_NOTIFICATIONS.filter(notification => notification.isRead).slice(0, 20);
+                payload.APP_NOTIFICATIONS = [...unread.slice(0, 50), ...read];
+            }
+            return payload;
+        }
 
         // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ SERVER ---
         async function safeUpdateDatabase(updateCallback, { reloadOnSuccess = false } = {}) {
@@ -980,6 +1056,7 @@
 
             // BƯỚC 3: Lưu dữ liệu đã được cập nhật trở lại server.
             try {
+                compactPayloadForStorage(payload);
                 const putResponse = await fetch(JSONBIN_URL, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
@@ -996,10 +1073,7 @@
                 // SỬA LỖI DỨT ĐIỂM: Xử lý trường hợp server trả về 200 OK nhưng không có dữ liệu 'record'.
                 // Điều này sẽ gây ra lỗi "Cannot read properties of undefined" ở hàm gọi nó.
                 if (!responseData || !responseData.record) {
-                    console.warn("Lưu thành công nhưng server không trả về dữ liệu 'record' như mong đợi. Tải lại trang để đồng bộ.");
-                    alert("✅ Dữ liệu đã được lưu. Trang sẽ tự động làm mới để cập nhật.");
-                    setTimeout(() => window.location.reload(), 1000);
-                    return { success: false, reloadScheduled: true };
+                    throw new Error("Server không trả về dữ liệu xác nhận sau khi lưu.");
                 }
 
                 const savedRecord = responseData.record;
@@ -1009,16 +1083,22 @@
                 }
                 return { success: true, data: savedRecord };
             } catch (e) {
-                console.warn("Lỗi 'failed to fetch' xảy ra khi LƯU, nhưng giả định là thành công trên server:", e);
-                // SỬA LỖI DỨT ĐIỂM: Dựa trên phản hồi của người dùng, lỗi "failed to fetch" xảy ra
-                // ngay cả khi dữ liệu đã được lưu thành công trên server.
-                // Do đó, chúng ta sẽ xử lý trường hợp này như một thành công và chỉ cần làm mới trang.
-                alert("✅ Dữ liệu đã được gửi đi thành công. Trang sẽ tự động làm mới để cập nhật trạng thái mới nhất.");
-                
-                // Tải lại trang để phản ánh thay đổi.
-                setTimeout(() => window.location.reload(), 1000);
-
-                return { success: false, reloadScheduled: true };
+                console.error("Lỗi khi lưu dữ liệu lên server:", e);
+                try {
+                    const verifyResponse = await fetch(`${JSONBIN_URL}/latest?_=${Date.now()}`, {
+                        headers: { 'X-Master-Key': JSONBIN_API_KEY }
+                    });
+                    if (verifyResponse.ok) {
+                        const verifyData = await verifyResponse.json();
+                        if (JSON.stringify(verifyData.record) === JSON.stringify(payload)) {
+                            return { success: true, data: verifyData.record };
+                        }
+                    }
+                } catch (verifyError) {
+                    console.error("Không thể xác minh dữ liệu sau khi lưu:", verifyError);
+                }
+                alert(`❌ Không thể lưu dữ liệu lên máy chủ: ${e.message}. Vui lòng thử lại.`);
+                return { success: false, message: e.message };
             }
         }
         async function loadDatabase() {
@@ -1041,9 +1121,9 @@
                 console.log("✅ Tải dữ liệu từ server thành công!");
 
                 // Gán dữ liệu từ server vào các biến toàn cục
-                APP_PRODUCTS = DATABASE.APP_PRODUCTS || DEFAULT_PRODUCTS;
-                APP_BRANDS = DATABASE.APP_BRANDS || DEFAULT_BRANDS;
-                APP_BANNERS = DATABASE.APP_BANNERS || DEFAULT_BANNERS;
+                APP_PRODUCTS = Array.isArray(DATABASE.APP_PRODUCTS) ? DATABASE.APP_PRODUCTS : DEFAULT_PRODUCTS;
+                APP_BRANDS = Array.isArray(DATABASE.APP_BRANDS) ? DATABASE.APP_BRANDS : DEFAULT_BRANDS;
+                APP_BANNERS = Array.isArray(DATABASE.APP_BANNERS) ? DATABASE.APP_BANNERS : DEFAULT_BANNERS;
 
                 // NEW: Robustly merge shop info to prevent errors if parts are missing
                 const loadedShopInfo = DATABASE.APP_SHOP_INFO || {};
@@ -1055,9 +1135,9 @@
                 };
 
                 USER_CREDENTIALS = DATABASE.USER_CREDENTIALS || DEFAULT_USER_CREDENTIALS;
-                APP_ORDERS = DATABASE.APP_ORDERS || [];
-                APP_SUBSCRIBERS = DATABASE.APP_SUBSCRIBERS || [];
-                APP_NOTIFICATIONS = DATABASE.APP_NOTIFICATIONS || [];
+                APP_ORDERS = normalizeOrders(DATABASE.APP_ORDERS);
+                APP_SUBSCRIBERS = Array.isArray(DATABASE.APP_SUBSCRIBERS) ? DATABASE.APP_SUBSCRIBERS : [];
+                APP_NOTIFICATIONS = Array.isArray(DATABASE.APP_NOTIFICATIONS) ? DATABASE.APP_NOTIFICATIONS : [];
                 // Lớp bảo vệ khi tải dữ liệu: Đảm bảo APP_VALUE_PROPS luôn hợp lệ.
                 const loadedProps = DATABASE.APP_VALUE_PROPS;
                 if (Array.isArray(loadedProps) && loadedProps.length === 3 && loadedProps[0] && loadedProps[0].title) {
@@ -1084,26 +1164,26 @@
 
         // --- KHỞI TẠO KHI TRANG TẢI ---
         window.addEventListener('DOMContentLoaded', async () => {
+            // Hiển thị modal ngay lập tức trong lúc dữ liệu từ server đang được tải.
+            const loginModal = document.getElementById('loginModal');
+            const adminSection = document.getElementById('adminSection');
+            loginModal.classList.add('active');
+            adminSection.style.display = 'none';
+
             await loadDatabase(); // Tải toàn bộ dữ liệu từ server
 
-            // SỬA LỖI: Duy trì trạng thái đăng nhập sau khi tải lại trang.
-            const storedUser = localStorage.getItem('loggedInUser');
-            const storedRole = localStorage.getItem('loggedInUserRole');
-
-            // Kiểm tra xem thông tin đăng nhập lưu trữ có hợp lệ không.
-            if (storedUser && storedRole && USER_CREDENTIALS[storedUser] && USER_CREDENTIALS[storedUser].role === storedRole) {
-                // Nếu hợp lệ, kích hoạt dashboard ngay lập tức.
-                currentLoggedInUser = storedUser;
-                currentUserRole = storedRole;
+            const storedSession = getValidAdminSession();
+            if (storedSession && USER_CREDENTIALS[storedSession.username] && USER_CREDENTIALS[storedSession.username].role === storedSession.role) {
+                currentLoggedInUser = storedSession.username;
+                currentUserRole = storedSession.role;
+                restoreAdminSession(storedSession);
                 activateAdminDashboard();
             } else {
-                // Nếu không hợp lệ, xóa thông tin cũ và yêu cầu đăng nhập lại.
-                localStorage.removeItem('loggedInUser');
-                localStorage.removeItem('loggedInUserRole');
+                clearAdminSession();
                 currentLoggedInUser = null;
                 currentUserRole = null;
-                document.getElementById('loginModal').classList.add('active');
-                document.getElementById('adminSection').style.display = 'none';
+                loginModal.classList.add('active');
+                adminSection.style.display = 'none';
             }
 
             // NEW: Add visibility change listener to force refresh when tab becomes active
@@ -1193,7 +1273,7 @@
             document.getElementById('loginPassword').value = '';
         }
 
-        function handleAdminLogin(e) {
+        async function handleAdminLogin(e) {
             e.preventDefault();
             const user = document.getElementById('loginUser').value.trim();
             const passInput = document.getElementById('loginPassword').value.trim();
@@ -1203,14 +1283,18 @@
             if (!USER_CREDENTIALS[user]) {
                 loginErrorAlert.innerText = 'Tài khoản không tồn tại!';
                 loginErrorAlert.classList.add('active');
-            } else if (USER_CREDENTIALS[user].password !== passInput) {
+            } else if (USER_CREDENTIALS[user].password !== passInput && USER_CREDENTIALS[user].password !== await hashPassword(passInput)) {
                 loginErrorAlert.innerText = 'Mật khẩu không chính xác!';
                 loginErrorAlert.classList.add('active');
             } else {
+                const usesLegacyPlaintext = USER_CREDENTIALS[user].password === passInput;
+                if (usesLegacyPlaintext) {
+                    USER_CREDENTIALS[user].password = await hashPassword(passInput);
+                    await safeUpdateDatabase(db => { db.USER_CREDENTIALS = USER_CREDENTIALS; });
+                }
                 currentLoggedInUser = user;
                 currentUserRole = USER_CREDENTIALS[user].role;
-                localStorage.setItem('loggedInUser', currentLoggedInUser);
-                localStorage.setItem('loggedInUserRole', currentUserRole);
+                saveAdminSession(currentLoggedInUser, currentUserRole);
                 closeLoginModal();
                 activateAdminDashboard();
             }
@@ -1269,8 +1353,7 @@
         function logoutAdmin() {
             currentUserRole = null;
             currentLoggedInUser = null;
-            localStorage.removeItem('loggedInUser');
-            localStorage.removeItem('loggedInUserRole');
+            clearAdminSession();
             alert("🔒 Đã đăng xuất an toàn.");
 
             // NEW: Stop polling on logout
@@ -1311,12 +1394,19 @@
             const newP = document.getElementById('newAdminPass').value.trim();
             const confP = document.getElementById('confirmAdminPass').value.trim();
 
-            if (oldP !== USER_CREDENTIALS[currentLoggedInUser].password) return alert("❌ Mật khẩu cũ không chính xác!");
+            const oldPasswordHash = await hashPassword(oldP);
+            const storedPassword = USER_CREDENTIALS[currentLoggedInUser].password;
+            if (storedPassword !== oldP && storedPassword !== oldPasswordHash) return alert("❌ Mật khẩu cũ không chính xác!");
             if (newP !== confP) return alert("❌ Mật khẩu mới không trùng khớp!");
             if (newP.length < 6) return alert("❌ Mật khẩu mới phải có ít nhất 6 ký tự!");
 
-            USER_CREDENTIALS[currentLoggedInUser].password = newP;
-            await safeUpdateDatabase(db => { db.USER_CREDENTIALS = USER_CREDENTIALS; });
+            const previousPassword = USER_CREDENTIALS[currentLoggedInUser].password;
+            USER_CREDENTIALS[currentLoggedInUser].password = await hashPassword(newP);
+            const result = await safeUpdateDatabase(db => { db.USER_CREDENTIALS = USER_CREDENTIALS; });
+            if (!result.success) {
+                USER_CREDENTIALS[currentLoggedInUser].password = previousPassword;
+                return;
+            }
             alert("🔑 Thay đổi mật khẩu thành công!");
             document.getElementById('oldAdminPass').value = '';
             document.getElementById('newAdminPass').value = '';
@@ -1424,6 +1514,27 @@
             if (productTableSection) {
                 productTableSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+
+        }
+
+        function filterProductsByCategory() {
+            const filter = document.getElementById('adminProductCategoryFilter');
+            const selectedCategory = filter ? filter.value : 'all';
+            const productListTitle = document.getElementById('adminProductListTitle');
+            const productsToDisplay = selectedCategory === 'all'
+                ? APP_PRODUCTS
+                : APP_PRODUCTS.filter(product => product.category === selectedCategory);
+
+            productListTitle.innerText = selectedCategory === 'all'
+                ? 'Quản Lý Sản Phẩm (Tất cả)'
+                : `Quản Lý Sản Phẩm (${selectedCategory})`;
+            renderAdminTable(productsToDisplay);
+        }
+
+        function resetProductCategoryFilter() {
+            const filter = document.getElementById('adminProductCategoryFilter');
+            if (filter) filter.value = 'all';
+            filterProductsByCategory();
         }
 
         function renderAdminTable(productsToRender = APP_PRODUCTS) { // Modified to accept productsToRender
@@ -1593,7 +1704,8 @@
 
             // 5. Call safe update
             const result = await safeUpdateDatabase(payload => {
-                if (!payload.APP_PRODUCTS) payload.APP_PRODUCTS = [];
+                if (!Array.isArray(payload.APP_PRODUCTS)) payload.APP_PRODUCTS = [];
+                if (!Array.isArray(payload.APP_NOTIFICATIONS)) payload.APP_NOTIFICATIONS = [];
                 
                 if (editId) { // --- UPDATE EXISTING PRODUCT ---
                     const idx = payload.APP_PRODUCTS.findIndex(p => p.id === editId);
@@ -2065,17 +2177,29 @@
                 if (!notif.isRead) {
                     item.classList.add('unread');
                 }
-                item.onclick = () => {
-                    if (notif.type === 'new_order') {
-                        document.getElementById('orderManagementSection').scrollIntoView({ behavior: 'smooth' });
-                        const orderRow = document.querySelector(`tr[data-order-id="${notif.relatedId}"]`);
-                        if(orderRow) {
-                            orderRow.style.transition = 'background-color 0.5s';
-                            orderRow.style.backgroundColor = '#eaf5ff';
-                            setTimeout(() => { orderRow.style.backgroundColor = ''; }, 3000);
+                item.onclick = (event) => {
+                    event.stopPropagation();
+                    const orderNotificationTypes = ['new_order', 'order_status_change', 'order_delete'];
+                    const panel = document.getElementById('notificationPanel');
+
+                    if (orderNotificationTypes.includes(notif.type)) {
+                        const orderSection = document.getElementById('orderManagementSection');
+                        if (orderSection) orderSection.classList.remove('hidden-by-js');
+
+                        const orderRow = [...document.querySelectorAll('#ordersTableBody tr')]
+                            .find(row => row.dataset.orderId === String(notif.relatedId));
+                        const target = orderRow || orderSection;
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            if (orderRow) {
+                                orderRow.style.transition = 'background-color 0.5s';
+                                orderRow.style.backgroundColor = '#eaf5ff';
+                                setTimeout(() => { orderRow.style.backgroundColor = ''; }, 3000);
+                            }
                         }
                     }
-                    toggleNotificationPanel();
+
+                    panel.classList.remove('active');
                 };
 
                 const timeAgo = formatTimeAgo(new Date(notif.timestamp));
@@ -2157,13 +2281,13 @@
                 const newUnreadCount = APP_NOTIFICATIONS.filter(n => !n.isRead).length;
 
                 updateNotificationCount(); // ALWAYS update the badge right after loading.
+                renderOrdersTable();
+                updateKPIStats();
 
                 if (newUnreadCount > oldUnreadCount) {
                     console.log(`New notifications detected! Count changed from ${oldUnreadCount} to ${newUnreadCount}.`);
                     playNotificationSound();
                     renderNotifications();
-                    renderOrdersTable();
-                    updateKPIStats();
                 }
             } catch (error) {
                 console.error("Error during update check:", error);
@@ -2224,6 +2348,39 @@
         });
 
         // --- HÀM XỬ LÝ QUẢN LÝ ĐƠN HÀNG ---
+        function normalizeOrder(order) {
+            if (!order || typeof order !== 'object') return null;
+
+            const customerInfo = order.customerInfo || {
+                name: order.customerName || 'Khách hàng không rõ tên',
+                phone: order.customerPhone || '',
+                address: order.customerAddress || '',
+                notes: order.notes || ''
+            };
+
+            return {
+                ...order,
+                orderId: order.orderId || order.id || `UNKNOWN-${Date.now()}`,
+                customerInfo: {
+                    name: customerInfo.name || 'Khách hàng không rõ tên',
+                    phone: customerInfo.phone || '',
+                    address: customerInfo.address || '',
+                    notes: customerInfo.notes || ''
+                },
+                items: Array.isArray(order.items) ? order.items : [],
+                subtotal: Number(order.subtotal) || 0,
+                shippingFee: Number(order.shippingFee) || 0,
+                discount: Number(order.discount) || 0,
+                totalAmount: Number(order.totalAmount) || 0,
+                orderDate: order.orderDate || order.createdAt || new Date().toISOString(),
+                status: order.status === 'Chờ xử lý' ? 'Mới' : (order.status || 'Mới')
+            };
+        }
+
+        function normalizeOrders(orders) {
+            return Array.isArray(orders) ? orders.map(normalizeOrder).filter(Boolean) : [];
+        }
+
         function getStatusBadge(status) {
             const statusMap = {
                 'Mới': { text: 'Mới', class: 'new' },
@@ -2354,10 +2511,13 @@
 
             // SỬA LỖI: Chuyển sang dùng parseInt để xử lý số nguyên một cách nhất quán và ổn định hơn.
             const shippingFee = Math.max(0, parseInt(document.getElementById('orderEditShippingFee').value, 10) || 0);
-            const discount = Math.max(0, parseInt(document.getElementById('orderEditDiscount').value, 10) || 0);
             const subtotal = order.subtotal || 0;
+            const discount = Math.min(
+                Math.max(0, parseInt(document.getElementById('orderEditDiscount').value, 10) || 0),
+                subtotal + shippingFee
+            );
 
-            const totalAmount = subtotal + shippingFee - discount;
+            const totalAmount = Math.max(0, subtotal + shippingFee - discount);
             document.getElementById('orderEditTotalAmount').innerText = totalAmount.toLocaleString('vi-VN') + 'đ';
         }
 
@@ -2405,7 +2565,9 @@
             try {
                 const orderId = document.getElementById('editingOrderId').value;
                 const newShippingFee = Math.max(0, parseInt(document.getElementById('orderEditShippingFee').value, 10) || 0);
-                const newDiscount = Math.max(0, parseInt(document.getElementById('orderEditDiscount').value, 10) || 0);
+                const newDiscountInput = Math.max(0, parseInt(document.getElementById('orderEditDiscount').value, 10) || 0);
+                const orderForUpdate = APP_ORDERS.find(order => order.orderId === orderId);
+                const newDiscount = Math.min(newDiscountInput, (orderForUpdate?.subtotal || 0) + newShippingFee);
 
                 const result = await safeUpdateDatabase(db => {
                     // BẢO VỆ: Đảm bảo APP_ORDERS là một mảng trước khi sử dụng, tránh lỗi khi DB rỗng.
@@ -2419,7 +2581,7 @@
                         orderToUpdate.shippingFee = newShippingFee;
                         orderToUpdate.discount = newDiscount;
                         // Tính lại tổng tiền cuối cùng dựa trên các giá trị mới
-                        orderToUpdate.totalAmount = (orderToUpdate.subtotal || 0) + newShippingFee - newDiscount;
+                        orderToUpdate.totalAmount = Math.max(0, (orderToUpdate.subtotal || 0) + newShippingFee - newDiscount);
                     }
                 });
 
@@ -2437,15 +2599,13 @@
                     }
 
                     // Nếu dữ liệu hợp lệ, cập nhật giao diện như bình thường.
-                    APP_ORDERS = result.data.APP_ORDERS;
+                    APP_ORDERS = normalizeOrders(result.data.APP_ORDERS);
                     renderOrdersTable();
                     closeOrderEditModal();
                     alert(`✅ Đã cập nhật thành công cho đơn hàng #${orderId}.`);
                 } catch (uiError) {
-                    // Bắt lỗi cập nhật giao diện, thông báo thành công và tải lại trang.
-                    console.warn("Lỗi cập nhật giao diện sau khi lưu thành công, sẽ tải lại trang.", uiError);
-                    alert("✅ Cập nhật thành công! Giao diện sẽ được làm mới để hiển thị thay đổi.");
-                    setTimeout(() => window.location.reload(), 1000);
+                    console.error("Lỗi cập nhật giao diện sau khi lưu thành công:", uiError);
+                    alert(`✅ Đã lưu đơn hàng #${orderId}, nhưng không thể cập nhật bảng ngay lúc này. Vui lòng bấm tải lại dữ liệu.`);
                 }
 
             } catch (error) {
@@ -2494,7 +2654,8 @@
                 if (!orderToDelete) return;
 
                 const result = await safeUpdateDatabase(db => {
-                    const initialCount = db.APP_ORDERS ? db.APP_ORDERS.length : 0;
+                    if (!Array.isArray(db.APP_ORDERS)) db.APP_ORDERS = [];
+                    const initialCount = db.APP_ORDERS.length;
                     db.APP_ORDERS = db.APP_ORDERS.filter(o => o.orderId !== orderId);
 
                     if (db.APP_ORDERS.length < initialCount) {
@@ -2580,8 +2741,13 @@
             if (!newUsername || !newPassword) return alert("Vui lòng nhập đủ thông tin.");
             if (USER_CREDENTIALS[newUsername]) return alert(`Tài khoản "${newUsername}" đã tồn tại.`);
             if (newPassword.length < 6) return alert("❌ Mật khẩu phải có ít nhất 6 ký tự!");
-            USER_CREDENTIALS[newUsername] = { password: newPassword, role: newUserRole };
-            await safeUpdateDatabase(db => { db.USER_CREDENTIALS = USER_CREDENTIALS; });
+            const newPasswordHash = await hashPassword(newPassword);
+            USER_CREDENTIALS[newUsername] = { password: newPasswordHash, role: newUserRole };
+            const result = await safeUpdateDatabase(db => { db.USER_CREDENTIALS = USER_CREDENTIALS; });
+            if (!result.success) {
+                delete USER_CREDENTIALS[newUsername];
+                return;
+            }
             renderEmployeeTable();
             document.getElementById('addEmployeeForm').reset();
             alert(`✅ Đã thêm tài khoản "${newUsername}" thành công!`);
