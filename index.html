@@ -2665,7 +2665,8 @@
                 discount: 0, // Giảm giá mặc định là 0, admin có thể sửa sau
                 totalAmount: subtotal + shippingFee, // Tổng tiền cuối cùng, admin có thể điều chỉnh sau
                 orderDate: new Date().toISOString(),
-                status: 'Mới'
+                status: 'Mới',
+                stockDeducted: true
             };
             const result = await safeUpdateDatabase(payload => {
                 if (!Array.isArray(payload.APP_ORDERS)) payload.APP_ORDERS = [];

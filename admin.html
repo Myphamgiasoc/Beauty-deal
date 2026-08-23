@@ -2357,6 +2357,10 @@
                 address: order.customerAddress || '',
                 notes: order.notes || ''
             };
+            const normalizedStatus = order.status === 'Chờ xử lý' ? 'Mới' : (order.status || 'Mới');
+            const stockWasDeducted = order.stockDeducted === undefined
+                ? normalizedStatus !== 'Đã hủy'
+                : order.stockDeducted === true;
 
             return {
                 ...order,
@@ -2373,7 +2377,8 @@
                 discount: Number(order.discount) || 0,
                 totalAmount: Number(order.totalAmount) || 0,
                 orderDate: order.orderDate || order.createdAt || new Date().toISOString(),
-                status: order.status === 'Chờ xử lý' ? 'Mới' : (order.status || 'Mới')
+                status: normalizedStatus,
+                stockDeducted: stockWasDeducted
             };
         }
 
@@ -2383,6 +2388,54 @@
 
         function getOrderId(order) {
             return String(order?.orderId || order?.id || '');
+        }
+
+        function getOrderItemProductId(item) {
+            return String(item?.id || item?.cartItemId || item?.productId || '');
+        }
+
+        function adjustOrderStock(products, order, direction) {
+            if (!Array.isArray(products) || !Array.isArray(order?.items)) {
+                return { success: false, message: 'Dữ liệu tồn kho của đơn hàng không hợp lệ.' };
+            }
+
+            const changes = [];
+            for (const item of order.items) {
+                const itemId = getOrderItemProductId(item);
+                const baseProductId = itemId.split('-')[0];
+                const product = products.find(candidate => String(candidate.id) === baseProductId);
+                const quantity = Number(item.quantity) || 0;
+                if (!product || quantity <= 0) {
+                    return { success: false, message: `Không tìm thấy sản phẩm trong đơn hàng #${getOrderId(order)}.` };
+                }
+
+                if (product.variants && itemId !== baseProductId) {
+                    const variant = product.variants.find(candidate => String(candidate.id) === itemId);
+                    if (!variant) return { success: false, message: `Không tìm thấy phiên bản sản phẩm trong đơn hàng #${getOrderId(order)}.` };
+                    const currentStock = Number(variant.stock) || 0;
+                    if (direction < 0 && quantity > currentStock) {
+                        return { success: false, message: `Sản phẩm trong đơn hàng #${getOrderId(order)} không đủ tồn kho để trừ.` };
+                    }
+                    changes.push({ product, variant, currentStock, quantity });
+                } else {
+                    const currentStock = Number(product.stock) || 0;
+                    if (direction < 0 && quantity > currentStock) {
+                        return { success: false, message: `Sản phẩm trong đơn hàng #${getOrderId(order)} không đủ tồn kho để trừ.` };
+                    }
+                    changes.push({ product, currentStock, quantity });
+                }
+            }
+
+            changes.forEach(change => {
+                const nextStock = direction < 0 ? change.currentStock - change.quantity : change.currentStock + change.quantity;
+                if (change.variant) {
+                    change.variant.stock = nextStock;
+                    change.product.stock = change.product.variants.reduce((sum, entry) => sum + (Number(entry.stock) || 0), 0);
+                } else {
+                    change.product.stock = nextStock;
+                }
+            });
+            return { success: true };
         }
 
         function getStatusBadge(status) {
@@ -2579,7 +2632,7 @@
                         db.APP_ORDERS = [];
                     }
 
-                    const dbOrderIndex = db.APP_ORDERS.findIndex(o => o.orderId === orderId);
+                    const dbOrderIndex = db.APP_ORDERS.findIndex(o => getOrderId(o) === String(orderId));
                     if (dbOrderIndex > -1) {
                         const orderToUpdate = db.APP_ORDERS[dbOrderIndex];
                         orderToUpdate.shippingFee = newShippingFee;
@@ -2623,15 +2676,35 @@
         }
 
         async function updateOrderStatus(orderId, newStatus) {
-            const orderIndex = APP_ORDERS.findIndex(o => o.orderId === orderId);
+            const orderIndex = APP_ORDERS.findIndex(o => getOrderId(o) === String(orderId));
             if (orderIndex > -1) {
                 const oldStatus = APP_ORDERS[orderIndex].status;
                 if (oldStatus === newStatus) return; // Không có gì thay đổi
 
                 const result = await safeUpdateDatabase(db => {
-                    const dbOrderIndex = db.APP_ORDERS.findIndex(o => o.orderId === orderId);
+                    if (!Array.isArray(db.APP_ORDERS)) db.APP_ORDERS = [];
+                    if (!Array.isArray(db.APP_PRODUCTS)) db.APP_PRODUCTS = [];
+                    const dbOrderIndex = db.APP_ORDERS.findIndex(o => getOrderId(o) === String(orderId));
                     if (dbOrderIndex > -1) {
-                        db.APP_ORDERS[dbOrderIndex].status = newStatus;
+                        const orderToUpdate = db.APP_ORDERS[dbOrderIndex];
+                        const isCancelled = newStatus === 'Đã hủy';
+                        const wasCancelled = orderToUpdate.status === 'Đã hủy';
+                        const stockWasDeducted = orderToUpdate.stockDeducted === undefined
+                            ? !wasCancelled
+                            : orderToUpdate.stockDeducted === true;
+                        const shouldDeductStock = !isCancelled && !stockWasDeducted;
+                        const shouldRestoreStock = isCancelled && !wasCancelled && stockWasDeducted;
+
+                        if (shouldRestoreStock) {
+                            const stockResult = adjustOrderStock(db.APP_PRODUCTS, orderToUpdate, 1);
+                            if (!stockResult.success) return { abort: true, message: stockResult.message, reason: 'stock_restore_failed' };
+                            orderToUpdate.stockDeducted = false;
+                        } else if (shouldDeductStock) {
+                            const stockResult = adjustOrderStock(db.APP_PRODUCTS, orderToUpdate, -1);
+                            if (!stockResult.success) return { abort: true, message: stockResult.message, reason: 'insufficient_stock' };
+                            orderToUpdate.stockDeducted = true;
+                        }
+                        orderToUpdate.status = newStatus;
 
                         if (!db.APP_NOTIFICATIONS) db.APP_NOTIFICATIONS = [];
                         const notifMsg = `Đơn hàng <strong>#${orderId}</strong> đổi trạng thái từ '${oldStatus}' sang <strong>'${newStatus}'</strong>.`;
@@ -2641,7 +2714,8 @@
                 });
 
                 if (result.success) {
-                    APP_ORDERS = result.data.APP_ORDERS;
+                    APP_ORDERS = normalizeOrders(result.data.APP_ORDERS);
+                    APP_PRODUCTS = Array.isArray(result.data.APP_PRODUCTS) ? result.data.APP_PRODUCTS : APP_PRODUCTS;
                     APP_NOTIFICATIONS = result.data.APP_NOTIFICATIONS || [];
                     renderOrdersTable(); 
                     updateKPIStats();
@@ -2660,6 +2734,15 @@
                 const result = await safeUpdateDatabase(db => {
                     if (!Array.isArray(db.APP_ORDERS)) db.APP_ORDERS = [];
                     const ordersBeforeDelete = db.APP_ORDERS.length;
+                    const serverOrder = db.APP_ORDERS.find(o => getOrderId(o) === String(orderId));
+                    const stockWasDeducted = serverOrder && (serverOrder.stockDeducted === undefined
+                        ? serverOrder.status !== 'Đã hủy'
+                        : serverOrder.stockDeducted === true);
+                    if (stockWasDeducted) {
+                        if (!Array.isArray(db.APP_PRODUCTS)) db.APP_PRODUCTS = [];
+                        const stockResult = adjustOrderStock(db.APP_PRODUCTS, serverOrder, 1);
+                        if (!stockResult.success) return { abort: true, message: stockResult.message, reason: 'stock_restore_failed' };
+                    }
                     db.APP_ORDERS = db.APP_ORDERS.filter(o => getOrderId(o) !== String(orderId));
 
                     if (db.APP_ORDERS.length === ordersBeforeDelete) {
@@ -2674,6 +2757,7 @@
 
                 if (result.success) {
                     APP_ORDERS = normalizeOrders(result.data.APP_ORDERS);
+                    APP_PRODUCTS = Array.isArray(result.data.APP_PRODUCTS) ? result.data.APP_PRODUCTS : APP_PRODUCTS;
                     APP_NOTIFICATIONS = result.data.APP_NOTIFICATIONS || [];
                     if (APP_ORDERS.some(order => getOrderId(order) === String(orderId))) {
                         alert(`❌ Server chưa xác nhận xóa đơn hàng #${orderId}. Vui lòng thử lại.`);
