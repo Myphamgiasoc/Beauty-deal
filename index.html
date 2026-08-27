@@ -158,7 +158,7 @@
 
         .search-container {
             flex: 1;
-            min-width: 250px;
+            min-width: 0;
             max-width: 450px
         }
 
@@ -359,6 +359,11 @@
             cursor: pointer;
             display: flex;
             flex-direction: column
+        }
+
+        .product-card:focus-visible {
+            outline: 3px solid #f39c12;
+            outline-offset: 3px
         }
 
         .product-card:hover {
@@ -625,7 +630,9 @@
             font-size: 15px;
             color: #444;
             line-height: 1.8;
-            padding: 10px 5px
+            padding: 10px 5px;
+            overflow-wrap: anywhere;
+            word-break: break-word
         }
 
         .tab-content.active {
@@ -643,7 +650,9 @@
         .tab-content-text {
             white-space: pre-line;
             margin-top: 10px;
-            color: #555
+            color: #555;
+            overflow-wrap: anywhere;
+            word-break: break-word
         }
 
         .hasaki-review-container {
@@ -1382,7 +1391,8 @@
             .slide-subtitle { font-size: 17px }
             .container { padding: 0 15px }
             .header-container { flex-wrap: wrap; justify-content: space-between; row-gap: 15px }
-            .search-container { order: 1; width: 100% }
+            .search-container { order: 1; width: 100%; min-width: 0; max-width: none }
+            .search-container input { font-size: 16px }
             .settings-icon { display: none }
             .cart-icon { font-size: 24px }
             .cart-count { width: 20px; height: 20px; font-size: 10px; top: -6px; right: -8px }
@@ -1412,6 +1422,13 @@
             .slide-title { font-size: 32px }
             .slide-subtitle { font-size: 16px }
             .slide-btn { padding: 10px 24px }
+            .main-detail-card { padding: 15px }
+            .detail-top-title { font-size: 20px; overflow-wrap: anywhere }
+            .detail-top-brand-row { overflow-wrap: anywhere; word-break: break-word }
+            .detail-tabs { gap: 0; scrollbar-width: none }
+            .detail-tabs::-webkit-scrollbar { display: none }
+            .tab-btn { flex: 0 0 auto; padding: 10px 12px; font-size: 13px }
+            .tab-content { font-size: 14px; line-height: 1.7; padding: 8px 0 }
             .summary-left { min-width: unset; width: 100%; margin-bottom: 15px }
             .summary-center-filters { width: 100%; justify-content: center }
             .summary-right-action { width: 100% }
@@ -2067,8 +2084,17 @@
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
+                card.tabIndex = 0;
+                card.setAttribute('role', 'link');
+                card.onclick = () => openProductDetail(prod.id);
+                card.onkeydown = (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openProductDetail(prod.id);
+                    }
+                };
                 card.innerHTML = `
-                    <div class="product-image-wrapper" onclick="openProductDetail('${prod.id}')">
+                    <div class="product-image-wrapper">
                         <img src="${prod.image}" class="product-image" alt="${prod.name}">
                         ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
                         ${isOutOfStock ? '<div class="out-of-stock-overlay">Hết hàng</div>' : ''}
@@ -2110,8 +2136,17 @@
                 }
                 const card = document.createElement('div');
                 card.className = 'product-card';
+                card.tabIndex = 0;
+                card.setAttribute('role', 'link');
+                card.onclick = () => openProductDetail(prod.id);
+                card.onkeydown = (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openProductDetail(prod.id);
+                    }
+                };
                 card.innerHTML = `
-                    <div class="product-image-wrapper" onclick="openProductDetail('${prod.id}')">
+                    <div class="product-image-wrapper">
                         <img src="${prod.image}" class="product-image" alt="${prod.name}">
                         ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
                         ${isOutOfStock ? '<div class="out-of-stock-overlay">Hết hàng</div>' : ''}
@@ -2240,6 +2275,7 @@
             const isOutOfStock = stock === 0;
 
             detailSection.classList.add('active');
+            detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             // NEW: Logic for variants
             let variantHtml = '';
             if (prod.variants && prod.variants.length > 0) {
