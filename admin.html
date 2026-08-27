@@ -816,14 +816,14 @@
                     <input type="hidden" id="customSliderEditId" value="">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Ảnh banner *</label>
+                            <label>URL ảnh banner hoặc upload ảnh *</label>
                             <input type="file" id="customSliderImageFile" accept="image/*" onchange="previewImage(event, 'customSliderImagePreview', 'customSliderImageHidden')">
                             <input type="hidden" id="customSliderImageHidden">
                             <img id="customSliderImagePreview" src="" alt="Xem trước banner slider" style="max-width: 240px; max-height: 90px; margin-top: 10px; border: 1px solid #eee; display: none; object-fit: cover;">
-                            <input type="url" id="customSliderImageUrl" placeholder="Hoặc dán URL ảnh HTTPS..." oninput="clearFileInput('customSliderImageFile', 'customSliderImagePreview', 'customSliderImageHidden')">
+                            <input type="url" id="customSliderImageUrl" placeholder="Dán Direct link của ảnh tại đây..." oninput="clearFileInput('customSliderImageFile', 'customSliderImagePreview', 'customSliderImageHidden')">
                         </div>
                         <div class="form-group">
-                            <label>Direct link khi bấm banner</label>
+                            <label>Link mở khi bấm banner (tùy chọn)</label>
                             <input type="url" id="customSliderLinkUrl" placeholder="https://example.com/san-pham">
                         </div>
                     </div>
@@ -1264,7 +1264,8 @@
                     'modalBrandLogoPreview': 'modalBrandLogoUrlInput',
                     'bannerImagePreview': 'bannerImageUrlInput',
                     'shopInfoMainLogoPreview': 'shopInfoMainLogoUrlInput',
-                    'propImagePreview': 'propImageUrl'
+                    'propImagePreview': 'propImageUrl',
+                    'customSliderImagePreview': 'customSliderImageUrl'
                 };
                 const urlInputId = urlInputMap[previewId];
                 if (urlInputId && document.getElementById(urlInputId)) {
@@ -2161,8 +2162,12 @@
         function saveCustomSliderBanner(event) {
             event.preventDefault();
             const editId = document.getElementById('customSliderEditId').value;
-            const imageUrl = document.getElementById('customSliderImageUrl').value.trim() || document.getElementById('customSliderImageHidden').value.trim();
-            const linkUrl = document.getElementById('customSliderLinkUrl').value.trim();
+            let imageUrl = document.getElementById('customSliderImageUrl').value.trim() || document.getElementById('customSliderImageHidden').value.trim();
+            let linkUrl = document.getElementById('customSliderLinkUrl').value.trim();
+            if (!imageUrl && isLikelyImageUrl(linkUrl)) {
+                imageUrl = linkUrl;
+                linkUrl = '';
+            }
             if (!imageUrl) return alert('Vui lòng upload ảnh hoặc nhập URL ảnh cho slide.');
             const banners = getCustomSliderBanners();
             const banner = { id: editId || `banner-${Date.now()}`, imageUrl, linkUrl };
@@ -2180,6 +2185,9 @@
             renderCustomSliderBanners();
             cancelCustomSliderEdit();
             alert(editId ? 'Đã cập nhật slide.' : 'Đã thêm slide mới.');
+        }
+        function isLikelyImageUrl(url) {
+            return /^(https?:\/\/|data:image\/)/i.test(url) && (/\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?$/i.test(url) || /(^|\/)(i\.|images?\.|img\.)/i.test(url));
         }
         function deleteCustomSliderBanner(id) {
             if (!confirm('Bạn có chắc muốn xóa slide này?')) return;
