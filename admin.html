@@ -810,6 +810,42 @@
                 </div>
             </div>
 
+            <div class="admin-form-box hidden-by-js" id="customSliderManagementSection">
+                <h3 id="customSliderFormTitle">Quản Lý Banner Slider Trang Chủ</h3>
+                <form id="customSliderForm" onsubmit="saveCustomSliderBanner(event)">
+                    <input type="hidden" id="customSliderEditId" value="">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Ảnh banner *</label>
+                            <input type="file" id="customSliderImageFile" accept="image/*" onchange="previewImage(event, 'customSliderImagePreview', 'customSliderImageHidden')">
+                            <input type="hidden" id="customSliderImageHidden">
+                            <img id="customSliderImagePreview" src="" alt="Xem trước banner slider" style="max-width: 240px; max-height: 90px; margin-top: 10px; border: 1px solid #eee; display: none; object-fit: cover;">
+                            <input type="url" id="customSliderImageUrl" placeholder="Hoặc dán URL ảnh HTTPS..." oninput="clearFileInput('customSliderImageFile', 'customSliderImagePreview', 'customSliderImageHidden')">
+                        </div>
+                        <div class="form-group">
+                            <label>Direct link khi bấm banner</label>
+                            <input type="url" id="customSliderLinkUrl" placeholder="https://example.com/san-pham">
+                        </div>
+                    </div>
+                    <div class="form-actions-row">
+                        <button type="button" class="form-btn cancel" onclick="cancelCustomSliderEdit()">Hủy</button>
+                        <button type="submit" class="form-btn submit">Thêm slide</button>
+                    </div>
+                </form>
+                <div class="table-responsive" style="margin-top: 30px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Ảnh</th>
+                                <th>Direct link</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customSliderTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </section>
     </main>
 
@@ -1319,7 +1355,8 @@
                 order: document.getElementById('orderManagementSection'),
                 subscriber: document.getElementById('subscriberManagementSection'),
                 valueProps: document.getElementById('valuePropsManagementSection'),
-                revenue: document.getElementById('revenueManagementSection') // NEW: Add revenue section
+                revenue: document.getElementById('revenueManagementSection'), // NEW: Add revenue section
+                customSlider: document.getElementById('customSliderManagementSection')
             };
 
             Object.values(sections).forEach(sec => sec && sec.classList.add('hidden-by-js'));
@@ -1337,6 +1374,7 @@
             loadSelectedValueProp(); // Initialize form with the first value prop
             renderAdminBrandsTable();
             renderAdminBannersTable();
+            renderCustomSliderBanners();
             renderAdminTable();
             renderEmployeeTable();
             renderSubscribersTable();
@@ -2060,6 +2098,93 @@
                     </td>`;
                 tbody.appendChild(tr);
             });
+        }
+        function getCustomSliderBanners() {
+            try {
+                const storedBanners = JSON.parse(localStorage.getItem('custom_banners') || '[]');
+                return Array.isArray(storedBanners) ? storedBanners : [];
+            } catch (error) {
+                console.warn('Dữ liệu custom_banners không hợp lệ.', error);
+                return [];
+            }
+        }
+        function saveCustomSliderBanners(banners) {
+            localStorage.setItem('custom_banners', JSON.stringify(banners));
+        }
+        function renderCustomSliderBanners() {
+            const tbody = document.getElementById('customSliderTableBody');
+            if (!tbody) return;
+            const banners = getCustomSliderBanners();
+            tbody.innerHTML = '';
+            if (banners.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#999;">Chưa có slide tùy chỉnh.</td></tr>';
+                return;
+            }
+            banners.forEach(banner => {
+                const row = document.createElement('tr');
+                const imageCell = document.createElement('td');
+                const image = document.createElement('img');
+                image.src = banner.imageUrl;
+                image.alt = 'Banner slider';
+                image.style.cssText = 'width:160px; height:60px; object-fit:cover; border-radius:4px;';
+                imageCell.appendChild(image);
+                const linkCell = document.createElement('td');
+                linkCell.textContent = banner.linkUrl || 'Không có liên kết';
+                const actionCell = document.createElement('td');
+                actionCell.innerHTML = `<button type="button" class="action-btn edit" onclick="editCustomSliderBanner('${String(banner.id).replace(/'/g, "\\'")}')">Sửa</button><button type="button" class="action-btn delete" onclick="deleteCustomSliderBanner('${String(banner.id).replace(/'/g, "\\'")}')">Xóa</button>`;
+                row.append(imageCell, linkCell, actionCell);
+                tbody.appendChild(row);
+            });
+        }
+        function cancelCustomSliderEdit() {
+            document.getElementById('customSliderForm').reset();
+            document.getElementById('customSliderEditId').value = '';
+            document.getElementById('customSliderFormTitle').innerText = 'Quản Lý Banner Slider Trang Chủ';
+            document.querySelector('#customSliderForm button[type="submit"]').innerText = 'Thêm slide';
+            document.getElementById('customSliderImageFile').value = '';
+            document.getElementById('customSliderImageHidden').value = '';
+            document.getElementById('customSliderImagePreview').style.display = 'none';
+            document.getElementById('customSliderImagePreview').src = '';
+        }
+        function editCustomSliderBanner(id) {
+            const banner = getCustomSliderBanners().find(item => String(item.id) === String(id));
+            if (!banner) return;
+            document.getElementById('customSliderEditId').value = banner.id;
+            document.getElementById('customSliderLinkUrl').value = banner.linkUrl || '';
+            document.getElementById('customSliderImageUrl').value = banner.imageUrl.startsWith('data:image') ? '' : banner.imageUrl;
+            document.getElementById('customSliderImagePreview').src = banner.imageUrl;
+            document.getElementById('customSliderImagePreview').style.display = 'block';
+            document.getElementById('customSliderFormTitle').innerText = `Sửa Banner Slider [ID: ${banner.id}]`;
+            document.querySelector('#customSliderForm button[type="submit"]').innerText = 'Lưu thay đổi';
+            document.getElementById('customSliderManagementSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function saveCustomSliderBanner(event) {
+            event.preventDefault();
+            const editId = document.getElementById('customSliderEditId').value;
+            const imageUrl = document.getElementById('customSliderImageUrl').value.trim() || document.getElementById('customSliderImageHidden').value.trim();
+            const linkUrl = document.getElementById('customSliderLinkUrl').value.trim();
+            if (!imageUrl) return alert('Vui lòng upload ảnh hoặc nhập URL ảnh cho slide.');
+            const banners = getCustomSliderBanners();
+            const banner = { id: editId || `banner-${Date.now()}`, imageUrl, linkUrl };
+            if (editId) {
+                const index = banners.findIndex(item => String(item.id) === String(editId));
+                if (index !== -1) banners[index] = banner;
+            } else {
+                banners.push(banner);
+            }
+            try {
+                saveCustomSliderBanners(banners);
+            } catch (error) {
+                return alert('Không thể lưu slide. Dung lượng ảnh có thể vượt quá giới hạn trình duyệt.');
+            }
+            renderCustomSliderBanners();
+            cancelCustomSliderEdit();
+            alert(editId ? 'Đã cập nhật slide.' : 'Đã thêm slide mới.');
+        }
+        function deleteCustomSliderBanner(id) {
+            if (!confirm('Bạn có chắc muốn xóa slide này?')) return;
+            saveCustomSliderBanners(getCustomSliderBanners().filter(item => String(item.id) !== String(id)));
+            renderCustomSliderBanners();
         }
         function cancelBannerEdit() {
             document.getElementById('bannerForm').reset();

@@ -9,6 +9,8 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- END: Cache Control Meta Tags -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
     <style>
         /* Ghi chú: Toàn bộ khối CSS này đã được thay thế bằng phiên bản đầy đủ và chính xác để khắc phục lỗi giao diện. */
         * {
@@ -20,7 +22,7 @@
 
         html,
         body {
-            width: 100vw;
+            width: 100%;
             min-width: 0;
             margin: 0;
             padding: 0;
@@ -226,20 +228,53 @@
         .banner-slider {
             position: relative;
             width: 100%;
-            min-height: 380px;
-            background-image: linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, .3)), url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center
+            max-width: 1200px;
+            aspect-ratio: 3 / 1;
+            max-height: 360px;
+            min-height: 0;
+            margin: 20px auto 30px;
+            overflow: hidden;
+            background: #e8edf3;
+            border-radius: 12px
+        }
+
+        .banner-slider .swiper-wrapper,
+        .banner-slider .swiper-slide {
+            height: 100%
+        }
+
+        .banner-slide-link {
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: inherit;
+            text-decoration: none
+        }
+
+        .banner-slide-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center
+        }
+
+        .banner-slide-link::after {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0, 0, 0, .55), transparent 70%);
+            content: ""
         }
 
         .slide-content {
+            position: absolute;
+            z-index: 1;
+            top: 50%;
+            left: max(5%, calc((100% - 1200px) / 2));
+            max-width: 520px;
+            transform: translateY(-50%);
             color: #fff;
-            text-align: center;
-            padding: 40px
+            padding: 24px
         }
 
         .slide-title {
@@ -1342,7 +1377,7 @@
 
         /* Media Queries */
         @media (max-width:768px) {
-            .banner-slider { min-height: 320px }
+            .banner-slider { width: calc(100% - 20px); aspect-ratio: 2.2 / 1; max-height: none; margin: 10px auto 25px }
             .slide-title { font-size: 34px }
             .slide-subtitle { font-size: 17px }
             .container { padding: 0 15px }
@@ -1373,7 +1408,7 @@
         }
 
         @media (max-width:480px) {
-            .banner-slider { min-height: 280px }
+            .banner-slider { aspect-ratio: 2 / 1 }
             .slide-title { font-size: 32px }
             .slide-subtitle { font-size: 16px }
             .slide-btn { padding: 10px 24px }
@@ -1448,12 +1483,11 @@
             </div>
         </div>
     </header>
-    <section class="banner-slider" id="mainBanner">
-        <div class="slide-content">
-            <h1 class="slide-title">Bùng Nổ Siêu Deal Mỹ Phẩm</h1>
-            <p class="slide-subtitle">Cam kết chính hãng 100% - Hoàn tiền 200% nếu phát hiện hàng giả</p>
-            <button id="btn-mua-ngay" class="slide-btn">Mua Ngay</button>
-        </div>
+    <section class="banner-slider swiper" id="mainBanner" aria-label="Banner khuyến mãi">
+        <div class="swiper-wrapper" id="heroBannerWrapper"></div>
+        <div class="swiper-button-prev" aria-label="Banner trước"></div>
+        <div class="swiper-button-next" aria-label="Banner tiếp theo"></div>
+        <div class="swiper-pagination"></div>
     </section>
     <main class="container">
         <div id="homePageContent">
@@ -1955,6 +1989,7 @@
             try {
                 await loadDatabase(); // Tải toàn bộ dữ liệu từ server
                 renderHeaderLogo(); // NEW: Render the logo from DB
+                renderHeroBanners();
                 renderProductsGrid();
                 renderBestSellers();
                 renderBrandsGrid();
@@ -2779,6 +2814,47 @@
             }
             submitBtn.disabled = false;
             submitBtn.innerText = 'Đăng ký';
+        }
+        let heroSwiper;
+        function escapeBannerHtml(value) {
+            return String(value || '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+        }
+        function getBannerLink(banner) {
+            const link = banner.linkUrl || banner.buttonLink || '#';
+            return /^(https?:\/\/|\/|#)/i.test(link) ? link : '#';
+        }
+        function getHeroBanners() {
+            const storedBanners = localStorage.getItem('custom_banners');
+            if (storedBanners !== null) {
+                try {
+                    const parsedBanners = JSON.parse(storedBanners);
+                    if (Array.isArray(parsedBanners) && parsedBanners.length) return parsedBanners;
+                } catch (error) {
+                    console.warn('Dữ liệu custom_banners không hợp lệ, dùng banner mặc định.', error);
+                }
+            }
+            return Array.isArray(APP_BANNERS) && APP_BANNERS.length ? APP_BANNERS : DEFAULT_BANNERS;
+        }
+        function renderHeroBanners() {
+            const wrapper = document.getElementById('heroBannerWrapper');
+            if (!wrapper) return;
+            const banners = getHeroBanners().filter(banner => banner && typeof banner.imageUrl === 'string' && banner.imageUrl.trim());
+            wrapper.innerHTML = banners.map(banner => `
+                <div class="swiper-slide">
+                    <a class="banner-slide-link" href="${escapeBannerHtml(getBannerLink(banner))}" target="_blank" rel="noopener noreferrer">
+                        <img class="banner-slide-image" src="${escapeBannerHtml(banner.imageUrl)}" alt="${escapeBannerHtml(banner.title || 'Banner khuyến mãi')}" loading="lazy">
+                        ${banner.title || banner.description ? `<div class="slide-content"><h1 class="slide-title">${escapeBannerHtml(banner.title)}</h1><p class="slide-subtitle">${escapeBannerHtml(banner.description)}</p></div>` : ''}
+                    </a>
+                </div>`).join('');
+            if (heroSwiper) heroSwiper.destroy(true, true);
+            heroSwiper = new Swiper('#mainBanner', {
+                autoplay: { delay: 2000 },
+                loop: banners.length > 1,
+                navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+                pagination: { el: '.swiper-pagination', clickable: true },
+                observer: true,
+                observeParents: true
+            });
         }
         function renderPromoBanners() {
             const container = document.getElementById('promoBannersContainer');
