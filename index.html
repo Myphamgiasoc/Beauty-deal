@@ -162,6 +162,45 @@
             max-width: 450px
         }
 
+        .search-results-preview {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            z-index: 300;
+            display: none;
+            max-height: 360px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #dce5ef;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .15)
+        }
+
+        .search-results-preview.active { display: block }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 12px;
+            border: 0;
+            border-bottom: 1px solid #eef2f5;
+            background: #fff;
+            color: #333;
+            text-align: left;
+            cursor: pointer
+        }
+
+        .search-result-item:last-child { border-bottom: 0 }
+        .search-result-item:hover { background: #f0f7ff }
+        .search-result-item img { width: 52px; height: 52px; flex: 0 0 52px; object-fit: cover; border-radius: 6px }
+        .search-result-name { font-size: 13px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere }
+        .search-result-price { margin-top: 3px; color: #0056b3; font-size: 13px; font-weight: 700 }
+
+        .search-container { position: relative }
+
         .search-container input {
             width: 100%;
             padding: 11px 16px;
@@ -1391,7 +1430,7 @@
             .slide-subtitle { font-size: 17px }
             .container { padding: 0 15px }
             .header-container { flex-wrap: wrap; justify-content: space-between; row-gap: 15px }
-            .search-container { order: 1; width: 100%; min-width: 0; max-width: none }
+            .search-container { order: 3; flex: 0 0 100%; width: 100%; min-width: 0; max-width: none }
             .search-container input { font-size: 16px }
             .settings-icon { display: none }
             .cart-icon { font-size: 24px }
@@ -1446,8 +1485,10 @@
 
         @media (max-width:576px) {
             .header-container { padding: 0 15px }
+            .menu-dropdown-wrapper { flex: 1; min-width: 0 }
             .menu-toggle-btn { width: 100%; justify-content: center }
             .dropdown-menu { width: 100%; left: 0; right: 0; min-width: unset }
+            .search-results-preview { max-height: 300px }
         }
     </style>
 </head>
@@ -1490,6 +1531,7 @@
             </div>
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm mỹ phẩm chính hãng..." oninput="handleSearch()">
+                <div class="search-results-preview" id="searchResultsPreview" role="listbox"></div>
             </div>
             <div class="header-right">
                 <button class="settings-icon" onclick="openLoginModal()">⚙</button>
@@ -2196,6 +2238,33 @@
             document.getElementById('footerSocialTiktok').href = info.social.tiktok;
         }
         let searchTimeout; // Biến để quản lý debounce
+        function renderSearchResultsPreview(products) {
+            const preview = document.getElementById('searchResultsPreview');
+            if (!preview) return;
+            if (!products.length) {
+                preview.innerHTML = '<div style="padding:14px; color:#777; font-size:13px;">Không tìm thấy sản phẩm phù hợp.</div>';
+                preview.classList.add('active');
+                return;
+            }
+            preview.innerHTML = products.slice(0, 8).map(product => `
+                <button type="button" class="search-result-item" onclick="selectSearchResult('${String(product.id).replace(/'/g, "\\'")}')">
+                    <img src="${escapeBannerHtml(product.image)}" alt="${escapeBannerHtml(product.name)}">
+                    <span>
+                        <span class="search-result-name">${escapeBannerHtml(product.name)}</span>
+                        <span class="search-result-price">${Number(product.currPrice || 0).toLocaleString('vi-VN')}đ</span>
+                    </span>
+                </button>`).join('');
+            preview.classList.add('active');
+        }
+        function selectSearchResult(productId) {
+            const product = APP_PRODUCTS.find(item => String(item.id) === String(productId));
+            if (!product) return;
+            document.getElementById('searchResultsPreview')?.classList.remove('active');
+            openProductDetail(product.id);
+        }
+        function closeSearchResultsPreview() {
+            document.getElementById('searchResultsPreview')?.classList.remove('active');
+        }
         function handleSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -2203,6 +2272,10 @@
                 const mainProductTitle = document.getElementById('featuredProductsTitle'); // Sửa để ổn định hơn
                 const bestSellerSection = document.getElementById('bestSellerProductsContainer');
                 const bestSellerTitle = document.getElementById('bestSellerProductsTitle'); // Sửa để ổn định hơn
+
+                if (!keyword) {
+                    closeSearchResultsPreview();
+                }
 
                 const isSearching = keyword !== '' || currentFilterCategory !== 'TẤT CẢ';
 
@@ -2216,6 +2289,7 @@
 
                     if (keyword !== "") {
                         filtered = filtered.filter(p => p.name.toLowerCase().includes(keyword) || p.brand.toLowerCase().includes(keyword));
+                        renderSearchResultsPreview(filtered);
                     }
                     mainProductTitle.innerText = 'Kết quả tìm kiếm';
                     bestSellerSection.style.display = 'none';
@@ -2256,12 +2330,31 @@
         window.addEventListener('click', () => { document.getElementById('dropdownMenu').classList.remove('active'); });
         function backToHome(e) {
             if(e) e.preventDefault();
+            closeSearchResultsPreview();
             document.getElementById('productDetailSection').classList.remove('active');
             document.getElementById('homePageContent').style.display = 'block';
             document.getElementById('mainBanner').style.display = 'flex';
             window.scrollTo({ top: 0, behavior: 'smooth' });
             activeDetailProductId = null; // Reset active product
         }
+
+        let detailTouchStartX = 0;
+        let detailTouchStartY = 0;
+        document.addEventListener('touchstart', (event) => {
+            const detailSection = document.getElementById('productDetailSection');
+            if (!detailSection?.classList.contains('active') || event.target.closest('.detail-tabs')) return;
+            const touch = event.changedTouches[0];
+            detailTouchStartX = touch.clientX;
+            detailTouchStartY = touch.clientY;
+        }, { passive: true });
+        document.addEventListener('touchend', (event) => {
+            const detailSection = document.getElementById('productDetailSection');
+            if (!detailSection?.classList.contains('active') || event.target.closest('.detail-tabs')) return;
+            const touch = event.changedTouches[0];
+            const deltaX = touch.clientX - detailTouchStartX;
+            const deltaY = touch.clientY - detailTouchStartY;
+            if (deltaX < -70 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) backToHome();
+        }, { passive: true });
         function openProductDetail(productId) {
             const prod = APP_PRODUCTS.find(p => p.id === productId);
             if (!prod) return;
