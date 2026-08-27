@@ -1750,7 +1750,7 @@
         </div>
     </footer>
     <script>
-        let APP_PRODUCTS = []; let APP_BRANDS = []; let APP_BANNERS = []; let APP_ORDERS = []; let APP_SUBSCRIBERS = []; let APP_NOTIFICATIONS = []; let USER_CREDENTIALS = {}; let currentEditingVariants = [];
+        let APP_PRODUCTS = []; let APP_BRANDS = []; let APP_BANNERS = []; let APP_CUSTOM_SLIDER_BANNERS = []; let APP_ORDERS = []; let APP_SUBSCRIBERS = []; let APP_NOTIFICATIONS = []; let USER_CREDENTIALS = {}; let currentEditingVariants = [];
         const DEFAULT_VALUE_PROPS = [
             { icon: '✅', imageUrl: 'https://images.unsplash.com/photo-1588695954914-3452d55e246c?auto=format&fit=crop&w=150&q=80', title: 'Cam kết chính hãng', description: '100% sản phẩm nhập khẩu trực tiếp' },
             { icon: '💰', imageUrl: 'https://images.unsplash.com/photo-1561515030-2d0c5d023b6e?auto=format&fit=crop&w=150&q=80', title: 'Giá tốt mỗi ngày', description: 'Ưu đãi độc quyền, tiết kiệm tối đa' },
@@ -1889,6 +1889,7 @@
                 APP_PRODUCTS = Array.isArray(DATABASE.APP_PRODUCTS) ? DATABASE.APP_PRODUCTS : DEFAULT_PRODUCTS;
                 APP_BRANDS = Array.isArray(DATABASE.APP_BRANDS) ? DATABASE.APP_BRANDS : DEFAULT_BRANDS;
                 APP_BANNERS = Array.isArray(DATABASE.APP_BANNERS) ? DATABASE.APP_BANNERS : DEFAULT_BANNERS;
+                APP_CUSTOM_SLIDER_BANNERS = Array.isArray(DATABASE.APP_CUSTOM_SLIDER_BANNERS) ? DATABASE.APP_CUSTOM_SLIDER_BANNERS : [];
                 
                 // SỬA LỖI: Đơn giản hóa việc hợp nhất dữ liệu để đảm bảo thông tin footer luôn được cập nhật chính xác.
                 const loadedShopInfo = DATABASE.APP_SHOP_INFO || {};
@@ -2824,15 +2825,7 @@
             return /^(https?:\/\/|\/|#)/i.test(link) ? link : '#';
         }
         function getHeroBanners() {
-            const storedBanners = localStorage.getItem('custom_banners');
-            if (storedBanners !== null) {
-                try {
-                    const parsedBanners = JSON.parse(storedBanners);
-                    if (Array.isArray(parsedBanners) && parsedBanners.length) return parsedBanners;
-                } catch (error) {
-                    console.warn('Dữ liệu custom_banners không hợp lệ, dùng banner mặc định.', error);
-                }
-            }
+            if (Array.isArray(APP_CUSTOM_SLIDER_BANNERS) && APP_CUSTOM_SLIDER_BANNERS.length) return APP_CUSTOM_SLIDER_BANNERS;
             return Array.isArray(APP_BANNERS) && APP_BANNERS.length ? APP_BANNERS : DEFAULT_BANNERS;
         }
         function renderHeroBanners() {

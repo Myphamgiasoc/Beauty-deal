@@ -947,6 +947,7 @@
         let APP_SUBSCRIBERS = [];
         let APP_NOTIFICATIONS = [];
         let APP_VALUE_PROPS = [];
+        let APP_CUSTOM_SLIDER_BANNERS = [];
         
         let currentEditingVariants = []; // NEW: Temp array for variants during product edit
 
@@ -1160,6 +1161,19 @@
                 APP_PRODUCTS = Array.isArray(DATABASE.APP_PRODUCTS) ? DATABASE.APP_PRODUCTS : DEFAULT_PRODUCTS;
                 APP_BRANDS = Array.isArray(DATABASE.APP_BRANDS) ? DATABASE.APP_BRANDS : DEFAULT_BRANDS;
                 APP_BANNERS = Array.isArray(DATABASE.APP_BANNERS) ? DATABASE.APP_BANNERS : DEFAULT_BANNERS;
+                APP_CUSTOM_SLIDER_BANNERS = Array.isArray(DATABASE.APP_CUSTOM_SLIDER_BANNERS)
+                    ? DATABASE.APP_CUSTOM_SLIDER_BANNERS
+                    : getLegacyCustomSliderBanners();
+
+                if (!Array.isArray(DATABASE.APP_CUSTOM_SLIDER_BANNERS) && APP_CUSTOM_SLIDER_BANNERS.length > 0) {
+                    const migrationResult = await safeUpdateDatabase(payload => {
+                        payload.APP_CUSTOM_SLIDER_BANNERS = [...APP_CUSTOM_SLIDER_BANNERS];
+                    });
+                    if (migrationResult.success) {
+                        APP_CUSTOM_SLIDER_BANNERS = migrationResult.data.APP_CUSTOM_SLIDER_BANNERS;
+                        localStorage.removeItem('custom_banners');
+                    }
+                }
 
                 // NEW: Robustly merge shop info to prevent errors if parts are missing
                 const loadedShopInfo = DATABASE.APP_SHOP_INFO || {};
@@ -2101,6 +2115,9 @@
             });
         }
         function getCustomSliderBanners() {
+            return Array.isArray(APP_CUSTOM_SLIDER_BANNERS) ? APP_CUSTOM_SLIDER_BANNERS : [];
+        }
+        function getLegacyCustomSliderBanners() {
             try {
                 const storedBanners = JSON.parse(localStorage.getItem('custom_banners') || '[]');
                 return Array.isArray(storedBanners) ? storedBanners : [];
@@ -2109,8 +2126,14 @@
                 return [];
             }
         }
-        function saveCustomSliderBanners(banners) {
-            localStorage.setItem('custom_banners', JSON.stringify(banners));
+        async function saveCustomSliderBanners(banners) {
+            const result = await safeUpdateDatabase(payload => {
+                payload.APP_CUSTOM_SLIDER_BANNERS = banners;
+            });
+            if (result.success) {
+                APP_CUSTOM_SLIDER_BANNERS = result.data.APP_CUSTOM_SLIDER_BANNERS || [];
+            }
+            return result;
         }
         function renderCustomSliderBanners() {
             const tbody = document.getElementById('customSliderTableBody');
@@ -2159,7 +2182,7 @@
             document.querySelector('#customSliderForm button[type="submit"]').innerText = 'Lưu thay đổi';
             document.getElementById('customSliderManagementSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        function saveCustomSliderBanner(event) {
+        async function saveCustomSliderBanner(event) {
             event.preventDefault();
             const editId = document.getElementById('customSliderEditId').value;
             let imageUrl = document.getElementById('customSliderImageUrl').value.trim() || document.getElementById('customSliderImageHidden').value.trim();
@@ -2177,11 +2200,8 @@
             } else {
                 banners.push(banner);
             }
-            try {
-                saveCustomSliderBanners(banners);
-            } catch (error) {
-                return alert('Không thể lưu slide. Dung lượng ảnh có thể vượt quá giới hạn trình duyệt.');
-            }
+            const result = await saveCustomSliderBanners(banners);
+            if (!result.success) return;
             renderCustomSliderBanners();
             cancelCustomSliderEdit();
             alert(editId ? 'Đã cập nhật slide.' : 'Đã thêm slide mới.');
@@ -2189,9 +2209,10 @@
         function isLikelyImageUrl(url) {
             return /^(https?:\/\/|data:image\/)/i.test(url) && (/\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?$/i.test(url) || /(^|\/)(i\.|images?\.|img\.)/i.test(url));
         }
-        function deleteCustomSliderBanner(id) {
+        async function deleteCustomSliderBanner(id) {
             if (!confirm('Bạn có chắc muốn xóa slide này?')) return;
-            saveCustomSliderBanners(getCustomSliderBanners().filter(item => String(item.id) !== String(id)));
+            const result = await saveCustomSliderBanners(getCustomSliderBanners().filter(item => String(item.id) !== String(id)));
+            if (!result.success) return;
             renderCustomSliderBanners();
         }
         function cancelBannerEdit() {
