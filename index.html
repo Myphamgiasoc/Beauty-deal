@@ -1904,6 +1904,17 @@
                 const read = payload.APP_NOTIFICATIONS.filter(notification => notification.isRead).slice(0, 20);
                 payload.APP_NOTIFICATIONS = [...unread.slice(0, 50), ...read];
             }
+            if (Array.isArray(payload.APP_ORDERS)) {
+                payload.APP_ORDERS = payload.APP_ORDERS.map(order => ({
+                    ...order,
+                    items: Array.isArray(order.items) ? order.items.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: Number(item.price) || 0,
+                        quantity: Number(item.quantity) || 0
+                    })) : []
+                }));
+            }
             return payload;
         }
         // --- HÀM LƯU VÀ TẢI DỮ LIỆU TỪ SERVER (ĐỒNG BỘ VỚI ADMIN.HTML) ---
@@ -2874,7 +2885,12 @@
                     address: document.getElementById('checkoutCustomerAddress').value.trim(),
                     notes: document.getElementById('checkoutCustomerNotes').value.trim()
                 },
-                items: [...cart], // Lưu các sản phẩm trong giỏ hàng
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: Number(item.price) || 0,
+                    quantity: Number(item.quantity) || 0
+                })), // Chỉ lưu thông tin cần thiết, không nhân bản dữ liệu ảnh
                 subtotal: subtotal, // Lưu tổng tiền sản phẩm (chưa bao gồm phí ship)
                 shippingFee: shippingFee, // Phí vận chuyển tại thời điểm đặt hàng
                 discount: 0, // Giảm giá mặc định là 0, admin có thể sửa sau

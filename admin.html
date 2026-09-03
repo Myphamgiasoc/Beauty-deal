@@ -1059,6 +1059,17 @@
                 const read = payload.APP_NOTIFICATIONS.filter(notification => notification.isRead).slice(0, 20);
                 payload.APP_NOTIFICATIONS = [...unread.slice(0, 50), ...read];
             }
+            if (Array.isArray(payload.APP_ORDERS)) {
+                payload.APP_ORDERS = payload.APP_ORDERS.map(order => ({
+                    ...order,
+                    items: Array.isArray(order.items) ? order.items.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: Number(item.price) || 0,
+                        quantity: Number(item.quantity) || 0
+                    })) : []
+                }));
+            }
             return payload;
         }
 
@@ -1255,36 +1266,52 @@
                 return;
             }
 
-            // KIỂM TRA KÍCH THƯỚC FILE ĐỂ TRÁNH LỖI PAYLOAD VỚI JSONBIN
-            const MAX_FILE_SIZE_KB = 50; // Giảm giới hạn xuống 50KB để an toàn hơn
+            // Nén ảnh trước khi lưu để không làm vượt giới hạn 100 KB của JSONBin.
+            const MAX_FILE_SIZE_KB = 5000;
             if (file.size > MAX_FILE_SIZE_KB * 1024) {
-                alert(`Lỗi: Kích thước file ảnh quá lớn (${(file.size / 1024).toFixed(0)} KB).\n\nDo giới hạn của dịch vụ lưu trữ miễn phí (jsonbin.io), tổng dung lượng dữ liệu không được vượt quá 256KB. Việc tải ảnh lớn sẽ gây ra lỗi 403.\n\nVui lòng chọn file có kích thước nhỏ hơn ${MAX_FILE_SIZE_KB} KB.\n\n💡 GIẢI PHÁP TỐT NHẤT: Tải ảnh lên một dịch vụ hosting miễn phí (ví dụ: imgur.com, postimages.org) rồi dán link ảnh vào ô bên dưới.`);
+                alert(`Lỗi: Kích thước file ảnh quá lớn (${(file.size / 1024).toFixed(0)} KB).\n\nVui lòng chọn file nhỏ hơn ${MAX_FILE_SIZE_KB} KB hoặc dán link ảnh vào ô URL.`);
                 fileInput.value = ''; // Xóa file đã chọn để người dùng chọn lại
                 return;
             }
 
             const reader = new FileReader();
             reader.onload = function() {
-                const output = document.getElementById(previewId);
-                const hiddenInput = document.getElementById(hiddenInputId);
-                output.src = reader.result;
-                output.style.display = 'block';
-                hiddenInput.value = reader.result; // Lưu Data URL (Base64)
+                const source = new Image();
+                source.onload = function() {
+                    const maxDimension = 800;
+                    const scale = Math.min(1, maxDimension / Math.max(source.naturalWidth, source.naturalHeight));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.max(1, Math.round(source.naturalWidth * scale));
+                    canvas.height = Math.max(1, Math.round(source.naturalHeight * scale));
+                    canvas.getContext('2d').drawImage(source, 0, 0, canvas.width, canvas.height);
 
-                // Tự động xóa input URL tương ứng khi đã chọn file
-                const urlInputMap = {
-                    'prodImagePreview': 'prodImageUrl',
-                    'brandLogoPreview': 'brandLogoUrlInput',
-                    'modalBrandLogoPreview': 'modalBrandLogoUrlInput',
-                    'bannerImagePreview': 'bannerImageUrlInput',
-                    'shopInfoMainLogoPreview': 'shopInfoMainLogoUrlInput',
-                    'propImagePreview': 'propImageUrl',
-                    'customSliderImagePreview': 'customSliderImageUrl'
+                    const output = document.getElementById(previewId);
+                    const hiddenInput = document.getElementById(hiddenInputId);
+                    const compressedImage = canvas.toDataURL('image/jpeg', 0.68);
+                    output.src = compressedImage;
+                    output.style.display = 'block';
+                    hiddenInput.value = compressedImage;
+
+                    // Tự động xóa input URL tương ứng khi đã chọn file
+                    const urlInputMap = {
+                        'prodImagePreview': 'prodImageUrl',
+                        'brandLogoPreview': 'brandLogoUrlInput',
+                        'modalBrandLogoPreview': 'modalBrandLogoUrlInput',
+                        'bannerImagePreview': 'bannerImageUrlInput',
+                        'shopInfoMainLogoPreview': 'shopInfoMainLogoUrlInput',
+                        'propImagePreview': 'propImageUrl',
+                        'customSliderImagePreview': 'customSliderImageUrl'
+                    };
+                    const urlInputId = urlInputMap[previewId];
+                    if (urlInputId && document.getElementById(urlInputId)) {
+                        document.getElementById(urlInputId).value = '';
+                    }
                 };
-                const urlInputId = urlInputMap[previewId];
-                if (urlInputId && document.getElementById(urlInputId)) {
-                    document.getElementById(urlInputId).value = '';
-                }
+                source.src = reader.result;
+            };
+            reader.onerror = function() {
+                alert('Không thể đọc file ảnh. Vui lòng thử lại hoặc dán link ảnh URL.');
+                fileInput.value = '';
             };
             reader.readAsDataURL(file);
         }
