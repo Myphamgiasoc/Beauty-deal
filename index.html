@@ -1765,10 +1765,6 @@
                     <label style="font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444;">Ghi chú cho đơn hàng (Tùy chọn)</label>
                     <textarea id="checkoutCustomerNotes" rows="2" placeholder="Ví dụ: Giao hàng trong giờ hành chính, gọi trước khi giao..." style="padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding: 10px 0; border-top: 1px dashed #eee; border-bottom: 1px dashed #eee;">
-                    <span style="font-weight: 600; font-size: 14px; color: #333;">Phí vận chuyển:</span>
-                    <span id="shippingFeeDisplay" style="font-weight: bold; font-size: 16px; color: #0056b3;">20.000đ</span>
-                </div>
                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: right;">
                     <span style="font-weight: bold; font-size: 16px;">Tổng thanh toán:</span>
                     <span id="checkoutTotalValue" style="color:#ff0000; font-weight: bold; font-size: 20px; margin-left: 10px;">0đ</span>
@@ -1900,6 +1896,8 @@
         const JSONBIN_BIN_ID = '6a4dacbfda38895dfe3ddc36';   // ✅ Đã cập nhật Bin ID mới
         const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
+        const FREE_SHIPPING_THRESHOLD = 100000;
+        const DEFAULT_SHIPPING_FEE = 20000;
         function compactPayloadForStorage(payload) {
             if (Array.isArray(payload.APP_NOTIFICATIONS)) {
                 const unread = payload.APP_NOTIFICATIONS.filter(notification => !notification.isRead);
@@ -2849,14 +2847,12 @@
         function processCheckout() {
             if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
             const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
-            const shippingFee = 20000; // Phí ship mặc định
+            const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_FEE;
             const totalAmount = subtotal + shippingFee;
 
             document.getElementById('checkout-modal').style.display = 'flex';
             toggleCart(false); // Đóng giỏ hàng
 
-            // SỬA LỖI: Cập nhật giá trị sau khi modal đã hiển thị để đảm bảo giao diện được cập nhật đúng.
-            document.getElementById('shippingFeeDisplay').innerText = shippingFee > 0 ? shippingFee.toLocaleString() + 'đ' : 'Miễn phí';
             document.getElementById('checkoutTotalValue').innerText = totalAmount.toLocaleString() + 'đ';
         }
         function closeCheckoutModal() {
@@ -2869,7 +2865,7 @@
             confirmBtn.innerText = 'ĐANG XỬ LÝ...';
             const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
 
-            const shippingFee = 20000; // Phí ship mặc định
+            const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_FEE;
             const newOrder = {
                 orderId: 'BD-' + Date.now(),
                 customerInfo: {
@@ -2885,7 +2881,7 @@
                 totalAmount: subtotal + shippingFee, // Tổng tiền cuối cùng, admin có thể điều chỉnh sau
                 orderDate: new Date().toISOString(),
                 status: 'Mới',
-                stockDeducted: true
+                stockDeducted: false
             };
             const result = await safeUpdateDatabase(payload => {
                 if (!Array.isArray(payload.APP_ORDERS)) payload.APP_ORDERS = [];
@@ -2922,37 +2918,6 @@
                 };
                 payload.APP_NOTIFICATIONS.unshift(newNotif);
 
-                // TRỪ TỒN KHO
-                if (payload.APP_PRODUCTS) {
-                    newOrder.items.forEach(cartItem => {
-                        const baseProductId = cartItem.id.split('-')[0];
-                        const productIndex = payload.APP_PRODUCTS.findIndex(p => p.id === baseProductId);
-                        if (productIndex !== -1) {
-                            const productToUpdate = payload.APP_PRODUCTS[productIndex];
-                            let stockUpdated = false;
-                            // Trường hợp 1: Sản phẩm trong giỏ là một phiên bản
-                            if (productToUpdate.variants && cartItem.id !== baseProductId) {
-                                const variantIndex = productToUpdate.variants.findIndex(v => v.id === cartItem.id);
-                                if (variantIndex !== -1) {
-                                    const variantToUpdate = productToUpdate.variants[variantIndex];
-                                    const currentStock = Number(variantToUpdate.stock) || 0;
-                                    variantToUpdate.stock = Math.max(0, currentStock - cartItem.quantity);
-                                    stockUpdated = true;
-                                }
-                            } 
-                            // Trường hợp 2: Sản phẩm trong giỏ là sản phẩm gốc (không có phiên bản)
-                            else if (!productToUpdate.variants) {
-                                const currentStock = Number(productToUpdate.stock) || 0;
-                                productToUpdate.stock = Math.max(0, currentStock - cartItem.quantity);
-                                stockUpdated = true;
-                            }
-                            // Sau khi cập nhật tồn kho của phiên bản, tính toán lại tổng tồn kho của sản phẩm cha
-                            if (stockUpdated && productToUpdate.variants && productToUpdate.variants.length > 0) {
-                                productToUpdate.stock = productToUpdate.variants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
-                            }
-                        }
-                    });
-                }
             });
             if (result.success) {
                 alert("🎉 Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại Beauty Deal. Chúng tôi sẽ liên hệ để xác nhận đơn hàng sớm nhất.");

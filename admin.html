@@ -2516,6 +2516,9 @@
         });
 
         // --- HÀM XỬ LÝ QUẢN LÝ ĐƠN HÀNG ---
+        const FREE_SHIPPING_THRESHOLD = 100000;
+        const DEFAULT_SHIPPING_FEE = 20000;
+
         function normalizeOrder(order) {
             if (!order || typeof order !== 'object') return null;
 
@@ -2529,6 +2532,10 @@
             const stockWasDeducted = order.stockDeducted === undefined
                 ? normalizedStatus !== 'Đã hủy'
                 : order.stockDeducted === true;
+            const subtotal = Number(order.subtotal) || 0;
+            const shippingFee = order.shippingFee === undefined
+                ? (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_FEE)
+                : Math.max(0, Number(order.shippingFee) || 0);
 
             return {
                 ...order,
@@ -2540,8 +2547,8 @@
                     notes: customerInfo.notes || ''
                 },
                 items: Array.isArray(order.items) ? order.items : [],
-                subtotal: Number(order.subtotal) || 0,
-                shippingFee: Number(order.shippingFee) || 0,
+                subtotal: subtotal,
+                shippingFee: shippingFee,
                 discount: Number(order.discount) || 0,
                 totalAmount: Number(order.totalAmount) || 0,
                 orderDate: order.orderDate || order.createdAt || new Date().toISOString(),
@@ -2769,7 +2776,7 @@
             document.getElementById('orderEditDetails').innerHTML = detailsHtml;
 
             // Populate form fields
-            document.getElementById('orderEditShippingFee').value = order.shippingFee === undefined ? 20000 : order.shippingFee;
+            document.getElementById('orderEditShippingFee').value = order.shippingFee;
             document.getElementById('orderEditDiscount').value = order.discount || 0;
             document.getElementById('orderEditSubtotal').innerText = (order.subtotal || 0).toLocaleString('vi-VN') + 'đ';
             
@@ -2860,7 +2867,7 @@
                         const stockWasDeducted = orderToUpdate.stockDeducted === undefined
                             ? !wasCancelled
                             : orderToUpdate.stockDeducted === true;
-                        const shouldDeductStock = !isCancelled && !stockWasDeducted;
+                        const shouldDeductStock = newStatus === 'Đã xác nhận' && !stockWasDeducted;
                         const shouldRestoreStock = isCancelled && !wasCancelled && stockWasDeducted;
 
                         if (shouldRestoreStock) {
