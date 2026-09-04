@@ -448,6 +448,11 @@
         .best-seller-slider .swiper-button-next::after { font-size: 15px; font-weight: 800 }
         .best-seller-slider .swiper-pagination { bottom: 12px }
         .best-seller-slider .swiper-pagination-bullet-active { background: #0056b3 }
+        .best-seller-slider .swiper-pagination-fraction {
+            color: #60758a;
+            font-size: 12px;
+            font-weight: 600
+        }
 
         .product-card {
             background-color: #fff;
@@ -2318,7 +2323,7 @@
                 };
                 card.innerHTML = `
                     <div class="product-image-wrapper">
-                        <img src="${prod.image}" class="product-image" alt="${prod.name}">
+                        <img src="${prod.image}" class="product-image" alt="${prod.name}" loading="lazy" decoding="async">
                         ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
                         ${isOutOfStock ? '<div class="out-of-stock-overlay">Hết hàng</div>' : ''}
                     </div>
@@ -2379,7 +2384,7 @@
                 };
                 card.innerHTML = `
                     <div class="product-image-wrapper">
-                        <img src="${prod.image}" class="product-image" alt="${prod.name}">
+                        <img src="${prod.image}" class="product-image" alt="${prod.name}" loading="lazy" decoding="async">
                         ${discount > 0 ? `<div class="discount-badge">-${discount}%</div>` : ''}
                         ${isOutOfStock ? '<div class="out-of-stock-overlay">Hết hàng</div>' : ''}
                     </div>
@@ -2392,17 +2397,19 @@
                 wrapper.appendChild(slide);
             });
             bestSellerSwiper = new Swiper('#bestSellerProductsContainer', {
-                slidesPerView: 1.25,
+                slidesPerView: 2,
                 spaceBetween: 12,
                 grabCursor: true,
                 watchOverflow: true,
+                preloadImages: false,
+                lazyPreloadPrevNext: 1,
                 navigation: {
                     nextEl: '#bestSellerProductsContainer .swiper-button-next',
                     prevEl: '#bestSellerProductsContainer .swiper-button-prev'
                 },
                 pagination: {
                     el: '#bestSellerProductsContainer .swiper-pagination',
-                    clickable: true
+                    type: 'fraction'
                 },
                 breakpoints: {
                     576: { slidesPerView: 2, spaceBetween: 15 },
