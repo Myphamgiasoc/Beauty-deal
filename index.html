@@ -376,6 +376,10 @@
             text-transform: uppercase
         }
 
+        .category-icon {
+            display: none
+        }
+
         .category-btn.active,
         .category-btn:hover {
             background-color: #0056b3;
@@ -388,6 +392,62 @@
             gap: 28px;
             margin-bottom: 60px
         }
+
+        .best-seller-slider {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 60px;
+            padding: 0 4px 44px
+        }
+
+        .best-seller-slider .swiper-wrapper { align-items: stretch }
+
+        .best-seller-slider .swiper-slide {
+            height: auto
+        }
+
+        .best-seller-slider .product-card {
+            height: 100%;
+            min-height: 100%
+        }
+
+        .best-seller-slider .product-info {
+            min-height: 190px
+        }
+
+        .best-seller-slider .product-name {
+            min-height: 4.2em;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            overflow: hidden
+        }
+
+        .best-seller-slider .add-to-cart-btn {
+            margin-top: auto
+        }
+
+        .best-seller-slider .swiper-button-prev,
+        .best-seller-slider .swiper-button-next {
+            top: 50%;
+            width: 36px;
+            height: 36px;
+            margin: 0;
+            transform: translateY(-50%);
+            border: 1px solid #d9e3ed;
+            border-radius: 50%;
+            background: #fff;
+            color: #0056b3;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .08)
+        }
+
+        .best-seller-slider .swiper-button-prev { left: 8px }
+        .best-seller-slider .swiper-button-next { right: 8px }
+        .best-seller-slider .swiper-button-prev::after,
+        .best-seller-slider .swiper-button-next::after { font-size: 15px; font-weight: 800 }
+        .best-seller-slider .swiper-pagination { bottom: 12px }
+        .best-seller-slider .swiper-pagination-bullet-active { background: #0056b3 }
 
         .product-card {
             background-color: #fff;
@@ -1460,10 +1520,72 @@
             .value-props-section { display: flex; overflow-x: auto; padding: 10px 0 20px; gap: 15px; -ms-overflow-style: none; scrollbar-width: none }
             .value-props-section::-webkit-scrollbar { display: none }
             .value-prop-item { flex: 0 0 240px }
-            .category-nav { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; padding-bottom: 10px }
-            .category-nav::-webkit-scrollbar { display: none }
-            .category-btn { flex-shrink: 0; padding: 8px 18px }
+            .category-nav {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 12px 8px;
+                justify-content: initial;
+                width: 100%;
+                min-width: 0;
+                margin: 0 -4px 40px;
+                padding: 14px 8px 16px;
+                background: #fff;
+                border: 1px solid #e8eef4;
+                border-radius: 12px;
+                box-shadow: 0 4px 14px rgba(0, 86, 179, .06)
+            }
+
+            .category-btn {
+                width: 100%;
+                min-width: 0;
+                min-height: 92px;
+                padding: 9px 4px 8px;
+                border: 1px solid #e5ebf1;
+                border-radius: 10px;
+                color: #425466;
+                background: #f8fafc;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 7px;
+                font-size: 10px;
+                line-height: 1.25;
+                text-align: center;
+                text-transform: none;
+                transition: transform .2s ease, border-color .2s ease, background-color .2s ease, box-shadow .2s ease
+            }
+
+            .category-icon {
+                width: 42px;
+                height: 42px;
+                display: grid;
+                place-items: center;
+                border-radius: 13px;
+                background: #e8f3ff;
+                font-size: 23px;
+                line-height: 1
+            }
+
+            .category-btn:nth-child(2) .category-icon { background: #fff0f3 }
+            .category-btn:nth-child(3) .category-icon { background: #eef8e8 }
+            .category-btn:nth-child(4) .category-icon { background: #fff5df }
+            .category-btn:nth-child(5) .category-icon { background: #eaf7f6 }
+            .category-btn:nth-child(6) .category-icon { background: #f4edff }
+            .category-btn:nth-child(7) .category-icon { background: #fff0e5 }
+
+            .category-btn.active,
+            .category-btn:hover {
+                color: #0056b3;
+                background: #eef6ff;
+                border-color: #66a9e8;
+                box-shadow: 0 4px 10px rgba(0, 86, 179, .12);
+                transform: translateY(-2px)
+            }
+
+            .category-btn.active .category-icon { background: #cfe7ff }
             .products-container { grid-template-columns: repeat(2, 1fr); gap: 15px }
+            .best-seller-slider { padding-left: 0; padding-right: 0 }
             .detail-layout { grid-template-columns: 1fr }
             .detail-product-top-box { grid-template-columns: 1fr }
             .promo-banner-content h4 { font-size: 18px }
@@ -1598,19 +1720,23 @@
         <div id="homePageContent">
             <h2 class="section-title">Khám Phá Danh Mục Sản Phẩm</h2>
             <nav class="category-nav" id="categoryNav">
-                <button class="category-btn active" data-category="TẤT CẢ" onclick="filterCategory('TẤT CẢ', this)">Tất cả</button>
-                <button class="category-btn" data-category="TRANG ĐIỂM" onclick="filterCategory('TRANG ĐIỂM', this)">Trang điểm</button>
-                <button class="category-btn" data-category="DẦU GỘI & CHĂM SÓC TÓC" onclick="filterCategory('DẦU GỘI & CHĂM SÓC TÓC', this)">Dầu gội & chăm sóc tóc</button>
-                <button class="category-btn" data-category="KEM CHỐNG NẮNG" onclick="filterCategory('KEM CHỐNG NẮNG', this)">Kem chống nắng</button>
-                <button class="category-btn" data-category="CHĂM SÓC DA MẶT" onclick="filterCategory('CHĂM SÓC DA MẶT', this)">Chăm sóc da mặt</button>
-                <button class="category-btn" data-category="DỤNG CỤ TRANG ĐIỂM" onclick="filterCategory('DỤNG CỤ TRANG ĐIỂM', this)">Dụng cụ trang điểm</button>
-                <button class="category-btn" data-category="CHĂM SÓC CƠ THỂ" onclick="filterCategory('CHĂM SÓC CƠ THỂ', this)">Chăm sóc cơ thể</button>
+                <button class="category-btn active" data-category="TẤT CẢ" onclick="filterCategory('TẤT CẢ', this)"><span class="category-icon" aria-hidden="true">✨</span><span>Tất cả</span></button>
+                <button class="category-btn" data-category="TRANG ĐIỂM" onclick="filterCategory('TRANG ĐIỂM', this)"><span class="category-icon" aria-hidden="true">💄</span><span>Trang điểm</span></button>
+                <button class="category-btn" data-category="DẦU GỘI & CHĂM SÓC TÓC" onclick="filterCategory('DẦU GỘI & CHĂM SÓC TÓC', this)"><span class="category-icon" aria-hidden="true">🧴</span><span>Chăm sóc tóc</span></button>
+                <button class="category-btn" data-category="KEM CHỐNG NẮNG" onclick="filterCategory('KEM CHỐNG NẮNG', this)"><span class="category-icon" aria-hidden="true">☀️</span><span>Kem chống nắng</span></button>
+                <button class="category-btn" data-category="CHĂM SÓC DA MẶT" onclick="filterCategory('CHĂM SÓC DA MẶT', this)"><span class="category-icon" aria-hidden="true">🫧</span><span>Chăm sóc da</span></button>
+                <button class="category-btn" data-category="DỤNG CỤ TRANG ĐIỂM" onclick="filterCategory('DỤNG CỤ TRANG ĐIỂM', this)"><span class="category-icon" aria-hidden="true">🪞</span><span>Dụng cụ</span></button>
+                <button class="category-btn" data-category="CHĂM SÓC CƠ THỂ" onclick="filterCategory('CHĂM SÓC CƠ THỂ', this)"><span class="category-icon" aria-hidden="true">🧼</span><span>Chăm sóc cơ thể</span></button>
             </nav>
             <h2 class="section-title" id="featuredProductsTitle">Sản Phẩm Nổi Bật</h2>
             <section class="products-container" id="productsContainer">
             </section>
             <h2 class="section-title" id="bestSellerProductsTitle">Sản Phẩm Bán Chạy Nhất</h2>
-            <section class="products-container" id="bestSellerProductsContainer">
+            <section class="best-seller-slider swiper" id="bestSellerProductsContainer" aria-label="Sản phẩm bán chạy nhất">
+                <div class="swiper-wrapper" id="bestSellerProductsWrapper"></div>
+                <div class="swiper-button-prev" aria-label="Sản phẩm bán chạy trước"></div>
+                <div class="swiper-button-next" aria-label="Sản phẩm bán chạy tiếp theo"></div>
+                <div class="swiper-pagination"></div>
             </section>
             <section class="promo-banners-section" id="promoBannersContainer">
             </section>
@@ -2204,19 +2330,26 @@
                 container.appendChild(card);
             });
         }
+        let bestSellerSwiper;
         function renderBestSellers() {
             const container = document.getElementById('bestSellerProductsContainer');
+            const wrapper = document.getElementById('bestSellerProductsWrapper');
             const title = document.getElementById('bestSellerProductsTitle'); // Sửa để ổn định hơn
-            container.innerHTML = '';
+            if (!container || !wrapper) return;
+            if (bestSellerSwiper) {
+                bestSellerSwiper.destroy(true, true);
+                bestSellerSwiper = null;
+            }
+            wrapper.innerHTML = '';
             // SỬA LỖI: Chỉ hiển thị sản phẩm còn hàng.
             const availableProducts = APP_PRODUCTS.filter(p => getProductStock(p) > 0);
-            const bestSellers = availableProducts.slice(4, 8); 
+            const bestSellers = availableProducts.slice(4);
             if (bestSellers.length === 0) {
-                if(container) container.style.display = 'none';
+                container.style.display = 'none';
                 if(title) title.style.display = 'none';
                 return;
             }
-            if(container) container.style.display = 'grid';
+            container.style.display = 'block';
             if(title) title.style.display = 'block';
             bestSellers.forEach(prod => {
                 const discount = prod.origPrice ? Math.round(((prod.origPrice - prod.currPrice) / prod.origPrice) * 100) : 0;
@@ -2231,6 +2364,8 @@
                 } else {
                     buttonHtml = `<button class="add-to-cart-btn" onclick="addToCart('${prod.id}', null, event)">Thêm giỏ hàng</button>`;
                 }
+                const slide = document.createElement('div');
+                slide.className = 'swiper-slide';
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.tabIndex = 0;
@@ -2253,7 +2388,27 @@
                         <div class="product-prices"> <span class="current-price">${prod.currPrice.toLocaleString()}đ</span> ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''} </div>
                         ${buttonHtml}
                     </div>`;
-                container.appendChild(card);
+                slide.appendChild(card);
+                wrapper.appendChild(slide);
+            });
+            bestSellerSwiper = new Swiper('#bestSellerProductsContainer', {
+                slidesPerView: 1.25,
+                spaceBetween: 12,
+                grabCursor: true,
+                watchOverflow: true,
+                navigation: {
+                    nextEl: '#bestSellerProductsContainer .swiper-button-next',
+                    prevEl: '#bestSellerProductsContainer .swiper-button-prev'
+                },
+                pagination: {
+                    el: '#bestSellerProductsContainer .swiper-pagination',
+                    clickable: true
+                },
+                breakpoints: {
+                    576: { slidesPerView: 2, spaceBetween: 15 },
+                    768: { slidesPerView: 3, spaceBetween: 20 },
+                    1024: { slidesPerView: 4, spaceBetween: 28 }
+                }
             });
         }
         function renderBrandsGrid() {
@@ -2357,7 +2512,7 @@
                 } else {
                     // Không có tìm kiếm hoặc bộ lọc, khôi phục giao diện mặc định
                     mainProductTitle.innerText = 'Sản Phẩm Nổi Bật';
-                    bestSellerSection.style.display = 'grid';
+                    bestSellerSection.style.display = 'block';
                     bestSellerTitle.style.display = 'block';
                     renderProductsGrid(); // Hiển thị sản phẩm nổi bật mặc định
                     renderBestSellers(); // Hiển thị lại sản phẩm bán chạy
