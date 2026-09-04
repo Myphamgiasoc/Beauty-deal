@@ -380,6 +380,10 @@
             display: none
         }
 
+        .category-title-mobile {
+            display: none
+        }
+
         .category-btn.active,
         .category-btn:hover {
             background-color: #0056b3;
@@ -1522,6 +1526,21 @@
             .settings-icon { display: none }
             .cart-icon { font-size: 24px }
             .cart-count { width: 20px; height: 20px; font-size: 10px; top: -6px; right: -8px }
+            .category-section-title {
+                margin-top: 24px;
+                margin-bottom: 12px;
+                font-size: 21px;
+                white-space: nowrap
+            }
+
+            .category-section-title::after {
+                width: 44px;
+                height: 2px;
+                margin-top: 6px
+            }
+
+            .category-title-desktop { display: none }
+            .category-title-mobile { display: inline }
             .value-props-section { display: flex; overflow-x: auto; padding: 10px 0 20px; gap: 15px; -ms-overflow-style: none; scrollbar-width: none }
             .value-props-section::-webkit-scrollbar { display: none }
             .value-prop-item { flex: 0 0 240px }
@@ -1532,7 +1551,7 @@
                 justify-content: initial;
                 width: 100%;
                 min-width: 0;
-                margin: 0 -4px 40px;
+                margin: 0 -4px 28px;
                 padding: 14px 8px 16px;
                 background: #fff;
                 border: 1px solid #e8eef4;
@@ -1723,7 +1742,7 @@
     </section>
     <main class="container">
         <div id="homePageContent">
-            <h2 class="section-title">Khám Phá Danh Mục Sản Phẩm</h2>
+            <h2 class="section-title category-section-title"><span class="category-title-desktop">Khám Phá Danh Mục Sản Phẩm</span><span class="category-title-mobile">Danh Mục Sản Phẩm</span></h2>
             <nav class="category-nav" id="categoryNav">
                 <button class="category-btn active" data-category="TẤT CẢ" onclick="filterCategory('TẤT CẢ', this)"><span class="category-icon" aria-hidden="true">✨</span><span>Tất cả</span></button>
                 <button class="category-btn" data-category="TRANG ĐIỂM" onclick="filterCategory('TRANG ĐIỂM', this)"><span class="category-icon" aria-hidden="true">💄</span><span>Trang điểm</span></button>
