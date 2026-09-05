@@ -397,6 +397,38 @@
             margin-bottom: 60px
         }
 
+        .featured-products-toggle {
+            display: flex;
+            justify-content: center;
+            margin: -36px 0 60px
+        }
+
+        .featured-products-toggle-btn {
+            min-width: 190px;
+            padding: 11px 24px;
+            border: 2px solid #0056b3;
+            border-radius: 6px;
+            background: #fff;
+            color: #0056b3;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease
+        }
+
+        .featured-products-toggle-btn:hover,
+        .featured-products-toggle-btn:focus-visible {
+            background: #0056b3;
+            color: #fff;
+            box-shadow: 0 5px 14px rgba(0, 86, 179, .2);
+            transform: translateY(-2px)
+        }
+
+        .featured-products-toggle-btn:focus-visible {
+            outline: 3px solid #f39c12;
+            outline-offset: 3px
+        }
+
         .best-seller-slider {
             position: relative;
             overflow: hidden;
@@ -1609,6 +1641,8 @@
 
             .category-btn.active .category-icon { background: #cfe7ff }
             .products-container { grid-template-columns: repeat(2, 1fr); gap: 15px }
+            .featured-products-toggle { margin: -40px 0 45px; padding: 0 8px }
+            .featured-products-toggle-btn { width: 100%; min-height: 46px; padding: 11px 16px }
             .best-seller-slider { padding-left: 0; padding-right: 0 }
             .detail-layout { grid-template-columns: 1fr }
             .detail-product-top-box { grid-template-columns: 1fr }
@@ -1755,6 +1789,11 @@
             <h2 class="section-title" id="featuredProductsTitle">Sản Phẩm Nổi Bật</h2>
             <section class="products-container" id="productsContainer">
             </section>
+            <div class="featured-products-toggle" id="featuredProductsToggle">
+                <button type="button" class="featured-products-toggle-btn" id="featuredProductsToggleBtn" onclick="toggleAllProducts()" aria-controls="productsContainer" aria-expanded="false">
+                    Xem tất cả sản phẩm
+                </button>
+            </div>
             <h2 class="section-title" id="bestSellerProductsTitle">Sản Phẩm Bán Chạy Nhất</h2>
             <section class="best-seller-slider swiper" id="bestSellerProductsContainer" aria-label="Sản phẩm bán chạy nhất">
                 <div class="swiper-wrapper" id="bestSellerProductsWrapper"></div>
@@ -2040,7 +2079,7 @@
             mainLogoUrl: "",
             enableShippingFee: true
         };
-        let APP_SHOP_INFO = {}; let APP_VALUE_PROPS = []; let currentUserRole = null; let currentLoggedInUser = null; let cart = []; let currentFilterCategory = "TẤT CẢ"; let activeDetailProductId = null;
+        let APP_SHOP_INFO = {}; let APP_VALUE_PROPS = []; let currentUserRole = null; let currentLoggedInUser = null; let cart = []; let currentFilterCategory = "TẤT CẢ"; let activeDetailProductId = null; let showAllFeaturedProducts = false;
         let isFilterTriggered = false; // Biến cờ để xác định người dùng có vừa nhấn vào bộ lọc danh mục hay không
         const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã cập nhật API Key mới
         const JSONBIN_BIN_ID = '6a4dacbfda38895dfe3ddc36';   // ✅ Đã cập nhật Bin ID mới
@@ -2305,12 +2344,22 @@
         });
         function renderProductsGrid(productsToRender) {
             const container = document.getElementById('productsContainer'); container.innerHTML = '';
+            const toggle = document.getElementById('featuredProductsToggle');
+            const toggleButton = document.getElementById('featuredProductsToggleBtn');
 
             // Nếu không có danh sách sản phẩm cụ thể, mặc định hiển thị 4 sản phẩm nổi bật đầu tiên.
             // Khi tìm kiếm hoặc lọc, `productsToRender` sẽ là danh sách đã được lọc.
             // SỬA LỖI: Chỉ hiển thị sản phẩm còn hàng trên trang chủ.
             const availableProducts = APP_PRODUCTS.filter(p => getProductStock(p) > 0);
-            const products = productsToRender !== undefined ? productsToRender : availableProducts.slice(0, 4);
+            const isDefaultView = productsToRender === undefined;
+            const products = isDefaultView
+                ? (showAllFeaturedProducts ? availableProducts : availableProducts.slice(0, 4))
+                : productsToRender;
+            if (toggle) toggle.style.display = isDefaultView && availableProducts.length > 4 ? 'flex' : 'none';
+            if (toggleButton && isDefaultView) {
+                toggleButton.innerText = showAllFeaturedProducts ? 'Thu gọn sản phẩm' : 'Xem tất cả sản phẩm';
+                toggleButton.setAttribute('aria-expanded', String(showAllFeaturedProducts));
+            }
             if (products.length === 0) {
                 container.innerHTML = `<p style="grid-column: span 4; text-align:center; padding: 40px; color:#999; font-weight:600;">Không có sản phẩm nào phù hợp!</p>`;
                 return;
@@ -2353,6 +2402,12 @@
                     </div>`;
                 container.appendChild(card);
             });
+        }
+        function toggleAllProducts() {
+            showAllFeaturedProducts = !showAllFeaturedProducts;
+            const title = document.getElementById('featuredProductsTitle');
+            if (title) title.innerText = showAllFeaturedProducts ? 'Tất Cả Sản Phẩm' : 'Sản Phẩm Nổi Bật';
+            renderProductsGrid();
         }
         let bestSellerSwiper;
         function renderBestSellers() {
@@ -2516,6 +2571,7 @@
                 const isSearching = keyword !== '' || currentFilterCategory !== 'TẤT CẢ';
 
                 if (isSearching || isFilterTriggered) { // Sửa đổi điều kiện: Nếu đang tìm kiếm hoặc vừa nhấn lọc danh mục
+                    showAllFeaturedProducts = false;
                     // Lọc ra các sản phẩm còn hàng trước khi áp dụng các bộ lọc khác
                     // SỬA LỖI: Luôn bắt đầu lọc từ danh sách sản phẩm còn hàng.
                     let filtered = APP_PRODUCTS.filter(p => getProductStock(p) > 0);
@@ -2537,6 +2593,7 @@
                     }
                 } else {
                     // Không có tìm kiếm hoặc bộ lọc, khôi phục giao diện mặc định
+                    showAllFeaturedProducts = false;
                     mainProductTitle.innerText = 'Sản Phẩm Nổi Bật';
                     bestSellerSection.style.display = 'block';
                     bestSellerTitle.style.display = 'block';
