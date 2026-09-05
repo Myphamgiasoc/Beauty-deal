@@ -510,7 +510,10 @@
             </div>
 
             <div class="admin-form-box hidden-by-js" id="orderManagementSection"> 
-                <h3>Quản Lý Đơn Hàng</h3>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                    <h3 style="margin:0;">Quản Lý Đơn Hàng</h3>
+                    <button type="button" class="form-btn submit" onclick="exportOrdersToExcel()">Xuất Excel đơn hàng</button>
+                </div>
                 <div class="table-responsive" style="margin-top: 20px;">
                     <table class="admin-table">
                         <thead>
@@ -808,6 +811,10 @@
                     <h4 style="margin-bottom: 15px; color: #34495e;">Chi tiết đơn hàng theo bộ lọc</h4>
                     <table class="admin-table"><thead><tr><th>Mã Đơn</th><th>Khách Hàng</th><th>Tổng Tiền</th><th>Ngày Đặt</th><th>Trạng Thái</th></tr></thead><tbody id="revenueOrdersTableBody"></tbody></table>
                 </div>
+                <div class="table-responsive" style="margin-top: 30px;">
+                    <h4 style="margin-bottom: 15px; color: #34495e;">Đơn hàng lưu trữ</h4>
+                    <table class="admin-table"><thead><tr><th>Mã Đơn</th><th>Khách Hàng</th><th>Tổng Tiền</th><th>Ngày Đặt</th><th>Trạng Thái</th></tr></thead><tbody id="archivedOrdersTableBody"></tbody></table>
+                </div>
             </div>
 
             <div class="admin-form-box hidden-by-js" id="customSliderManagementSection">
@@ -944,6 +951,8 @@
         let APP_SHOP_INFO = {};
         let USER_CREDENTIALS = {};
         let APP_ORDERS = [];
+        let APP_REVENUE_SUMMARY = { totalRevenue: 0, completedOrderCount: 0 };
+        let APP_REVENUE_ARCHIVE = [];
         let APP_SUBSCRIBERS = [];
         let APP_NOTIFICATIONS = [];
         let APP_VALUE_PROPS = [];
@@ -1197,6 +1206,8 @@
 
                 USER_CREDENTIALS = DATABASE.USER_CREDENTIALS || DEFAULT_USER_CREDENTIALS;
                 APP_ORDERS = normalizeOrders(DATABASE.APP_ORDERS);
+                APP_REVENUE_SUMMARY = normalizeRevenueSummary(DATABASE.APP_REVENUE_SUMMARY);
+                APP_REVENUE_ARCHIVE = normalizeRevenueArchive(DATABASE.APP_REVENUE_ARCHIVE);
                 APP_SUBSCRIBERS = Array.isArray(DATABASE.APP_SUBSCRIBERS) ? DATABASE.APP_SUBSCRIBERS : [];
                 APP_NOTIFICATIONS = Array.isArray(DATABASE.APP_NOTIFICATIONS) ? DATABASE.APP_NOTIFICATIONS : [];
                 // Lớp bảo vệ khi tải dữ liệu: Đảm bảo APP_VALUE_PROPS luôn hợp lệ.
@@ -1217,6 +1228,8 @@
                 APP_SHOP_INFO = DEFAULT_SHOP_INFO;
                 USER_CREDENTIALS = DEFAULT_USER_CREDENTIALS;
                 APP_ORDERS = [];
+                APP_REVENUE_SUMMARY = { totalRevenue: 0, completedOrderCount: 0 };
+                APP_REVENUE_ARCHIVE = [];
                 APP_SUBSCRIBERS = [];
                 APP_NOTIFICATIONS = [];
                 APP_VALUE_PROPS = DEFAULT_VALUE_PROPS;
@@ -1237,6 +1250,7 @@
             if (storedSession && USER_CREDENTIALS[storedSession.username] && USER_CREDENTIALS[storedSession.username].role === storedSession.role) {
                 currentLoggedInUser = storedSession.username;
                 currentUserRole = storedSession.role;
+                await cleanupCompletedOrders();
                 restoreAdminSession(storedSession);
                 activateAdminDashboard();
             } else {
@@ -1496,7 +1510,8 @@
 
         function updateKPIStats() {
             // Calculate total revenue for all time
-            const totalRevenueAllTime = APP_ORDERS.filter(order => order.status === 'Hoàn thành').reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            const visibleCompletedRevenue = APP_ORDERS.filter(order => order.status === 'Hoàn thành').reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            const totalRevenueAllTime = (Number(APP_REVENUE_SUMMARY.totalRevenue) || 0) + visibleCompletedRevenue;
             const totalSoldUnits = APP_ORDERS
                 .filter(order => order.status !== 'Đã hủy')
                 .reduce((sum, order) => sum + (Array.isArray(order.items)
@@ -1564,7 +1579,9 @@
                 });
             }
 
-            const totalRevenue = filteredOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            const totalRevenue = filterType === 'all'
+                ? (Number(APP_REVENUE_SUMMARY.totalRevenue) || 0) + filteredOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+                : filteredOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
             document.getElementById('totalRevenueDisplay').innerText = totalRevenue.toLocaleString('vi-VN') + 'đ';
 
             // Update active button style
@@ -1580,8 +1597,13 @@
             // Render filtered orders in a table below
             const tbody = document.getElementById('revenueOrdersTableBody');
             tbody.innerHTML = '';
-            if (filteredOrders.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:#999;">Không có đơn hàng nào trong khoảng thời gian này.</td></tr>'; return; }
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:#999;">Không có đơn hàng nào trong khoảng thời gian này.</td></tr>';
+                renderArchivedOrdersTable();
+                return;
+            }
             filteredOrders.forEach(order => { tbody.innerHTML += `<tr><td>${order.orderId}</td><td>${order.customerInfo.name}</td><td style="color:#c0392b; font-weight:bold;">${order.totalAmount.toLocaleString('vi-VN')}đ</td><td>${new Date(order.orderDate).toLocaleString('vi-VN')}</td><td>${getStatusBadge(order.status)}</td></tr>`; });
+            renderArchivedOrdersTable();
         }
 
         // NEW: Function to filter and display products based on stat card click
@@ -2588,6 +2610,112 @@
             return Array.isArray(orders) ? orders.map(normalizeOrder).filter(Boolean) : [];
         }
 
+        function normalizeRevenueSummary(summary) {
+            return {
+                totalRevenue: Number(summary?.totalRevenue) || 0,
+                completedOrderCount: Number(summary?.completedOrderCount) || 0
+            };
+        }
+
+        function normalizeRevenueArchive(archive) {
+            return Array.isArray(archive) ? archive.filter(order => order && order.orderId).map(order => ({
+                orderId: String(order.orderId),
+                customerName: order.customerName || 'Khách hàng không rõ tên',
+                totalAmount: Number(order.totalAmount) || 0,
+                orderDate: order.orderDate || new Date().toISOString(),
+                status: order.status || 'Hoàn thành'
+            })) : [];
+        }
+
+        function renderArchivedOrdersTable() {
+            const tbody = document.getElementById('archivedOrdersTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (APP_REVENUE_ARCHIVE.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:#999;">Chưa có đơn hàng lưu trữ.</td></tr>';
+                return;
+            }
+            [...APP_REVENUE_ARCHIVE].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)).forEach(order => {
+                tbody.innerHTML += `<tr><td>${order.orderId}</td><td>${order.customerName}</td><td style="color:#c0392b; font-weight:bold;">${order.totalAmount.toLocaleString('vi-VN')}đ</td><td>${new Date(order.orderDate).toLocaleString('vi-VN')}</td><td>${getStatusBadge(order.status)}</td></tr>`;
+            });
+        }
+
+        function csvCell(value) {
+            return `"${String(value ?? '').replace(/"/g, '""')}"`;
+        }
+
+        function downloadOrdersCsv(orders, filePrefix = 'beautydeal-don-hang') {
+            const headers = ['Mã đơn', 'Ngày đặt', 'Khách hàng', 'Điện thoại', 'Địa chỉ', 'Sản phẩm', 'Tổng tiền', 'Trạng thái'];
+            const rows = orders.flatMap(order => {
+                const items = Array.isArray(order.items) && order.items.length ? order.items : [{ name: '', quantity: '', price: '' }];
+                return items.map(item => [
+                    order.orderId,
+                    new Date(order.orderDate).toLocaleString('vi-VN'),
+                    order.customerInfo?.name,
+                    order.customerInfo?.phone,
+                    order.customerInfo?.address,
+                    `${item.name || ''} x${item.quantity || ''}`,
+                    Number(order.totalAmount) || 0,
+                    order.status
+                ]);
+            });
+            const csv = '\uFEFF' + [headers, ...rows].map(row => row.map(csvCell).join(',')).join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportOrdersToExcel(orders = APP_ORDERS, filePrefix = 'beautydeal-don-hang') {
+            if (currentUserRole !== 'admin') return alert('Bạn không có quyền xuất đơn hàng.');
+            if (!Array.isArray(orders) || orders.length === 0) return alert('Không có đơn hàng để xuất.');
+            downloadOrdersCsv(orders, filePrefix);
+        }
+
+        async function cleanupCompletedOrders() {
+            if (currentUserRole !== 'admin' || !Array.isArray(APP_ORDERS) || APP_ORDERS.length === 0) return;
+            const cutoff = new Date();
+            cutoff.setMonth(cutoff.getMonth() - 3);
+            const sortedOrders = [...APP_ORDERS].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+            const removable = sortedOrders.filter(order => order.status === 'Hoàn thành' && new Date(order.orderDate) < cutoff && !sortedOrders.slice(0, 30).includes(order));
+            if (removable.length === 0) return;
+
+            // Export automatically before cleanup so the historical order details are not lost.
+            downloadOrdersCsv(removable, 'beautydeal-don-hang-archive-truoc-khi-xoa');
+            const archivedRevenue = removable.reduce((sum, order) => sum + (Number(order.totalAmount) || 0), 0);
+            const nextSummary = {
+                totalRevenue: (Number(APP_REVENUE_SUMMARY.totalRevenue) || 0) + archivedRevenue,
+                completedOrderCount: (Number(APP_REVENUE_SUMMARY.completedOrderCount) || 0) + removable.length
+            };
+            const archivedOrders = removable.map(order => ({
+                orderId: order.orderId,
+                customerName: order.customerInfo?.name,
+                totalAmount: Number(order.totalAmount) || 0,
+                orderDate: order.orderDate,
+                status: order.status
+            }));
+            const nextArchive = normalizeRevenueArchive([...APP_REVENUE_ARCHIVE, ...archivedOrders]);
+            const removableIds = new Set(removable.map(order => getOrderId(order)));
+            const result = await safeUpdateDatabase(db => {
+                db.APP_ORDERS = (Array.isArray(db.APP_ORDERS) ? db.APP_ORDERS : []).filter(order => !removableIds.has(getOrderId(order)));
+                db.APP_REVENUE_SUMMARY = nextSummary;
+                db.APP_REVENUE_ARCHIVE = nextArchive;
+            });
+            if (result.success) {
+                APP_ORDERS = normalizeOrders(result.data.APP_ORDERS);
+                APP_REVENUE_SUMMARY = normalizeRevenueSummary(result.data.APP_REVENUE_SUMMARY);
+                APP_REVENUE_ARCHIVE = normalizeRevenueArchive(result.data.APP_REVENUE_ARCHIVE);
+                renderOrdersTable();
+                updateKPIStats();
+                filterRevenue('all', document.getElementById('revenueFilterAll'));
+            }
+        }
+
         function getOrderId(order) {
             return String(order?.orderId || order?.id || '');
         }
@@ -3362,6 +3490,8 @@
                     USER_CREDENTIALS: DEFAULT_USER_CREDENTIALS,
                     APP_VALUE_PROPS: DEFAULT_VALUE_PROPS,
                     APP_ORDERS: [],
+                    APP_REVENUE_SUMMARY: { totalRevenue: 0, completedOrderCount: 0 },
+                    APP_REVENUE_ARCHIVE: [],
                     APP_SUBSCRIBERS: [],
                     APP_NOTIFICATIONS: []
                 };
