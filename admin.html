@@ -9,6 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- END: Cache Control Meta Tags -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* CSS GIAO DIỆN CHÍNH */
         * { margin: 0; padding: 0; box-sizing: border-box; min-width: 0; }html, body { width: 100%; min-width: 0; }body { overflow-x: hidden; }img, video, iframe { max-width: 100%; height: auto; display: block; }
@@ -1052,10 +1053,12 @@
         let pollingInterval;
         const POLLING_RATE_MS = 5000; // Check for new orders and notifications every 5 seconds
 
-        // --- CẤU HÌNH KẾT NỐI DATABASE (JSONBIN.IO) ---
-        const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã cập nhật API Key mới
-        const JSONBIN_BIN_ID = '6a4dacbfda38895dfe3ddc36';   // ✅ Đã cập nhật Bin ID mới
-        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        // --- CẤU HÌNH KẾT NỐI DATABASE (SUPABASE) ---
+        const SUPABASE_URL = 'https://arzoxdziiyhbnownctea.supabase.co';
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_3XPhSvJNDjlCIBF9NOJVHg_sowLBKiF';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const DATABASE_TABLE = 'app_database';
+        const DATABASE_ROW_ID = 1;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
         async function hashPassword(password) {
             const data = new TextEncoder().encode(password);
@@ -1087,11 +1090,13 @@
             let payload;
             // BƯỚC 1: Tải dữ liệu mới nhất từ server để tránh ghi đè.
             try {
-                const cacheBuster = `?_=${new Date().getTime()}`;
-                const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
-                if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
-                const serverData = await response.json();
-                payload = serverData.record || {};
+                const { data, error } = await supabaseClient
+                    .from(DATABASE_TABLE)
+                    .select('data')
+                    .eq('id', DATABASE_ROW_ID)
+                    .single();
+                if (error) throw error;
+                payload = data?.data || {};
             } catch (e) {
                 console.error("Lỗi nghiêm trọng khi TẢI dữ liệu:", e);
                 alert(`❌ Lỗi khi tải dữ liệu từ server: ${e.message}`);
@@ -1114,26 +1119,14 @@
             // BƯỚC 3: Lưu dữ liệu đã được cập nhật trở lại server.
             try {
                 compactPayloadForStorage(payload);
-                const putResponse = await fetch(JSONBIN_URL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-                    body: JSON.stringify(payload)
-                });
-                if (!putResponse.ok) {
-                    const errorText = await putResponse.text(); // Lấy thêm chi tiết từ phản hồi lỗi
-                    throw new Error(`Save failed: ${putResponse.status} - ${errorText}`);
-                }
-
-                // SỬA LỖI: Luôn phân tích phản hồi từ server để lấy dữ liệu mới nhất đã được lưu.
-                const responseData = await putResponse.json();
-
-                // SỬA LỖI DỨT ĐIỂM: Xử lý trường hợp server trả về 200 OK nhưng không có dữ liệu 'record'.
-                // Điều này sẽ gây ra lỗi "Cannot read properties of undefined" ở hàm gọi nó.
-                if (!responseData || !responseData.record) {
-                    throw new Error("Server không trả về dữ liệu xác nhận sau khi lưu.");
-                }
-
-                const savedRecord = responseData.record;
+                const { data, error } = await supabaseClient
+                    .from(DATABASE_TABLE)
+                    .update({ data: payload, updated_at: new Date().toISOString() })
+                    .eq('id', DATABASE_ROW_ID)
+                    .select('data')
+                    .single();
+                if (error) throw error;
+                const savedRecord = data?.data || payload;
                 
                 if (reloadOnSuccess) {
                     setTimeout(() => window.location.reload(), 500);
@@ -1141,36 +1134,21 @@
                 return { success: true, data: savedRecord };
             } catch (e) {
                 console.error("Lỗi khi lưu dữ liệu lên server:", e);
-                try {
-                    const verifyResponse = await fetch(`${JSONBIN_URL}/latest?_=${Date.now()}`, {
-                        headers: { 'X-Master-Key': JSONBIN_API_KEY }
-                    });
-                    if (verifyResponse.ok) {
-                        const verifyData = await verifyResponse.json();
-                        if (JSON.stringify(verifyData.record) === JSON.stringify(payload)) {
-                            return { success: true, data: verifyData.record };
-                        }
-                    }
-                } catch (verifyError) {
-                    console.error("Không thể xác minh dữ liệu sau khi lưu:", verifyError);
-                }
                 alert(`❌ Không thể lưu dữ liệu lên máy chủ: ${e.message}. Vui lòng thử lại.`);
                 return { success: false, message: e.message };
             }
         }
         async function loadDatabase() {
             try {
-                // Thêm tham số cache-busting để đảm bảo luôn tải dữ liệu mới nhất
-                const cacheBuster = `?_=${new Date().getTime()}`;
-                const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, {
-                    headers: { 'X-Master-Key': JSONBIN_API_KEY }
-                });
-                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status} - ${response.statusText}`);
-                
-                const serverData = await response.json();
+                const { data, error } = await supabaseClient
+                    .from(DATABASE_TABLE)
+                    .select('data')
+                    .eq('id', DATABASE_ROW_ID)
+                    .single();
+                if (error) throw error;
 
                 // FIX: Xử lý trường hợp server trả về dữ liệu rỗng hoặc không hợp lệ
-                DATABASE = serverData.record || {};
+                DATABASE = data?.data || {};
                 if (typeof DATABASE !== 'object' || DATABASE === null) {
                     console.warn("Dữ liệu từ server không hợp lệ hoặc rỗng. Khởi tạo với object rỗng.");
                     DATABASE = {};
@@ -1280,7 +1258,7 @@
                 return;
             }
 
-            // Nén ảnh trước khi lưu để không làm vượt giới hạn 100 KB của JSONBin.
+            // Giới hạn kích thước ảnh để dữ liệu JSONB vẫn nhẹ và tải nhanh.
             const MAX_FILE_SIZE_KB = 5000;
             if (file.size > MAX_FILE_SIZE_KB * 1024) {
                 alert(`Lỗi: Kích thước file ảnh quá lớn (${(file.size / 1024).toFixed(0)} KB).\n\nVui lòng chọn file nhỏ hơn ${MAX_FILE_SIZE_KB} KB hoặc dán link ảnh vào ô URL.`);
@@ -3440,17 +3418,11 @@
             try {
                 alert("Đang tiến hành Restore... Vui lòng không đóng trang.");
 
-                // We don't use safeUpdateDatabase here because we are overwriting the entire bin.
-                const response = await fetch(JSONBIN_URL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-                    body: JSON.stringify(dataToRestore)
-                });
-
-                if (!response.ok) {
-                    const errorBody = await response.text();
-                    throw new Error(`Lỗi khi restore: ${response.status} - ${response.statusText}\nDetails: ${errorBody}`);
-                }
+                const { error } = await supabaseClient
+                    .from(DATABASE_TABLE)
+                    .update({ data: dataToRestore, updated_at: new Date().toISOString() })
+                    .eq('id', DATABASE_ROW_ID);
+                if (error) throw new Error(`Lỗi khi restore: ${error.message}`);
 
                 alert("✅ RESTORE THÀNH CÔNG! Toàn bộ dữ liệu đã được khôi phục từ file backup. Trang sẽ được tải lại.");
                 window.location.reload();
@@ -3497,13 +3469,11 @@
                 };
 
                 console.log("Dữ liệu gửi đi để reset:", freshDatabase);
-                const response = await fetch(JSONBIN_URL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-                    body: JSON.stringify(freshDatabase)
-                });
-
-                if (!response.ok) throw new Error(`Lỗi khi reset: ${response.status}`);
+                const { error } = await supabaseClient
+                    .from(DATABASE_TABLE)
+                    .update({ data: freshDatabase, updated_at: new Date().toISOString() })
+                    .eq('id', DATABASE_ROW_ID);
+                if (error) throw new Error(`Lỗi khi reset: ${error.message}`);
 
                 alert("✅ HARD RESET THÀNH CÔNG! Toàn bộ dữ liệu đã được khôi phục về trạng thái ban đầu. Trang sẽ được tải lại.");
                 window.location.reload();

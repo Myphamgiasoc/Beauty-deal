@@ -9,6 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- END: Cache Control Meta Tags -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
     <style>
@@ -279,7 +280,8 @@
 
         .banner-slider .swiper-wrapper,
         .banner-slider .swiper-slide {
-            height: 100%
+            height: 100%;
+            contain: layout paint
         }
 
         .banner-slide-link {
@@ -295,7 +297,8 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            object-position: center
+            object-position: center;
+            content-visibility: auto
         }
 
         .banner-slide-link::after {
@@ -2081,9 +2084,11 @@
         };
         let APP_SHOP_INFO = {}; let APP_VALUE_PROPS = []; let currentUserRole = null; let currentLoggedInUser = null; let cart = []; let currentFilterCategory = "TẤT CẢ"; let activeDetailProductId = null; let showAllFeaturedProducts = false;
         let isFilterTriggered = false; // Biến cờ để xác định người dùng có vừa nhấn vào bộ lọc danh mục hay không
-        const JSONBIN_API_KEY = '$2a$10$J7qMgZ6807cq5qUamqkTAOSzZElBQuvuBTMcgLNUK7AXkwhdGGKFu'; // ✅ Đã cập nhật API Key mới
-        const JSONBIN_BIN_ID = '6a4dacbfda38895dfe3ddc36';   // ✅ Đã cập nhật Bin ID mới
-        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        const SUPABASE_URL = 'https://arzoxdziiyhbnownctea.supabase.co';
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_3XPhSvJNDjlCIBF9NOJVHg_sowLBKiF';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const DATABASE_TABLE = 'app_database';
+        const DATABASE_ROW_ID = 1;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
         const FREE_SHIPPING_THRESHOLD = 100000;
         const DEFAULT_SHIPPING_FEE = 20000;
@@ -2111,11 +2116,13 @@
             let payload;
             // BƯỚC 1: Tải dữ liệu mới nhất từ server để tránh ghi đè.
             try {
-                const cacheBuster = `?_=${new Date().getTime()}`;
-                const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
-                if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
-                const serverData = await response.json();
-                payload = serverData.record || {};
+                const { data, error } = await supabaseClient
+                    .from(DATABASE_TABLE)
+                    .select('data')
+                    .eq('id', DATABASE_ROW_ID)
+                    .single();
+                if (error) throw error;
+                payload = data?.data || {};
             } catch (e) {
                 console.error("Lỗi nghiêm trọng khi TẢI dữ liệu:", e);
                 alert(`❌ Lỗi khi tải dữ liệu từ server: ${e.message}`);
@@ -2138,40 +2145,18 @@
             // BƯỚC 3: Lưu dữ liệu đã được cập nhật trở lại server.
             try {
                 compactPayloadForStorage(payload);
-                const putResponse = await fetch(JSONBIN_URL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-                    body: JSON.stringify(payload)
-                });
-                if (!putResponse.ok) {
-                    const errorText = await putResponse.text();
-                    throw new Error(`Save failed: ${putResponse.status} - ${errorText}`);
-                }
-                const responseData = await putResponse.json();
-
-                // SỬA LỖI DỨT ĐIỂM: Xử lý trường hợp server trả về 200 OK nhưng không có dữ liệu 'record'.
-                if (!responseData || !responseData.record) {
-                    throw new Error("Server không trả về dữ liệu xác nhận sau khi lưu.");
-                }
-
-                const savedRecord = responseData.record;
+                const { data, error } = await supabaseClient
+                    .from(DATABASE_TABLE)
+                    .update({ data: payload, updated_at: new Date().toISOString() })
+                    .eq('id', DATABASE_ROW_ID)
+                    .select('data')
+                    .single();
+                if (error) throw error;
+                const savedRecord = data?.data || payload;
                 if (reloadOnSuccess) setTimeout(() => window.location.reload(), 500);
                 return { success: true, data: savedRecord };
             } catch (e) {
                 console.error("Lỗi khi lưu dữ liệu lên server:", e);
-                try {
-                    const verifyResponse = await fetch(`${JSONBIN_URL}/latest?_=${Date.now()}`, {
-                        headers: { 'X-Master-Key': JSONBIN_API_KEY }
-                    });
-                    if (verifyResponse.ok) {
-                        const verifyData = await verifyResponse.json();
-                        if (JSON.stringify(verifyData.record) === JSON.stringify(payload)) {
-                            return { success: true, data: verifyData.record };
-                        }
-                    }
-                } catch (verifyError) {
-                    console.error("Không thể xác minh dữ liệu sau khi lưu:", verifyError);
-                }
                 alert(`❌ Không thể lưu dữ liệu lên máy chủ: ${e.message}. Vui lòng thử lại.`);
                 return { success: false, message: e.message };
             }
@@ -2179,11 +2164,14 @@
         // --- HÀM TẢI DỮ LIỆU TỪ SERVER ---
         async function loadDatabase() {
             try {
-                // Thêm tham số cache-busting để đảm bảo luôn tải dữ liệu mới nhất
-                const cacheBuster = `?_=${new Date().getTime()}`; const response = await fetch(`${JSONBIN_URL}/latest${cacheBuster}`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
-                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status} - ${response.statusText}`); const serverData = await response.json();
+                const { data, error } = await supabaseClient
+                    .from(DATABASE_TABLE)
+                    .select('data')
+                    .eq('id', DATABASE_ROW_ID)
+                    .single();
+                if (error) throw error;
                 // FIX: Xử lý trường hợp server trả về dữ liệu rỗng hoặc không hợp lệ
-                DATABASE = serverData.record || {};
+                DATABASE = data?.data || {};
                 if (typeof DATABASE !== 'object' || DATABASE === null) {
                     // console.warn("Dữ liệu từ server không hợp lệ hoặc rỗng. Khởi tạo với object rỗng."); // Removed debug log
                     DATABASE = {};
@@ -2422,7 +2410,8 @@
             wrapper.innerHTML = '';
             // SỬA LỖI: Chỉ hiển thị sản phẩm còn hàng.
             const availableProducts = APP_PRODUCTS.filter(p => getProductStock(p) > 0);
-            const bestSellers = availableProducts.slice(4);
+            // Giữ slider nhẹ: danh sách đầy đủ vẫn có trong mục sản phẩm chính.
+            const bestSellers = availableProducts.slice(4, 20);
             if (bestSellers.length === 0) {
                 container.style.display = 'none';
                 if(title) title.style.display = 'none';
@@ -3230,26 +3219,43 @@
             if (Array.isArray(APP_CUSTOM_SLIDER_BANNERS) && APP_CUSTOM_SLIDER_BANNERS.length) return APP_CUSTOM_SLIDER_BANNERS;
             return Array.isArray(APP_BANNERS) && APP_BANNERS.length ? APP_BANNERS : DEFAULT_BANNERS;
         }
+        function loadHeroImage(image) {
+            if (!image || image.getAttribute('src')) return;
+            const source = image.getAttribute('data-src');
+            if (!source) return;
+            image.setAttribute('src', source);
+            image.removeAttribute('data-src');
+        }
         function renderHeroBanners() {
             const wrapper = document.getElementById('heroBannerWrapper');
             if (!wrapper) return;
             const banners = getHeroBanners().filter(banner => banner && typeof banner.imageUrl === 'string' && banner.imageUrl.trim());
-            wrapper.innerHTML = banners.map(banner => `
+            wrapper.innerHTML = banners.map((banner, index) => `
                 <div class="swiper-slide">
                     <a class="banner-slide-link" href="${escapeBannerHtml(getBannerLink(banner))}" target="_blank" rel="noopener noreferrer">
-                        <img class="banner-slide-image" src="${escapeBannerHtml(banner.imageUrl)}" alt="${escapeBannerHtml(banner.title || 'Banner khuyến mãi')}" loading="lazy">
+                        <img class="banner-slide-image" ${index === 0 ? `src="${escapeBannerHtml(banner.imageUrl)}"` : `data-src="${escapeBannerHtml(banner.imageUrl)}"`} alt="${escapeBannerHtml(banner.title || 'Banner khuyến mãi')}" fetchpriority="${index === 0 ? 'high' : 'low'}" decoding="async">
                         ${banner.title || banner.description ? `<div class="slide-content"><h1 class="slide-title">${escapeBannerHtml(banner.title)}</h1><p class="slide-subtitle">${escapeBannerHtml(banner.description)}</p></div>` : ''}
                     </a>
                 </div>`).join('');
             if (heroSwiper) heroSwiper.destroy(true, true);
             heroSwiper = new Swiper('#mainBanner', {
                 autoplay: { delay: 4000 },
-                loop: banners.length > 1,
+                rewind: banners.length > 1,
+                preloadImages: false,
+                lazyPreloadPrevNext: 1,
+                watchOverflow: true,
+                speed: 450,
                 navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-                pagination: { el: '.swiper-pagination', clickable: true },
-                observer: true,
-                observeParents: true
+                pagination: { el: '.swiper-pagination', clickable: true }
             });
+            const loadActiveHeroImages = () => {
+                const activeSlide = wrapper.querySelector('.swiper-slide-active') || wrapper.querySelector('.swiper-slide');
+                loadHeroImage(activeSlide?.querySelector('img'));
+                loadHeroImage(activeSlide?.nextElementSibling?.querySelector('img'));
+            };
+            heroSwiper.on('slideChangeTransitionStart', loadActiveHeroImages);
+            loadActiveHeroImages();
+            setTimeout(loadActiveHeroImages, 800);
         }
         function renderPromoBanners() {
             const container = document.getElementById('promoBannersContainer');
