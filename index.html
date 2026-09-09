@@ -280,8 +280,7 @@
 
         .banner-slider .swiper-wrapper,
         .banner-slider .swiper-slide {
-            height: 100%;
-            contain: layout paint
+            height: 100%
         }
 
         .banner-slide-link {
@@ -297,8 +296,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            object-position: center;
-            content-visibility: auto
+            object-position: center
         }
 
         .banner-slide-link::after {
@@ -2279,6 +2277,7 @@
         }
         window.addEventListener('DOMContentLoaded', async () => {
             try {
+                renderHeroBanners();
                 await loadDatabase(); // Tải toàn bộ dữ liệu từ server
                 renderHeaderLogo(); // NEW: Render the logo from DB
                 renderHeroBanners();
@@ -3219,13 +3218,6 @@
             if (Array.isArray(APP_CUSTOM_SLIDER_BANNERS) && APP_CUSTOM_SLIDER_BANNERS.length) return APP_CUSTOM_SLIDER_BANNERS;
             return Array.isArray(APP_BANNERS) && APP_BANNERS.length ? APP_BANNERS : DEFAULT_BANNERS;
         }
-        function loadHeroImage(image) {
-            if (!image || image.getAttribute('src')) return;
-            const source = image.getAttribute('data-src');
-            if (!source) return;
-            image.setAttribute('src', source);
-            image.removeAttribute('data-src');
-        }
         function renderHeroBanners() {
             const wrapper = document.getElementById('heroBannerWrapper');
             if (!wrapper) return;
@@ -3233,13 +3225,13 @@
             wrapper.innerHTML = banners.map((banner, index) => `
                 <div class="swiper-slide">
                     <a class="banner-slide-link" href="${escapeBannerHtml(getBannerLink(banner))}" target="_blank" rel="noopener noreferrer">
-                        <img class="banner-slide-image" ${index === 0 ? `src="${escapeBannerHtml(banner.imageUrl)}"` : `data-src="${escapeBannerHtml(banner.imageUrl)}"`} alt="${escapeBannerHtml(banner.title || 'Banner khuyến mãi')}" fetchpriority="${index === 0 ? 'high' : 'low'}" decoding="async">
+                        <img class="banner-slide-image" src="${escapeBannerHtml(banner.imageUrl)}" alt="${escapeBannerHtml(banner.title || 'Banner khuyến mãi')}" loading="${index === 0 ? 'eager' : 'lazy'}" fetchpriority="${index === 0 ? 'high' : 'low'}" decoding="async">
                         ${banner.title || banner.description ? `<div class="slide-content"><h1 class="slide-title">${escapeBannerHtml(banner.title)}</h1><p class="slide-subtitle">${escapeBannerHtml(banner.description)}</p></div>` : ''}
                     </a>
                 </div>`).join('');
             if (heroSwiper) heroSwiper.destroy(true, true);
             heroSwiper = new Swiper('#mainBanner', {
-                autoplay: { delay: 4000 },
+                autoplay: { delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: false },
                 rewind: banners.length > 1,
                 preloadImages: false,
                 lazyPreloadPrevNext: 1,
@@ -3248,14 +3240,7 @@
                 navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
                 pagination: { el: '.swiper-pagination', clickable: true }
             });
-            const loadActiveHeroImages = () => {
-                const activeSlide = wrapper.querySelector('.swiper-slide-active') || wrapper.querySelector('.swiper-slide');
-                loadHeroImage(activeSlide?.querySelector('img'));
-                loadHeroImage(activeSlide?.nextElementSibling?.querySelector('img'));
-            };
-            heroSwiper.on('slideChangeTransitionStart', loadActiveHeroImages);
-            loadActiveHeroImages();
-            setTimeout(loadActiveHeroImages, 800);
+            heroSwiper.autoplay.start();
         }
         function renderPromoBanners() {
             const container = document.getElementById('promoBannersContainer');
