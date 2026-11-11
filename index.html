@@ -566,6 +566,24 @@
             margin-top: auto
         }
 
+        .product-availability {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: -4px 0 10px;
+            color: #218838;
+            font-size: 13px;
+            font-weight: 600
+        }
+
+        .product-availability::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor
+        }
+
         .current-price {
             font-size: 18px;
             font-weight: 700;
@@ -677,6 +695,10 @@
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 25px
+        }
+
+        .detail-top-price-card .product-availability {
+            margin: 8px 0 0
         }
 
         .detail-top-curr-price {
@@ -2091,11 +2113,7 @@
         let isFilterTriggered = false; // Biến cờ để xác định người dùng có vừa nhấn vào bộ lọc danh mục hay không
         const SUPABASE_URL = 'https://arzoxdziiyhbnownctea.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_3XPhSvJNDjlCIBF9NOJVHg_sowLBKiF';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-            global: {
-                fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' })
-            }
-        });
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
         const DATABASE_TABLE = 'app_database';
         const DATABASE_ROW_ID = 1;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
@@ -2260,6 +2278,11 @@
             if (cartButton) cartButton.hidden = APP_SHOP_INFO.enableCart !== true;
         }
 
+        function renderPausedAvailability(stock) {
+            if (APP_SHOP_INFO.enableCart === true || stock <= 0) return '';
+            return '<div class="product-availability">Còn hàng</div>';
+        }
+
         // NEW: Function to prompt user to open in system browser
         function detectAndPromptOpenInBrowser() {
             const prompt = document.getElementById('openInBrowserPrompt');
@@ -2358,7 +2381,7 @@
             const isDefaultView = productsToRender === undefined;
             const products = isDefaultView
                 ? (showAllFeaturedProducts ? availableProducts : availableProducts.slice(0, 4))
-                : productsToRender;
+                : productsToRender.filter(product => getProductStock(product) > 0);
             if (toggle) toggle.style.display = isDefaultView && availableProducts.length > 4 ? 'flex' : 'none';
             if (toggleButton && isDefaultView) {
                 toggleButton.innerText = showAllFeaturedProducts ? 'Thu gọn sản phẩm' : 'Xem tất cả sản phẩm';
@@ -2374,10 +2397,10 @@
                 const isOutOfStock = stock === 0; 
                 const hasVariants = prod.variants && prod.variants.length > 0;
                 let buttonHtml;
-                if (APP_SHOP_INFO.enableCart !== true) {
-                    buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Tạm ngừng nhận đơn</button>`;
-                } else if (isOutOfStock) {
+                if (isOutOfStock) {
                     buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`;
+                } else if (APP_SHOP_INFO.enableCart !== true) {
+                    buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Tạm ngừng nhận đơn</button>`;
                 } else if (hasVariants) {
                     buttonHtml = `<button class="add-to-cart-btn" onclick="openVariantSelectorModal('${prod.id}', event)">Chọn phiên bản</button>`;
                 } else {
@@ -2404,6 +2427,7 @@
                     <div class="product-info">
                         <div class="product-name">${prod.name}</div>
                         <div class="product-prices"> <span class="current-price">${prod.currPrice.toLocaleString()}đ</span> ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''} </div>
+                        ${renderPausedAvailability(stock)}
                         ${buttonHtml}
                     </div>`;
                 container.appendChild(card);
@@ -2443,10 +2467,10 @@
                 const isOutOfStock = stock === 0; 
                 const hasVariants = prod.variants && prod.variants.length > 0;
                 let buttonHtml;
-                if (APP_SHOP_INFO.enableCart !== true) {
-                    buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Tạm ngừng nhận đơn</button>`;
-                } else if (isOutOfStock) {
+                if (isOutOfStock) {
                     buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`;
+                } else if (APP_SHOP_INFO.enableCart !== true) {
+                    buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Tạm ngừng nhận đơn</button>`;
                 } else if (hasVariants) {
                     buttonHtml = `<button class="add-to-cart-btn" onclick="openVariantSelectorModal('${prod.id}', event)">Chọn phiên bản</button>`;
                 } else {
@@ -2474,6 +2498,7 @@
                     <div class="product-info">
                         <div class="product-name">${prod.name}</div>
                         <div class="product-prices"> <span class="current-price">${prod.currPrice.toLocaleString()}đ</span> ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''} </div>
+                        ${renderPausedAvailability(stock)}
                         ${buttonHtml}
                     </div>`;
                 slide.appendChild(card);
@@ -2718,6 +2743,7 @@
                     <div class="detail-top-price-card">
                         <span class="detail-top-curr-price">${prod.currPrice.toLocaleString()}đ</span>
                         ${prod.origPrice ? `<span class="original-price">${prod.origPrice.toLocaleString()}đ</span>` : ''}
+                        ${renderPausedAvailability(stock)}
                     </div>
                     ${variantHtml}
                     ${buyButtonHtml}
