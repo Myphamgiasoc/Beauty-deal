@@ -2091,7 +2091,11 @@
         let isFilterTriggered = false; // Biến cờ để xác định người dùng có vừa nhấn vào bộ lọc danh mục hay không
         const SUPABASE_URL = 'https://arzoxdziiyhbnownctea.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_3XPhSvJNDjlCIBF9NOJVHg_sowLBKiF';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+            global: {
+                fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' })
+            }
+        });
         const DATABASE_TABLE = 'app_database';
         const DATABASE_ROW_ID = 1;
         let DATABASE = {}; // Biến toàn cục để giữ toàn bộ dữ liệu
