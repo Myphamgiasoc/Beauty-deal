@@ -1754,6 +1754,9 @@
                     <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC DA MẶT')">Chăm sóc da mặt</button>
                     <button class="dropdown-item" onclick="selectFromDropdown('DỤNG CỤ TRANG ĐIỂM')">Dụng cụ trang điểm</button>
                     <button class="dropdown-item" onclick="selectFromDropdown('CHĂM SÓC CƠ THỂ')">Chăm sóc cơ thể</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('SỮA TẮM')">Sữa tắm</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('SỮA RỬA MẶT')">Sữa rửa mặt</button>
+                    <button class="dropdown-item" onclick="selectFromDropdown('BABY')">Baby</button>
                 </div>
             </div>
             <div class="search-container">
@@ -1762,7 +1765,7 @@
             </div>
             <div class="header-right">
                 <button class="settings-icon" onclick="openLoginModal()">⚙</button>
-                <button class="cart-icon" onclick="toggleCart(true)">
+                <button class="cart-icon" onclick="toggleCart(true)" hidden>
                     🛒
                     <div class="cart-count" id="cartCount">0</div>
                 </button>
@@ -1786,6 +1789,9 @@
                 <button class="category-btn" data-category="CHĂM SÓC DA MẶT" onclick="filterCategory('CHĂM SÓC DA MẶT', this)"><span class="category-icon" aria-hidden="true">🫧</span><span>Chăm sóc da</span></button>
                 <button class="category-btn" data-category="DỤNG CỤ TRANG ĐIỂM" onclick="filterCategory('DỤNG CỤ TRANG ĐIỂM', this)"><span class="category-icon" aria-hidden="true">🪞</span><span>Dụng cụ</span></button>
                 <button class="category-btn" data-category="CHĂM SÓC CƠ THỂ" onclick="filterCategory('CHĂM SÓC CƠ THỂ', this)"><span class="category-icon" aria-hidden="true">🧼</span><span>Chăm sóc cơ thể</span></button>
+                <button class="category-btn" data-category="SỮA TẮM" onclick="filterCategory('SỮA TẮM', this)"><span class="category-icon" aria-hidden="true">🛁</span><span>Sữa tắm</span></button>
+                <button class="category-btn" data-category="SỮA RỬA MẶT" onclick="filterCategory('SỮA RỬA MẶT', this)"><span class="category-icon" aria-hidden="true">🫧</span><span>Sữa rửa mặt</span></button>
+                <button class="category-btn" data-category="BABY" onclick="filterCategory('BABY', this)"><span class="category-icon" aria-hidden="true">🍼</span><span>Baby</span></button>
             </nav>
             <h2 class="section-title" id="featuredProductsTitle">Sản Phẩm Nổi Bật</h2>
             <section class="products-container" id="productsContainer">
@@ -2078,7 +2084,8 @@
                 facebook: "#", instagram: "#", tiktok: "#"
             },
             mainLogoUrl: "",
-            enableShippingFee: true
+            enableShippingFee: true,
+            enableCart: false
         };
         let APP_SHOP_INFO = {}; let APP_VALUE_PROPS = []; let currentUserRole = null; let currentLoggedInUser = null; let cart = []; let currentFilterCategory = "TẤT CẢ"; let activeDetailProductId = null; let showAllFeaturedProducts = false;
         let isFilterTriggered = false; // Biến cờ để xác định người dùng có vừa nhấn vào bộ lọc danh mục hay không
@@ -2244,6 +2251,11 @@
             // If logoUrl is empty, do nothing, preserving the default SVG.
         }
         // --- KHỞI TẠO KHI TRANG TẢI ---
+        function renderCartVisibility() {
+            const cartButton = document.querySelector('.cart-icon');
+            if (cartButton) cartButton.hidden = APP_SHOP_INFO.enableCart !== true;
+        }
+
         // NEW: Function to prompt user to open in system browser
         function detectAndPromptOpenInBrowser() {
             const prompt = document.getElementById('openInBrowserPrompt');
@@ -2280,6 +2292,7 @@
                 renderHeroBanners();
                 await loadDatabase(); // Tải toàn bộ dữ liệu từ server
                 renderHeaderLogo(); // NEW: Render the logo from DB
+                renderCartVisibility();
                 renderHeroBanners();
                 renderProductsGrid();
                 renderBestSellers();
@@ -2357,7 +2370,9 @@
                 const isOutOfStock = stock === 0; 
                 const hasVariants = prod.variants && prod.variants.length > 0;
                 let buttonHtml;
-                if (isOutOfStock) {
+                if (APP_SHOP_INFO.enableCart !== true) {
+                    buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Tạm ngừng nhận đơn</button>`;
+                } else if (isOutOfStock) {
                     buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`;
                 } else if (hasVariants) {
                     buttonHtml = `<button class="add-to-cart-btn" onclick="openVariantSelectorModal('${prod.id}', event)">Chọn phiên bản</button>`;
@@ -2424,7 +2439,9 @@
                 const isOutOfStock = stock === 0; 
                 const hasVariants = prod.variants && prod.variants.length > 0;
                 let buttonHtml;
-                if (isOutOfStock) {
+                if (APP_SHOP_INFO.enableCart !== true) {
+                    buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Tạm ngừng nhận đơn</button>`;
+                } else if (isOutOfStock) {
                     buttonHtml = `<button class="add-to-cart-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`;
                 } else if (hasVariants) {
                     buttonHtml = `<button class="add-to-cart-btn" onclick="openVariantSelectorModal('${prod.id}', event)">Chọn phiên bản</button>`;
@@ -2680,7 +2697,9 @@
             }
             const buyButtonId = (prod.variants && prod.variants.length > 0) ? prod.variants[0].id : prod.id;            const buyButtonHtml = isOutOfStock
                 ? `<button id="detailBuyButton" class="detail-top-buy-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Hết hàng</button>`
-                : `<button id="detailBuyButton" class="detail-top-buy-btn" onclick="addToCart('${productId}', '${buyButtonId}', event)">Thêm vào giỏ hàng ngay</button>`;
+                : APP_SHOP_INFO.enableCart !== true
+                    ? `<button id="detailBuyButton" class="detail-top-buy-btn" disabled style="background-color:#95a5a6; cursor:not-allowed;">Tạm ngừng nhận đơn</button>`
+                    : `<button id="detailBuyButton" class="detail-top-buy-btn" onclick="addToCart('${productId}', '${buyButtonId}', event)">Thêm vào giỏ hàng ngay</button>`;
 
             // Cập nhật cấu trúc HTML để sử dụng wrapper cho hình ảnh
             document.getElementById('detailProductTopBox').innerHTML = `
@@ -2785,6 +2804,7 @@
                 event.stopPropagation();
                 event.preventDefault();
             }
+            if (APP_SHOP_INFO.enableCart !== true) return;
 
             const product = APP_PRODUCTS.find(p => p.id === productId);
             if (!product || !product.variants || product.variants.length === 0) {
@@ -2967,6 +2987,11 @@
                 event.stopPropagation();
                 event.preventDefault();
             }
+            if (APP_SHOP_INFO.enableCart !== true) {
+                showToast('Hiện cửa hàng đang tạm ngừng nhận đơn.');
+                return;
+            }
+            if (status && APP_SHOP_INFO.enableCart !== true) return;
 
             const product = APP_PRODUCTS.find(p => p.id === productId);
             if (!product) {
@@ -3082,6 +3107,7 @@
             renderCartContents();
         }
         function processCheckout() {
+            if (APP_SHOP_INFO.enableCart !== true) return alert('Hiện cửa hàng đang tạm ngừng nhận đơn.');
             if (cart.length === 0) return alert("Giỏ hàng của bạn đang trống!");
             const subtotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
             const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_FEE;
@@ -3097,6 +3123,10 @@
         }
         async function handleConfirmOrder(event) {
             event.preventDefault();
+            if (APP_SHOP_INFO.enableCart !== true) {
+                alert('Hiện cửa hàng đang tạm ngừng nhận đơn.');
+                return;
+            }
             const confirmBtn = document.getElementById('confirmOrderBtn');
             confirmBtn.disabled = true;
             confirmBtn.innerText = 'ĐANG XỬ LÝ...';
@@ -3128,19 +3158,25 @@
             const result = await safeUpdateDatabase(payload => {
                 if (!Array.isArray(payload.APP_ORDERS)) payload.APP_ORDERS = [];
                 if (!Array.isArray(payload.APP_PRODUCTS)) payload.APP_PRODUCTS = [];
+                if (payload.APP_SHOP_INFO?.enableCart !== true) {
+                    return { abort: true, message: 'Cửa hàng vừa tạm ngừng nhận đơn. Vui lòng thử lại sau.', reason: 'cart_disabled' };
+                }
 
-                for (const cartItem of newOrder.items) {
-                    const baseProductId = String(cartItem.id).split('-')[0];
-                    const product = payload.APP_PRODUCTS.find(item => item.id === baseProductId);
+                const requestedQuantities = new Map();
+                newOrder.items.forEach(item => requestedQuantities.set(item.id, (requestedQuantities.get(item.id) || 0) + item.quantity));
+                for (const [itemId, requestedQuantity] of requestedQuantities) {
+                    const product = payload.APP_PRODUCTS.find(item => String(item.id) === String(itemId))
+                        || payload.APP_PRODUCTS.find(item => Array.isArray(item.variants) && item.variants.some(variant => String(variant.id) === String(itemId)));
                     if (!product) return { abort: true, message: 'Một sản phẩm trong giỏ không còn tồn tại. Vui lòng tải lại trang.', reason: 'product_missing' };
 
                     let availableStock = getProductStock(product);
-                    if (product.variants && cartItem.id !== baseProductId) {
-                        const variant = product.variants.find(item => item.id === cartItem.id);
+                    if (product.variants && String(itemId) !== String(product.id)) {
+                        const variant = product.variants.find(item => String(item.id) === String(itemId));
                         availableStock = variant ? Number(variant.stock) || 0 : 0;
                     }
-                    if (Number(cartItem.quantity) > availableStock) {
-                        return { abort: true, message: `Sản phẩm "${cartItem.name}" chỉ còn ${availableStock} sản phẩm. Vui lòng cập nhật lại giỏ hàng.`, reason: 'insufficient_stock' };
+                    if (requestedQuantity > availableStock) {
+                        const itemName = newOrder.items.find(item => String(item.id) === String(itemId))?.name || itemId;
+                        return { abort: true, message: `Sản phẩm "${itemName}" chỉ còn ${availableStock} sản phẩm. Vui lòng cập nhật lại giỏ hàng.`, reason: 'insufficient_stock' };
                     }
                 }
 
