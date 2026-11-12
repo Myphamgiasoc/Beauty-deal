@@ -212,6 +212,8 @@
             .container { padding: 0 10px; }
             .admin-section { padding: 16px 12px; margin-top: 16px; }
             .admin-form-box { padding: 16px; }
+            .manual-order-item-row { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            .manual-order-item-row .order-edit-remove-item { width: 38px; justify-self: end; }
             .admin-top-header { flex-direction: column; align-items: flex-start; gap: 15px; }
             .admin-top-header h2 { font-size: 20px; }
             .admin-top-header > div:last-child { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -557,7 +559,23 @@
             <div class="admin-form-box hidden-by-js" id="orderManagementSection"> 
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
                     <h3 style="margin:0;">Quản Lý Đơn Hàng</h3>
-                    <button type="button" class="form-btn submit" onclick="exportOrdersToExcel()">Xuất Excel đơn hàng</button>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="form-btn cancel" onclick="openManualOrderModal()">+ Tạo đơn thủ công</button>
+                        <button type="button" class="form-btn submit" onclick="exportOrdersToExcel()">Xuất Excel đơn hàng</button>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+                    <label for="orderStatusFilter" style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:#34495e;">
+                        Trạng thái
+                        <select id="orderStatusFilter" class="status-select" aria-label="Lọc đơn hàng theo trạng thái" onchange="filterOrdersByStatus(this.value)" style="min-width:190px; padding:8px 12px; font-size:14px;">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="Mới">Mới</option>
+                            <option value="Đã xác nhận">Đã xác nhận</option>
+                            <option value="Đang giao">Đang giao</option>
+                            <option value="Hoàn thành">Hoàn thành</option>
+                            <option value="Đã hủy">Đã hủy</option>
+                        </select>
+                    </label>
                 </div>
                 <div class="table-responsive" style="margin-top: 20px;">
                     <table class="admin-table">
@@ -956,6 +974,50 @@
         </div>
     </div>
 
+    <div id="manual-order-modal" class="brand-edit-modal-overlay">
+        <div class="brand-edit-modal-content" style="max-width: 760px; max-height: 90vh; overflow-y: auto;">
+            <h3>Tạo Đơn Hàng Thủ Công</h3>
+            <form id="manualOrderForm" onsubmit="createManualOrder(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="manualOrderCustomerName">Tên khách hàng *</label>
+                        <input id="manualOrderCustomerName" type="text" required maxlength="120" placeholder="Tên khách lẻ">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualOrderCustomerPhone">Số điện thoại</label>
+                        <input id="manualOrderCustomerPhone" type="tel" maxlength="30" placeholder="Số điện thoại khách hàng">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualOrderCustomerAddress">Địa chỉ</label>
+                        <input id="manualOrderCustomerAddress" type="text" maxlength="250" placeholder="Địa chỉ giao hàng">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualOrderNotes">Ghi chú</label>
+                        <input id="manualOrderNotes" type="text" maxlength="500" placeholder="Ghi chú đơn hàng">
+                    </div>
+                </div>
+                <h4 style="margin: 8px 0;">Mặt hàng *</h4>
+                <div id="manualOrderItems"></div>
+                <button type="button" class="form-btn cancel" onclick="addManualOrderItem()" style="padding: 7px 12px; margin-bottom: 12px;">+ Thêm mặt hàng</button>
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="form-group">
+                        <label for="manualOrderShippingFee">Phí vận chuyển (đ)</label>
+                        <input id="manualOrderShippingFee" type="number" min="0" step="1" value="0" oninput="updateManualOrderTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualOrderDiscount">Giảm giá (đ)</label>
+                        <input id="manualOrderDiscount" type="number" min="0" step="1" value="0" oninput="updateManualOrderTotal()">
+                    </div>
+                </div>
+                <p style="text-align:right; font-weight:bold; margin: 4px 0 16px;">Tổng tiền: <span id="manualOrderTotal">0đ</span></p>
+                <div class="form-actions-row">
+                    <button type="button" class="form-btn cancel" onclick="closeManualOrderModal()">Hủy</button>
+                    <button type="submit" class="form-btn submit">Lưu đơn hàng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- ORDER EDIT MODAL -->
     <div id="order-edit-modal" class="brand-edit-modal-overlay">
         <div class="brand-edit-modal-content" style="max-width: 850px; max-height: 90vh; overflow-y: auto;">
@@ -999,6 +1061,7 @@
         let APP_SHOP_INFO = {};
         let USER_CREDENTIALS = {};
         let APP_ORDERS = [];
+        let activeOrderStatusFilter = 'all';
         let APP_REVENUE_SUMMARY = { totalRevenue: 0, completedOrderCount: 0 };
         let APP_REVENUE_ARCHIVE = [];
         let APP_SUBSCRIBERS = [];
@@ -2633,9 +2696,11 @@
                 notes: order.notes || ''
             };
             const normalizedStatus = order.status === 'Chờ xử lý' ? 'Mới' : (order.status || 'Mới');
-            const stockWasDeducted = order.stockDeducted === undefined
-                ? normalizedStatus !== 'Đã hủy'
-                : order.stockDeducted === true;
+            const stockWasDeducted = order.stockTracking === false
+                ? false
+                : order.stockDeducted === undefined
+                    ? normalizedStatus !== 'Đã hủy'
+                    : order.stockDeducted === true;
             const subtotal = Number(order.subtotal) || 0;
             const shippingFee = order.shippingFee === undefined
                 ? (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DEFAULT_SHIPPING_FEE)
@@ -2657,7 +2722,8 @@
                 totalAmount: Number(order.totalAmount) || 0,
                 orderDate: order.orderDate || order.createdAt || new Date().toISOString(),
                 status: normalizedStatus,
-                stockDeducted: stockWasDeducted
+                stockDeducted: stockWasDeducted,
+                stockTracking: order.stockTracking !== false
             };
         }
 
@@ -2836,18 +2902,218 @@
                 'Đã hủy': { text: 'Đã hủy', class: 'cancelled' }
             };
             const statusInfo = statusMap[status] || { text: status, class: 'cancelled' };
-            return `<span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>`;
+            return `<span class="status-badge ${statusInfo.class}">${escapeHtml(statusInfo.text)}</span>`;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
+        function filterOrdersByStatus(status) {
+            activeOrderStatusFilter = status;
+            renderOrdersTable();
+        }
+
+        function updateOrderStatusFilterCounts() {
+            const filter = document.getElementById('orderStatusFilter');
+            if (!filter) return;
+            Array.from(filter.options).forEach(option => {
+                const status = option.value;
+                const count = status === 'all'
+                    ? APP_ORDERS.length
+                    : APP_ORDERS.filter(order => order.status === status).length;
+                const label = status === 'all' ? 'Tất cả trạng thái' : status;
+                option.textContent = `${label} (${count})`;
+            });
+            filter.value = activeOrderStatusFilter;
+        }
+
+        function openManualOrderModal() {
+            const form = document.getElementById('manualOrderForm');
+            form.reset();
+            document.getElementById('manualOrderShippingFee').value = '0';
+            document.getElementById('manualOrderDiscount').value = '0';
+            document.getElementById('manualOrderItems').replaceChildren();
+            addManualOrderItem();
+            updateManualOrderTotal();
+            document.getElementById('manual-order-modal').classList.add('active');
+        }
+
+        function closeManualOrderModal() {
+            document.getElementById('manual-order-modal').classList.remove('active');
+        }
+
+        function addManualOrderItem() {
+            const container = document.getElementById('manualOrderItems');
+            const row = document.createElement('div');
+            row.className = 'manual-order-item-row';
+            row.style.cssText = 'display:grid; grid-template-columns:minmax(160px, 2fr) minmax(75px, .7fr) minmax(110px, 1fr) 38px; gap:8px; align-items:end; margin:8px 0;';
+
+            const addField = (labelText, className, type, placeholder, required) => {
+                const field = document.createElement('label');
+                field.className = 'form-group';
+                field.style.marginBottom = '0';
+                const label = document.createElement('span');
+                label.textContent = labelText;
+                label.style.cssText = 'font-size:12px; font-weight:600; margin-bottom:4px;';
+                const input = document.createElement('input');
+                input.className = className;
+                input.type = type;
+                input.required = required;
+                input.placeholder = placeholder;
+                input.min = type === 'number' ? (className.includes('quantity') ? '1' : '0') : '';
+                input.step = type === 'number' ? '1' : '';
+                input.value = type === 'number' ? (className.includes('quantity') ? '1' : '') : '';
+                input.addEventListener('input', updateManualOrderTotal);
+                field.append(label, input);
+                return field;
+            };
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'order-edit-remove-item';
+            removeButton.textContent = '×';
+            removeButton.title = 'Xóa mặt hàng';
+            removeButton.addEventListener('click', () => {
+                if (container.querySelectorAll('.manual-order-item-row').length <= 1) {
+                    alert('Đơn hàng cần có ít nhất một mặt hàng.');
+                    return;
+                }
+                row.remove();
+                updateManualOrderTotal();
+            });
+
+            row.append(
+                addField('Tên mặt hàng *', 'manual-order-item-name', 'text', 'Nhập tên mặt hàng', true),
+                addField('Số lượng *', 'manual-order-item-quantity', 'number', '', true),
+                addField('Đơn giá (đ) *', 'manual-order-item-price', 'number', '', true),
+                removeButton
+            );
+            container.appendChild(row);
+        }
+
+        function updateManualOrderTotal() {
+            const subtotal = Array.from(document.querySelectorAll('.manual-order-item-row')).reduce((sum, row) => {
+                const quantity = Math.max(0, Number(row.querySelector('.manual-order-item-quantity').value) || 0);
+                const price = Math.max(0, Number(row.querySelector('.manual-order-item-price').value) || 0);
+                return sum + quantity * price;
+            }, 0);
+            const shippingFee = Math.max(0, Number(document.getElementById('manualOrderShippingFee').value) || 0);
+            const discount = Math.min(
+                Math.max(0, Number(document.getElementById('manualOrderDiscount').value) || 0),
+                subtotal + shippingFee
+            );
+            document.getElementById('manualOrderTotal').textContent =
+                Math.max(0, subtotal + shippingFee - discount).toLocaleString('vi-VN') + 'đ';
+        }
+
+        async function createManualOrder(event) {
+            event.preventDefault();
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            if (submitButton.disabled) return;
+            submitButton.disabled = true;
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'ĐANG LƯU...';
+            try {
+                const itemRows = Array.from(document.querySelectorAll('.manual-order-item-row'));
+                const items = itemRows.map((row, index) => {
+                    const name = row.querySelector('.manual-order-item-name').value.trim();
+                    const quantity = Number(row.querySelector('.manual-order-item-quantity').value);
+                    const price = Number(row.querySelector('.manual-order-item-price').value);
+                    if (!name || !Number.isSafeInteger(quantity) || quantity < 1 || !Number.isSafeInteger(price) || price < 0) {
+                        throw new Error(`Vui lòng kiểm tra tên, số lượng và đơn giá ở mặt hàng ${index + 1}.`);
+                    }
+                    return {
+                        id: `MANUAL-${Date.now()}-${index + 1}`,
+                        name,
+                        quantity,
+                        price,
+                        isCustom: true
+                    };
+                });
+                if (!items.length) throw new Error('Đơn hàng cần có ít nhất một mặt hàng.');
+                const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                const shippingFee = Number(document.getElementById('manualOrderShippingFee').value);
+                const requestedDiscount = Number(document.getElementById('manualOrderDiscount').value);
+                if (!Number.isSafeInteger(shippingFee) || shippingFee < 0 || !Number.isSafeInteger(requestedDiscount) || requestedDiscount < 0) {
+                    throw new Error('Phí vận chuyển và giảm giá phải là số nguyên không âm.');
+                }
+                const discount = Math.min(requestedDiscount, subtotal + shippingFee);
+                const customerInfo = {
+                    name: document.getElementById('manualOrderCustomerName').value.trim(),
+                    phone: document.getElementById('manualOrderCustomerPhone').value.trim(),
+                    address: document.getElementById('manualOrderCustomerAddress').value.trim(),
+                    notes: document.getElementById('manualOrderNotes').value.trim()
+                };
+                if (!customerInfo.name) throw new Error('Vui lòng nhập tên khách hàng.');
+
+                const result = await safeUpdateDatabase(db => {
+                    if (!Array.isArray(db.APP_ORDERS)) db.APP_ORDERS = [];
+                    let orderId;
+                    do {
+                        orderId = `BD-MAN-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+                    } while (db.APP_ORDERS.some(order => getOrderId(order) === orderId));
+                    const newOrder = {
+                        orderId,
+                        customerInfo,
+                        items,
+                        subtotal,
+                        shippingFee,
+                        discount,
+                        totalAmount: Math.max(0, subtotal + shippingFee - discount),
+                        orderDate: new Date().toISOString(),
+                        status: 'Mới',
+                        manualEntry: true,
+                        stockTracking: false,
+                        stockDeducted: false
+                    };
+                    db.APP_ORDERS.unshift(newOrder);
+                    if (!Array.isArray(db.APP_NOTIFICATIONS)) db.APP_NOTIFICATIONS = [];
+                    db.APP_NOTIFICATIONS.unshift(createNotificationObject(
+                        'new_order',
+                        `Đã tạo đơn thủ công <strong>#${orderId}</strong> cho khách hàng ${escapeHtml(customerInfo.name)}.`,
+                        orderId
+                    ));
+                });
+                if (!result.success) return;
+                APP_ORDERS = normalizeOrders(result.data.APP_ORDERS);
+                APP_NOTIFICATIONS = result.data.APP_NOTIFICATIONS || [];
+                filterOrdersByStatus('all');
+                updateKPIStats();
+                renderNotifications();
+                updateNotificationCount();
+                closeManualOrderModal();
+                alert('✅ Đã tạo đơn hàng thủ công thành công.');
+            } catch (error) {
+                alert(`❌ ${error.message}`);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
         }
 
         function renderOrdersTable() {
             const tbody = document.getElementById('ordersTableBody');
             if (!tbody) return;
+            updateOrderStatusFilterCounts();
             tbody.innerHTML = '';
             if (!APP_ORDERS || APP_ORDERS.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#999;">Chưa có đơn hàng nào.</td></tr>';
                 return;
             }
-            const sortedOrders = [...APP_ORDERS].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+            const sortedOrders = [...APP_ORDERS]
+                .filter(order => activeOrderStatusFilter === 'all' || order.status === activeOrderStatusFilter)
+                .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+            if (!sortedOrders.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#999;">Không có đơn hàng ở trạng thái này.</td></tr>';
+                return;
+            }
 
             sortedOrders.forEach(order => {
                 const tr = document.createElement('tr');
@@ -2858,10 +3124,10 @@
                     .join('');
 
                 tr.innerHTML = `
-                    <td style="font-weight:bold;">${order.orderId}</td>
-                    <td>${order.customerInfo.name}</td>
-                    <td>${order.customerInfo.phone}</td>
-                    <td style="color:#c0392b; font-weight:bold;">${order.totalAmount.toLocaleString('vi-VN')}đ</td>
+                    <td style="font-weight:bold;">${escapeHtml(order.orderId)}</td>
+                    <td>${escapeHtml(order.customerInfo.name)}</td>
+                    <td>${escapeHtml(order.customerInfo.phone)}</td>
+                    <td style="color:#c0392b; font-weight:bold;">${(Number(order.totalAmount) || 0).toLocaleString('vi-VN')}đ</td>
                     <td>${new Date(order.orderDate).toLocaleString('vi-VN')}</td>
                     <td>${getStatusBadge(order.status)}</td>
                     <td>
@@ -2886,7 +3152,7 @@
             order.items.forEach(item => {
                 itemsHtml += `
                     <tr>
-                        <td colspan="4">${item.name}</td>
+                        <td colspan="4">${escapeHtml(item.name)}</td>
                     </tr>
                     <tr class="item-line">
                         <td></td>
@@ -2897,7 +3163,7 @@
                 `;
             });
 
-            const notesHtml = order.customerInfo.notes ? `<p><strong>Ghi chú:</strong> ${order.customerInfo.notes}</p>` : '';
+            const notesHtml = order.customerInfo.notes ? `<p><strong>Ghi chú:</strong> ${escapeHtml(order.customerInfo.notes)}</p>` : '';
             const discountHtml = (order.discount || 0) > 0 ? `<p><strong>Giảm giá:</strong> -${order.discount.toLocaleString('vi-VN')}đ</p>` : '';
 
             const billHtml = `
@@ -2908,9 +3174,9 @@
                         <p>SĐT: ${shopInfo.contact.phone}</p>
                     </div>
                     <div class="receipt-section">
-                        <p><strong>Hóa đơn:</strong> ${order.orderId}</p>
+                        <p><strong>Hóa đơn:</strong> ${escapeHtml(order.orderId)}</p>
                         <p><strong>Ngày:</strong> ${new Date(order.orderDate).toLocaleString('vi-VN')}</p>
-                        <p><strong>Khách hàng:</strong> ${order.customerInfo.name}</p>
+                        <p><strong>Khách hàng:</strong> ${escapeHtml(order.customerInfo.name)}</p>
                         ${notesHtml}
                     </div>
                     <div class="receipt-section">
@@ -2998,6 +3264,76 @@
             const row = document.createElement('div');
             row.className = 'order-edit-item-row';
 
+            const existingItem = catalog.find(product => product.id === String(item.id || ''));
+            if (item.isCustom || (item.id && !existingItem)) {
+                row.dataset.custom = 'true';
+                row.dataset.customId = String(item.id || '');
+                const customName = document.createElement('input');
+                customName.className = 'order-edit-item-custom-name';
+                customName.type = 'text';
+                customName.required = true;
+                customName.maxLength = 180;
+                customName.value = item.name || '';
+                const customCode = document.createElement('input');
+                customCode.className = 'order-edit-item-custom-code';
+                customCode.type = 'text';
+                customCode.maxLength = 80;
+                customCode.value = item.sku || '';
+                customCode.placeholder = 'Không bắt buộc';
+                const quantityInput = document.createElement('input');
+                quantityInput.className = 'order-edit-item-quantity';
+                quantityInput.type = 'number';
+                quantityInput.min = '1';
+                quantityInput.step = '1';
+                quantityInput.required = true;
+                quantityInput.value = String(item.quantity || 1);
+                const priceInput = document.createElement('input');
+                priceInput.className = 'order-edit-item-price';
+                priceInput.type = 'number';
+                priceInput.min = '0';
+                priceInput.step = '1';
+                priceInput.required = true;
+                priceInput.value = String(item.price ?? 0);
+                const customCategory = document.createElement('input');
+                customCategory.value = 'Ngoài danh mục web';
+                customCategory.readOnly = true;
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'order-edit-remove-item';
+                removeButton.textContent = '×';
+                removeButton.title = 'Xóa sản phẩm khỏi đơn';
+                removeButton.addEventListener('click', () => {
+                    if (container.querySelectorAll('.order-edit-item-row').length <= 1) {
+                        alert('Đơn hàng cần có ít nhất một sản phẩm.');
+                        return;
+                    }
+                    row.remove();
+                    updateOrderEditTotal();
+                });
+                const createCustomField = (labelText, control) => {
+                    const field = document.createElement('label');
+                    field.className = 'order-edit-item-field';
+                    const label = document.createElement('span');
+                    label.className = 'order-edit-item-field-label';
+                    label.textContent = labelText;
+                    field.append(label, control);
+                    return field;
+                };
+                row.append(
+                    createCustomField('Danh mục', customCategory),
+                    createCustomField('Mặt hàng *', customName),
+                    createCustomField('Mã hàng', customCode),
+                    createCustomField('Số lượng *', quantityInput),
+                    createCustomField('Đơn giá (đ) *', priceInput),
+                    removeButton
+                );
+                container.appendChild(row);
+                quantityInput.addEventListener('input', updateOrderEditTotal);
+                priceInput.addEventListener('input', updateOrderEditTotal);
+                updateOrderEditTotal();
+                return;
+            }
+
             const categorySelect = document.createElement('select');
             categorySelect.className = 'order-edit-item-category';
             categorySelect.setAttribute('aria-label', 'Danh mục sản phẩm');
@@ -3014,7 +3350,6 @@
             variantSelect.setAttribute('aria-label', 'Mã hàng hoặc phiên bản');
             variantSelect.required = true;
 
-            const existingItem = catalog.find(product => product.id === String(item.id || ''));
             const populateProducts = (selectedProductId = '', selectedItemId = '') => {
                 const productsInCategory = catalog.filter(product => product.category === categorySelect.value);
                 const productOptions = [...new Map(productsInCategory.map(product => [product.productId, product])).values()];
@@ -3174,6 +3509,27 @@
                 const catalog = getOrderEditCatalog();
                 const editedItemsById = new Map();
                 for (const row of itemRows) {
+                    if (row.dataset.custom === 'true') {
+                        const name = row.querySelector('.order-edit-item-custom-name').value.trim();
+                        const code = row.querySelector('.order-edit-item-custom-code').value.trim();
+                        const quantity = parseInt(row.querySelector('.order-edit-item-quantity').value, 10);
+                        const price = parseInt(row.querySelector('.order-edit-item-price').value, 10);
+                        if (!name || !Number.isInteger(quantity) || quantity < 1 || !Number.isInteger(price) || price < 0) {
+                            alert('Vui lòng nhập tên mặt hàng, số lượng và đơn giá hợp lệ.');
+                            return;
+                        }
+                        const itemId = row.dataset.customId || `MANUAL-${Date.now()}-${editedItemsById.size + 1}`;
+                        const existing = editedItemsById.get(itemId);
+                        editedItemsById.set(itemId, {
+                            id: itemId,
+                            name,
+                            price,
+                            quantity: quantity + (existing?.quantity || 0),
+                            isCustom: true,
+                            ...(code ? { sku: code } : {})
+                        });
+                        continue;
+                    }
                     const itemId = row.querySelector('.order-edit-item-variant').value;
                     const quantity = parseInt(row.querySelector('.order-edit-item-quantity').value, 10);
                     const price = parseInt(row.querySelector('.order-edit-item-price').value, 10);
@@ -3204,10 +3560,13 @@
                     if (dbOrderIndex > -1) {
                         const orderToUpdate = db.APP_ORDERS[dbOrderIndex];
                         if (!Array.isArray(db.APP_PRODUCTS)) db.APP_PRODUCTS = [];
-                        const stockWasDeducted = orderToUpdate.stockDeducted === undefined
+                        const stockWasDeducted = orderToUpdate.stockTracking === false
+                            ? false
+                            : orderToUpdate.stockDeducted === undefined
                             ? orderToUpdate.status !== 'Đã hủy'
                             : orderToUpdate.stockDeducted === true;
                         for (const item of newItems) {
+                            if (item.isCustom) continue;
                             const itemExists = db.APP_PRODUCTS.some(product =>
                                 String(product.id) === item.id
                                 || (Array.isArray(product.variants) && product.variants.some(variant => String(variant.id) === item.id))
@@ -3216,7 +3575,7 @@
                                 return { abort: true, message: `Sản phẩm "${item.name}" không còn trong danh mục. Vui lòng tải lại trang.`, reason: 'product_missing' };
                             }
                         }
-                        if (stockWasDeducted) {
+                        if (stockWasDeducted && orderToUpdate.stockTracking !== false) {
                             const restoreResult = adjustOrderStock(db.APP_PRODUCTS, orderToUpdate, 1);
                             if (!restoreResult.success) return { abort: true, message: restoreResult.message, reason: 'stock_restore_failed' };
                             const updatedOrderItems = { ...orderToUpdate, items: newItems };
@@ -3286,8 +3645,9 @@
                         const stockWasDeducted = orderToUpdate.stockDeducted === undefined
                             ? !wasCancelled
                             : orderToUpdate.stockDeducted === true;
-                        const shouldDeductStock = !isCancelled && !stockWasDeducted;
-                        const shouldRestoreStock = isCancelled && !wasCancelled && stockWasDeducted;
+                        const tracksStock = orderToUpdate.stockTracking !== false;
+                        const shouldDeductStock = tracksStock && !isCancelled && !stockWasDeducted;
+                        const shouldRestoreStock = tracksStock && isCancelled && !wasCancelled && stockWasDeducted;
 
                         if (shouldRestoreStock) {
                             const stockResult = adjustOrderStock(db.APP_PRODUCTS, orderToUpdate, 1);
@@ -3331,7 +3691,7 @@
                     if (!Array.isArray(db.APP_ORDERS)) db.APP_ORDERS = [];
                     const ordersBeforeDelete = db.APP_ORDERS.length;
                     const serverOrder = db.APP_ORDERS.find(o => getOrderId(o) === String(orderId));
-                    const stockWasDeducted = serverOrder && (serverOrder.stockDeducted === undefined
+                    const stockWasDeducted = serverOrder && serverOrder.stockTracking !== false && (serverOrder.stockDeducted === undefined
                         ? serverOrder.status !== 'Đã hủy'
                         : serverOrder.stockDeducted === true);
                     if (stockWasDeducted) {
