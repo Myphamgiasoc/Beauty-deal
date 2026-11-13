@@ -43,17 +43,78 @@
         .change-pass-toggle-btn { background-color: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
         .logout-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         
-        .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 35px; }
-        .stat-card { padding: 20px; border-radius: 8px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.2s ease; cursor: pointer; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-card.blue { background: linear-gradient(135deg, #3498db, #2980b9); }
-        .stat-card.green { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-        .stat-card.purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
-        .stat-card.orange { background: linear-gradient(135deg, #f39c12, #e67e22); }
-        .stat-card.red { background: linear-gradient(135deg, #c0392b, #e74c3c); }
-        .stat-card h4 { font-size: 13px; text-transform: uppercase; opacity: 0.9; margin-bottom: 5px; }
-        .stat-card .stat-number { font-size: 26px; font-weight: bold; }
-        .stat-card.revenue-card .stat-number { font-size: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dashboard-overview { margin: 30px 0 34px; }
+        .dashboard-overview-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; }
+        .dashboard-overview-heading h2 { margin: 0 0 4px; }
+        .dashboard-overview-heading p { color: #788494; font-size: 13px; }
+        .dashboard-date-chip { padding: 7px 12px; border: 1px solid #e6ebf1; border-radius: 20px; background: #f8fafc; color: #536273; font-size: 12px; white-space: nowrap; }
+        .admin-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+        .stat-card {
+            position: relative;
+            min-height: 132px;
+            overflow: hidden;
+            padding: 17px 18px;
+            border: 1px solid #e8edf3;
+            border-radius: 12px;
+            background: #fff;
+            color: #25364a;
+            box-shadow: 0 5px 16px rgba(31, 48, 69, 0.045);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            cursor: pointer;
+        }
+        .stat-card::before { position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--stat-color, #3498db); content: ""; }
+        .stat-card:hover { transform: translateY(-3px); border-color: #d7e1eb; box-shadow: 0 10px 24px rgba(31, 48, 69, 0.1); }
+        .stat-card.blue { --stat-color: #3498db; }
+        .stat-card.green { --stat-color: #20a879; }
+        .stat-card.purple { --stat-color: #8e63c7; }
+        .stat-card.orange { --stat-color: #e6a23c; }
+        .stat-card.red { --stat-color: #e05b58; }
+        .stat-card.teal { --stat-color: #18a99a; }
+        .stat-card.slate { --stat-color: #64748b; }
+        .stat-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .stat-card h4 { color: #778395; font-size: 11px; font-weight: 700; letter-spacing: 0.055em; text-transform: uppercase; }
+        .stat-card-icon { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border-radius: 10px; background: #f0f5fa; color: var(--stat-color); font-size: 17px; }
+        .stat-card .stat-number { margin-top: 12px; color: #1d2b3c; font-size: clamp(22px, 2vw, 29px); font-weight: 750; line-height: 1.15; overflow-wrap: anywhere; }
+        .stat-card.revenue-card .stat-number { font-size: clamp(18px, 1.8vw, 24px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat-card-hint { display: block; margin-top: 7px; color: #96a0ad; font-size: 11px; }
+        .dashboard-insights { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, 1fr); gap: 16px; }
+        .dashboard-panel { min-width: 0; padding: 20px; border: 1px solid #e8edf3; border-radius: 12px; background: #fff; box-shadow: 0 5px 16px rgba(31, 48, 69, 0.04); }
+        .dashboard-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+        .dashboard-panel-heading h3 { color: #2b3c50; font-size: 15px; }
+        .dashboard-panel-heading p { margin-top: 3px; color: #8a95a3; font-size: 11px; }
+        .dashboard-panel-badge { padding: 5px 9px; border-radius: 14px; background: #eff7ff; color: #3982bd; font-size: 11px; white-space: nowrap; }
+        .dashboard-order-chart { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: end; gap: 12px; min-height: 142px; padding-top: 4px; }
+        .dashboard-chart-day { display: flex; min-width: 0; height: 138px; flex-direction: column; align-items: center; justify-content: flex-end; gap: 7px; }
+        .dashboard-chart-value { color: #657386; font-size: 10px; font-weight: 600; }
+        .dashboard-chart-track { display: flex; width: min(100%, 34px); height: 92px; align-items: flex-end; overflow: hidden; border-radius: 7px; background: #f2f5f8; }
+        .dashboard-chart-bar { width: 100%; min-height: 3px; border-radius: 7px; background: linear-gradient(180deg, #64b5f6, #398bd2); transition: height 0.35s ease; }
+        .dashboard-chart-label { color: #8792a0; font-size: 10px; }
+        .dashboard-stock-bar { display: flex; height: 12px; overflow: hidden; margin: 24px 0 18px; border-radius: 8px; background: #edf1f5; }
+        .dashboard-stock-segment { min-width: 0; transition: width 0.35s ease; }
+        .dashboard-stock-segment.available { background: #22a879; }
+        .dashboard-stock-segment.out { background: #e05b58; }
+        .dashboard-stock-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .dashboard-stock-legend-item { display: flex; align-items: flex-start; gap: 7px; color: #798595; font-size: 11px; }
+        .dashboard-stock-legend-item strong { display: block; margin-top: 3px; color: #2c3d50; font-size: 15px; }
+        .dashboard-legend-dot { width: 8px; height: 8px; flex: 0 0 8px; margin-top: 4px; border-radius: 50%; }
+        .dashboard-legend-dot.available { background: #22a879; }
+        .dashboard-legend-dot.out { background: #e05b58; }
+        @media (max-width: 1100px) {
+            .admin-stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 768px) {
+            .admin-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .dashboard-insights { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .dashboard-overview-heading { align-items: flex-start; flex-direction: column; }
+            .dashboard-date-chip { align-self: flex-start; }
+            .admin-stats-grid { gap: 10px; }
+            .stat-card { min-height: 122px; padding: 14px 13px; }
+            .dashboard-panel { padding: 16px 13px; }
+            .dashboard-order-chart { gap: 6px; }
+            .dashboard-stock-legend { gap: 8px; }
+        }
 
         .password-change-box { display: none; background: #fffcf5; border: 1px solid #f0ad4e; border-radius: 8px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(243,156,18,0.06); }
         .password-change-box.active { display: block; }
@@ -189,6 +250,98 @@
         .notification-item-content .time { font-size: 11px; color: #999; margin-top: 4px; font-weight: normal; }
         .notification-empty { text-align: center; color: #999; font-size: 13px; padding: 40px 20px; }
 
+        .admin-sidebar {
+            display: none;
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 120;
+            width: 260px;
+            overflow-y: auto;
+            background: linear-gradient(180deg, #26384a, #1d2b39);
+            color: #fff;
+            box-shadow: 4px 0 18px rgba(0, 0, 0, 0.18);
+            transition: width 0.2s ease, transform 0.2s ease;
+        }
+        body.admin-layout-active .admin-sidebar { display: block; }
+        .admin-sidebar-brand { padding: 22px 18px 18px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+        .admin-sidebar-brand strong { display: block; font-size: 18px; letter-spacing: 0.4px; }
+        .admin-sidebar-brand span { display: block; margin-top: 3px; color: #c1ccd6; font-size: 12px; }
+        .admin-sidebar-nav { padding: 12px 10px 24px; }
+        .admin-sidebar-nav button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            min-height: 44px;
+            padding: 9px 12px;
+            border: 0;
+            border-radius: 7px;
+            color: #e8edf2;
+            background: transparent;
+            font: inherit;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+        .admin-sidebar-nav button:hover,
+        .admin-sidebar-nav button.active { background: rgba(255,255,255,0.16); color: #fff; }
+        .admin-sidebar-nav button.active { box-shadow: inset 3px 0 #58a6e7; font-weight: 600; }
+        .admin-sidebar-icon { width: 22px; flex: 0 0 22px; text-align: center; font-size: 17px; }
+        .admin-sidebar-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 7px;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            font-size: 21px;
+            cursor: pointer;
+        }
+        body.admin-layout-active .admin-sidebar-toggle { display: inline-flex; }
+        body.admin-layout-active header { width: calc(100% - 260px); margin-left: 260px; }
+        body.admin-layout-active main.container { width: calc(100% - 260px); max-width: none; margin-left: 260px; }
+        body.admin-layout-active .admin-section [id$="ManagementSection"],
+        body.admin-layout-active .admin-section #adminFormBox { scroll-margin-top: 92px; }
+        body.admin-layout-active .admin-section h2 { scroll-margin-top: 92px; }
+        body.admin-layout-active.sidebar-collapsed .admin-sidebar { width: 76px; }
+        body.admin-layout-active.sidebar-collapsed .admin-sidebar-brand { padding: 20px 8px; text-align: center; }
+        body.admin-layout-active.sidebar-collapsed .admin-sidebar-brand strong { font-size: 11px; }
+        body.admin-layout-active.sidebar-collapsed .admin-sidebar-brand span,
+        body.admin-layout-active.sidebar-collapsed .admin-sidebar-label { display: none; }
+        body.admin-layout-active.sidebar-collapsed .admin-sidebar-nav { padding-right: 8px; padding-left: 8px; }
+        body.admin-layout-active.sidebar-collapsed .admin-sidebar-nav button { justify-content: center; padding: 9px 4px; }
+        body.admin-layout-active.sidebar-collapsed .admin-sidebar-icon { width: auto; flex-basis: auto; }
+        body.admin-layout-active.sidebar-collapsed header { width: calc(100% - 76px); margin-left: 76px; }
+        body.admin-layout-active.sidebar-collapsed main.container { width: calc(100% - 76px); margin-left: 76px; }
+        .admin-sidebar-backdrop { display: none; }
+
+        @media (max-width: 900px) {
+            body.admin-layout-active header,
+            body.admin-layout-active.sidebar-collapsed header { width: 100%; margin-left: 0; }
+            body.admin-layout-active main.container,
+            body.admin-layout-active.sidebar-collapsed main.container { width: 100%; margin-left: 0; }
+            body.admin-layout-active .admin-sidebar,
+            body.admin-layout-active.sidebar-collapsed .admin-sidebar {
+                width: 280px;
+                transform: translateX(-105%);
+            }
+            body.admin-layout-active.sidebar-open .admin-sidebar { transform: translateX(0); }
+            body.admin-layout-active.sidebar-collapsed .admin-sidebar-brand { padding: 22px 18px 18px; text-align: left; }
+            body.admin-layout-active.sidebar-collapsed .admin-sidebar-brand strong { font-size: 18px; }
+            body.admin-layout-active.sidebar-collapsed .admin-sidebar-brand span,
+            body.admin-layout-active.sidebar-collapsed .admin-sidebar-label { display: block; }
+            body.admin-layout-active.sidebar-collapsed .admin-sidebar-nav { padding: 12px 10px 24px; }
+            body.admin-layout-active.sidebar-collapsed .admin-sidebar-nav button { justify-content: flex-start; padding: 9px 12px; }
+            body.admin-layout-active.sidebar-collapsed .admin-sidebar-icon { width: 22px; flex-basis: 22px; }
+            body.admin-layout-active .admin-sidebar-backdrop { display: block; position: fixed; inset: 0; z-index: 110; border: 0; background: rgba(15, 23, 42, 0.45); }
+            body.admin-layout-active:not(.sidebar-open) .admin-sidebar-backdrop { display: none; }
+        }
+
         /* --- Order Status Styles --- */
         .status-select { padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; }
         .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; color: white; text-align: center; display: inline-block; min-width: 80px; }
@@ -231,7 +384,7 @@
         }
 
         @media (max-width: 480px) {
-            .admin-stats-grid { grid-template-columns: 1fr; }
+            .admin-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         /* --- CSS DÀNH RIÊNG CHO VIỆC IN BILL --- */
@@ -273,8 +426,18 @@
 </head>
 <body>
 
+    <aside class="admin-sidebar" id="adminSidebar" aria-label="Điều hướng quản trị">
+        <div class="admin-sidebar-brand">
+            <strong>BEAUTY DEAL</strong>
+            <span>Quản lý hệ thống</span>
+        </div>
+        <nav class="admin-sidebar-nav" id="adminSidebarNav" aria-label="Danh mục quản trị"></nav>
+    </aside>
+    <button class="admin-sidebar-backdrop" id="adminSidebarBackdrop" type="button" aria-label="Đóng menu điều hướng"></button>
+
     <header>
         <div class="header-container">
+            <button class="admin-sidebar-toggle" id="adminSidebarToggle" type="button" aria-label="Mở hoặc thu gọn danh mục" aria-expanded="true">☰</button>
             <a href="index.html" class="logo-container" id="headerLogoContainer">
                 <!-- Ghi chú: Quay lại phương pháp nhúng trực tiếp và đơn giản hóa SVG để đảm bảo hiển thị. -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" style="display:block; max-height:70px; width:auto; background:transparent;">
@@ -363,38 +526,85 @@
                 </form>
             </div>
 
-            <h2 id="adminProductListTitle">Quản Lý Sản Phẩm</h2>
+            <section class="dashboard-overview" id="dashboardOverview" aria-labelledby="dashboardOverviewTitle">
+                <div class="dashboard-overview-heading">
+                    <div>
+                        <h2 id="dashboardOverviewTitle">Tổng quan hoạt động</h2>
+                        <p>Theo dõi nhanh tình hình kinh doanh và vận hành cửa hàng</p>
+                    </div>
+                    <span class="dashboard-date-chip" id="dashboardTodayLabel"></span>
+                </div>
 
-            <div class="admin-stats-grid">
-                <div class="stat-card blue" onclick="filterAndDisplayProducts('all')">
-                    <h4>Tổng sản phẩm</h4>
-                    <div class="stat-number" id="statTotalProducts">0</div>
+                <div class="admin-stats-grid">
+                    <div class="stat-card blue" onclick="filterAndDisplayProducts('all')" title="Xem danh sách sản phẩm">
+                        <div class="stat-card-top"><h4>Tổng sản phẩm</h4><span class="stat-card-icon" aria-hidden="true">▦</span></div>
+                        <div class="stat-number" id="statTotalProducts">0</div>
+                        <span class="stat-card-hint">Sản phẩm trong hệ thống</span>
+                    </div>
+                    <div class="stat-card green" onclick="scrollToOrderSection()" title="Xem các đơn hàng đã phát sinh">
+                        <div class="stat-card-top"><h4>Tổng lượt bán</h4><span class="stat-card-icon" aria-hidden="true">↗</span></div>
+                        <div class="stat-number" id="statTotalSold">0</div>
+                        <span class="stat-card-hint">Sản phẩm đã bán</span>
+                    </div>
+                    <div class="stat-card purple revenue-card" onclick="scrollToRevenueSection('all')" title="Xem báo cáo doanh thu">
+                        <div class="stat-card-top"><h4>Tổng doanh thu</h4><span class="stat-card-icon" aria-hidden="true">₫</span></div>
+                        <div class="stat-number" id="statTotalRevenue">0</div>
+                        <span class="stat-card-hint">Doanh thu đơn hoàn thành</span>
+                    </div>
+                    <div class="stat-card orange" onclick="filterAndDisplayProducts('inStock')" title="Xem sản phẩm còn hàng">
+                        <div class="stat-card-top"><h4>Còn hàng</h4><span class="stat-card-icon" aria-hidden="true">✓</span></div>
+                        <div class="stat-number" id="statInStock">0</div>
+                        <span class="stat-card-hint">Sản phẩm có tồn kho</span>
+                    </div>
+                    <div class="stat-card red" onclick="filterAndDisplayProducts('outOfStock')" title="Xem sản phẩm hết hàng">
+                        <div class="stat-card-top"><h4>Hết hàng</h4><span class="stat-card-icon" aria-hidden="true">!</span></div>
+                        <div class="stat-number" id="statOutOfStock">0</div>
+                        <span class="stat-card-hint">Cần bổ sung tồn kho</span>
+                    </div>
+                    <div class="stat-card teal" onclick="scrollToOrderSection()" title="Xem đơn hàng mới">
+                        <div class="stat-card-top"><h4>Đơn hàng mới</h4><span class="stat-card-icon" aria-hidden="true">▤</span></div>
+                        <div class="stat-number" id="statNewOrders">0</div>
+                        <span class="stat-card-hint">Đang chờ xử lý</span>
+                    </div>
+                    <div class="stat-card slate" onclick="document.getElementById('subscriberManagementSection').scrollIntoView({behavior: 'smooth'});" title="Xem danh sách đăng ký">
+                        <div class="stat-card-top"><h4>Lượt đăng ký</h4><span class="stat-card-icon" aria-hidden="true">✉</span></div>
+                        <div class="stat-number" id="statSubscribers">0</div>
+                        <span class="stat-card-hint">Khách nhận tin mới</span>
+                    </div>
                 </div>
-                <div class="stat-card green" onclick="scrollToOrderSection()" title="Xem các đơn hàng đã phát sinh">
-                    <h4>Tổng lượt bán</h4>
-                    <div class="stat-number" id="statTotalSold">0</div>
+
+                <div class="dashboard-insights">
+                    <section class="dashboard-panel" aria-labelledby="dashboardOrdersChartTitle">
+                        <div class="dashboard-panel-heading">
+                            <div>
+                                <h3 id="dashboardOrdersChartTitle">Đơn hàng trong 7 ngày</h3>
+                                <p>Số đơn phát sinh theo từng ngày</p>
+                            </div>
+                            <span class="dashboard-panel-badge" id="dashboardWeeklyOrderCount">0 đơn</span>
+                        </div>
+                        <div class="dashboard-order-chart" id="dashboardOrderChart" role="img" aria-label="Biểu đồ số đơn hàng trong 7 ngày gần nhất"></div>
+                    </section>
+                    <section class="dashboard-panel" aria-labelledby="dashboardInventoryTitle">
+                        <div class="dashboard-panel-heading">
+                            <div>
+                                <h3 id="dashboardInventoryTitle">Tình trạng tồn kho</h3>
+                                <p>Tỷ lệ sản phẩm theo trạng thái kho</p>
+                            </div>
+                            <span class="dashboard-panel-badge" id="dashboardStockTotal">0 sản phẩm</span>
+                        </div>
+                        <div class="dashboard-stock-bar" id="dashboardStockBar" role="img" aria-label="Tỷ lệ tình trạng tồn kho">
+                            <span class="dashboard-stock-segment available"></span>
+                            <span class="dashboard-stock-segment out"></span>
+                        </div>
+                        <div class="dashboard-stock-legend">
+                            <div class="dashboard-stock-legend-item"><span class="dashboard-legend-dot available"></span><span>Còn hàng<strong id="dashboardStockAvailable">0</strong></span></div>
+                            <div class="dashboard-stock-legend-item"><span class="dashboard-legend-dot out"></span><span>Hết hàng<strong id="dashboardStockOut">0</strong></span></div>
+                        </div>
+                    </section>
                 </div>
-                <div class="stat-card purple revenue-card" onclick="scrollToRevenueSection('all')">
-                    <h4>Tổng Doanh thu</h4>
-                    <div class="stat-number" id="statTotalRevenue">0</div>
-                </div>
-                <div class="stat-card orange" onclick="filterAndDisplayProducts('inStock')">
-                    <h4>Sản phẩm còn tồn</h4>
-                    <div class="stat-number" id="statInStock">0</div>
-                </div>
-                <div class="stat-card red" onclick="filterAndDisplayProducts('outOfStock')">
-                    <h4>Sản phẩm hết hàng</h4>
-                    <div class="stat-number" id="statOutOfStock">0</div>
-                </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #1abc9c, #16a085);" onclick="document.getElementById('orderManagementSection').scrollIntoView({behavior: 'smooth'});">
-                    <h4>Đơn hàng mới</h4>
-                    <div class="stat-number" id="statNewOrders">0</div>
-                </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #5d6d7e, #34495e);" onclick="document.getElementById('subscriberManagementSection').scrollIntoView({behavior: 'smooth'});">
-                    <h4>Lượt đăng ký</h4>
-                    <div class="stat-number" id="statSubscribers">0</div>
-                </div>
-            </div>
+            </section>
+
+            <h2 id="adminProductListTitle">Quản Lý Sản Phẩm</h2>
 
             <div class="admin-form-box hidden-by-js" id="cartVisibilityManagementSection">
                 <h3>Cài Đặt Giỏ Hàng</h3>
@@ -1133,6 +1343,7 @@
                 clearAdminSession();
                 currentLoggedInUser = null;
                 currentUserRole = null;
+                document.body.classList.remove('admin-layout-active', 'sidebar-open', 'sidebar-collapsed');
                 document.getElementById('adminSection').style.display = 'none';
                 document.getElementById('loginModal').classList.add('active');
                 alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
@@ -1354,6 +1565,19 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
+            const sidebarToggle = document.getElementById('adminSidebarToggle');
+            const sidebarBackdrop = document.getElementById('adminSidebarBackdrop');
+            const sidebarNav = document.getElementById('adminSidebarNav');
+            sidebarToggle.addEventListener('click', toggleAdminSidebar);
+            sidebarBackdrop.addEventListener('click', closeAdminSidebar);
+            sidebarNav.addEventListener('click', event => {
+                const button = event.target.closest('button[data-target]');
+                if (!button) return;
+                navigateAdminSection(button.dataset.target);
+                if (window.matchMedia('(max-width: 900px)').matches) closeAdminSidebar();
+            });
+            window.addEventListener('scroll', updateAdminSidebarActiveItem, { passive: true });
+
             // Hiển thị modal ngay lập tức trong lúc dữ liệu từ server đang được tải.
             const loginModal = document.getElementById('loginModal');
             const adminSection = document.getElementById('adminSection');
@@ -1509,6 +1733,12 @@
         }
 
         function activateAdminDashboard() {
+            document.body.classList.add('admin-layout-active');
+            document.body.classList.remove('sidebar-open');
+            document.getElementById('adminSidebarToggle').setAttribute(
+                'aria-expanded',
+                String(!window.matchMedia('(max-width: 900px)').matches && !document.body.classList.contains('sidebar-collapsed'))
+            );
             document.getElementById('adminSection').style.display = 'block'; // Show admin section
             document.getElementById('loginModal').classList.remove('active'); // Hide login modal
             
@@ -1543,6 +1773,7 @@
                 if (sections.banner) sections.banner.classList.remove('hidden-by-js');
                 if (sections.order) sections.order.classList.remove('hidden-by-js');
             }
+            renderAdminSidebar();
             
             populateShopInfoForm();
             loadSelectedValueProp(); // Initialize form with the first value prop
@@ -1562,9 +1793,99 @@
             startRealtimePolling();
         }
 
+        const ADMIN_SIDEBAR_ITEMS = [
+            { label: 'Tổng quan', icon: '⌂', target: 'adminSection' },
+            { label: 'Quản lý sản phẩm', icon: '▦', target: 'adminProductListTitle' },
+            { label: 'Cài đặt giỏ hàng', icon: '🛒', target: 'cartVisibilityManagementSection' },
+            { label: 'Quản lý đơn hàng', icon: '▤', target: 'orderManagementSection' },
+            { label: 'Thương hiệu', icon: '◇', target: 'brandManagementSection' },
+            { label: 'Banner khuyến mãi', icon: '▣', target: 'bannerManagementSection' },
+            { label: 'Email đăng ký', icon: '✉', target: 'subscriberManagementSection' },
+            { label: 'Thông tin cửa hàng', icon: '⌂', target: 'shopInfoManagementSection' },
+            { label: 'Nội dung trang chủ', icon: '✦', target: 'valuePropsManagementSection' },
+            { label: 'Tài khoản nhân viên', icon: '♙', target: 'employeeManagementSection' },
+            { label: 'Doanh thu', icon: '↗', target: 'revenueManagementSection' },
+            { label: 'Banner slider', icon: '▧', target: 'customSliderManagementSection' }
+        ];
+
+        function renderAdminSidebar() {
+            const sidebarNav = document.getElementById('adminSidebarNav');
+            sidebarNav.replaceChildren();
+
+            ADMIN_SIDEBAR_ITEMS.forEach(item => {
+                const target = document.getElementById(item.target);
+                if (!target || target.classList.contains('hidden-by-js')) return;
+
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.dataset.target = item.target;
+                button.title = item.label;
+                button.setAttribute('aria-label', item.label);
+                button.setAttribute('aria-current', 'false');
+                const icon = document.createElement('span');
+                icon.className = 'admin-sidebar-icon';
+                icon.setAttribute('aria-hidden', 'true');
+                icon.textContent = item.icon;
+                const label = document.createElement('span');
+                label.className = 'admin-sidebar-label';
+                label.textContent = item.label;
+                button.append(icon, label);
+                sidebarNav.appendChild(button);
+            });
+
+            updateAdminSidebarActiveItem();
+        }
+
+        function navigateAdminSection(targetId) {
+            const target = document.getElementById(targetId);
+            if (!target || target.classList.contains('hidden-by-js')) return;
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setAdminSidebarActiveItem(targetId);
+        }
+
+        function setAdminSidebarActiveItem(targetId) {
+            document.querySelectorAll('#adminSidebarNav button[data-target]').forEach(button => {
+                const isActive = button.dataset.target === targetId;
+                button.classList.toggle('active', isActive);
+                button.setAttribute('aria-current', isActive ? 'location' : 'false');
+            });
+        }
+
+        function updateAdminSidebarActiveItem() {
+            if (!document.body.classList.contains('admin-layout-active')) return;
+            const visibleButtons = [...document.querySelectorAll('#adminSidebarNav button[data-target]')];
+            if (!visibleButtons.length) return;
+
+            let activeButton = visibleButtons[0];
+            visibleButtons.forEach(button => {
+                const target = document.getElementById(button.dataset.target);
+                if (target && target.getBoundingClientRect().top <= 150) activeButton = button;
+            });
+            setAdminSidebarActiveItem(activeButton.dataset.target);
+        }
+
+        function toggleAdminSidebar() {
+            const isMobile = window.matchMedia('(max-width: 900px)').matches;
+            if (isMobile) {
+                document.body.classList.toggle('sidebar-open');
+            } else {
+                document.body.classList.toggle('sidebar-collapsed');
+            }
+            const isExpanded = isMobile
+                ? document.body.classList.contains('sidebar-open')
+                : !document.body.classList.contains('sidebar-collapsed');
+            document.getElementById('adminSidebarToggle').setAttribute('aria-expanded', String(isExpanded));
+        }
+
+        function closeAdminSidebar() {
+            document.body.classList.remove('sidebar-open');
+            document.getElementById('adminSidebarToggle').setAttribute('aria-expanded', 'false');
+        }
+
         function logoutAdmin() {
             currentUserRole = null;
             currentLoggedInUser = null;
+            document.body.classList.remove('admin-layout-active', 'sidebar-open', 'sidebar-collapsed');
             clearAdminSession();
             alert("🔒 Đã đăng xuất an toàn.");
 
@@ -1643,6 +1964,74 @@
             document.getElementById('statSubscribers').innerText = APP_SUBSCRIBERS.length;
             document.getElementById('statTotalSold').innerText = totalSoldUnits.toLocaleString('vi-VN');
             document.getElementById('statTotalRevenue').innerText = totalRevenueAllTime.toLocaleString('vi-VN') + 'đ'; // Update revenue stat card
+            renderDashboardInsights();
+        }
+
+        function renderDashboardInsights() {
+            const today = new Date();
+            document.getElementById('dashboardTodayLabel').textContent = today.toLocaleDateString('vi-VN', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const dayKey = date => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+            const chartDays = Array.from({ length: 7 }, (_, index) => {
+                const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6 - index));
+                return {
+                    key: dayKey(date),
+                    date,
+                    count: APP_ORDERS.filter(order => {
+                        const orderDate = new Date(order.orderDate);
+                        return !Number.isNaN(orderDate.getTime()) && dayKey(orderDate) === dayKey(date);
+                    }).length
+                };
+            });
+            const maxDailyOrders = Math.max(1, ...chartDays.map(day => day.count));
+            const chart = document.getElementById('dashboardOrderChart');
+            chart.replaceChildren();
+            chartDays.forEach(day => {
+                const column = document.createElement('div');
+                column.className = 'dashboard-chart-day';
+                column.title = `${day.date.toLocaleDateString('vi-VN')}: ${day.count} đơn`;
+
+                const value = document.createElement('span');
+                value.className = 'dashboard-chart-value';
+                value.textContent = String(day.count);
+
+                const track = document.createElement('span');
+                track.className = 'dashboard-chart-track';
+                const bar = document.createElement('span');
+                bar.className = 'dashboard-chart-bar';
+                bar.style.height = `${day.count ? Math.max(8, day.count / maxDailyOrders * 100) : 3}%`;
+                track.appendChild(bar);
+
+                const label = document.createElement('span');
+                label.className = 'dashboard-chart-label';
+                label.textContent = day.date.toLocaleDateString('vi-VN', { weekday: 'short' });
+
+                column.append(value, track, label);
+                chart.appendChild(column);
+            });
+            document.getElementById('dashboardWeeklyOrderCount').textContent =
+                `${chartDays.reduce((sum, day) => sum + day.count, 0).toLocaleString('vi-VN')} đơn`;
+
+            const availableCount = APP_PRODUCTS.filter(product => getProductStock(product) > 0).length;
+            const outOfStockCount = APP_PRODUCTS.filter(product => getProductStock(product) === 0).length;
+            const totalCount = APP_PRODUCTS.length;
+            const availablePercent = totalCount ? availableCount / totalCount * 100 : 0;
+            const outOfStockPercent = totalCount ? outOfStockCount / totalCount * 100 : 0;
+            const [availableSegment, outSegment] = document.querySelectorAll('#dashboardStockBar .dashboard-stock-segment');
+            availableSegment.style.width = `${availablePercent}%`;
+            outSegment.style.width = `${outOfStockPercent}%`;
+            document.getElementById('dashboardStockAvailable').textContent = availableCount.toLocaleString('vi-VN');
+            document.getElementById('dashboardStockOut').textContent = outOfStockCount.toLocaleString('vi-VN');
+            document.getElementById('dashboardStockTotal').textContent = `${totalCount.toLocaleString('vi-VN')} sản phẩm`;
+            document.getElementById('dashboardStockBar').setAttribute(
+                'aria-label',
+                `Tồn kho: ${availableCount} sản phẩm còn hàng, ${outOfStockCount} sản phẩm hết hàng`
+            );
         }
 
         function scrollToOrderSection() {
